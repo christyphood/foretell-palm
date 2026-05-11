@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>手相解码 - 读懂掌心纹路，读懂你的天生底色</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(180deg, #FDF5E6 0%, #F5E6D3 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .page {
+            max-width: 414px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 头部 */
+        .header {
+            padding: 60px 24px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2D2D2D;
+            margin-bottom: 8px;
+        }
+
+        .header-left p {
+            font-size: 14px;
+            color: #8C7B6B;
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #F5F0EB;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* 首页 - 拍照页面 */
+        .page-home {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 120px;
+        }
+
+        .photo-btn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 40px rgba(201, 169, 110, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .photo-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 8px 24px rgba(201, 169, 110, 0.3);
+        }
+
+        .photo-hint {
+            margin-top: 24px;
+            font-size: 13px;
+            color: #A89580;
+        }
+
+        /* 扫描页面 */
+        .page-scan {
+            display: none;
+            padding: 0 20px;
+        }
+
+        .scan-container {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .scan-container img {
+            width: 100%;
+            display: block;
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #C9A96E, transparent);
+            animation: scanMove 2.5s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(201, 169, 110, 0.6);
+        }
+
+        @keyframes scanMove {
+            0% { top: 0%; }
+            50% { top: 95%; }
+            100% { top: 0%; }
+        }
+
+        .scan-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(rgba(201, 169, 110, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201, 169, 110, 0.1) 1px, transparent 1px);
+            background-size: 25% 25%;
+        }
+
+        .scan-dots {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .scan-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #FFD700;
+            animation: dotPulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        }
+
+        .scan-dot:nth-child(1) { top: 35%; left: 40%; animation-delay: 0s; }
+        .scan-dot:nth-child(2) { top: 40%; left: 60%; animation-delay: 0.3s; }
+        .scan-dot:nth-child(3) { top: 55%; left: 35%; animation-delay: 0.6s; }
+        .scan-dot:nth-child(4) { top: 60%; left: 55%; animation-delay: 0.9s; }
+        .scan-dot:nth-child(5) { top: 70%; left: 45%; animation-delay: 1.2s; }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+
+        .scan-progress {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .scan-text {
+            font-size: 16px;
+            color: #2D2D2D;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 80%;
+            height: 4px;
+            background: #E8DED0;
+            border-radius: 2px;
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #C9A96E, #FFD700);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-secondary {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            background: #E8DED0;
+            width: 100%;
+        }
+
+        /* 结果页面 */
+        .page-result {
+            display: none;
+            padding: 0 20px 40px;
+        }
+
+        .result-image-section {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-image-section img {
+            width: 100%;
+            display: block;
+        }
+
+        .palm-annotation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .palm-line {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .palm-line svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .line-label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #2D2D2D;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            white-space: nowrap;
+        }
+
+        .line-label .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #C9A96E;
+            color: white;
+            font-size: 10px;
+            margin-right: 4px;
+        }
+
+        /* 标签区域 */
+        .tags-section {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2D2D2D;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .tag-item .tag-num {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #C9A96E;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .tags-desc {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #6B5E50;
+            line-height: 1.8;
+        }
+
+        /* 分析卡片 */
+        .analysis-section {
+            margin-top: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2D2D2D;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .analysis-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .analysis-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #FDF5E6, #F5E6D3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .analysis-card-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #2D2D2D;
+        }
+
+        .analysis-card-subtitle {
+            font-size: 12px;
+            color: #A89580;
+            margin-top: 2px;
+        }
+
+        .analysis-detail {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #F5F0EB;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #A89580;
+            min-width: 70px;
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        .detail-content {
+            font-size: 14px;
+            color: #4A4A4A;
+        }
+
+        /* 底部分享 */
+        .share-section {
+            margin-top: 32px;
+            text-align: center;
+            padding-bottom: 40px;
+        }
+
+        .share-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%);
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(201, 169, 110, 0.3);
+        }
+
+        .share-btn:active {
+            transform: scale(0.98);
+        }
+
+        .disclaimer {
+            margin-top: 16px;
+            font-size: 11px;
+            color: #BFAE9D;
+            line-height: 1.6;
+        }
+
+        /* 隐藏的文件输入 */
+        #cameraInput {
+            display: none;
+        }
+
+        /* 动画 */
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="header-left">
+                <h1>手相解码</h1>
+                <p>读懂掌心纹路，读懂你的天生底色</p>
+            </div>
+            <button class="close-btn">✕</button>
+        </div>
+
+        <!-- 首页 - 拍照 -->
+        <div class="page-home" id="pageHome">
+            <button class="photo-btn" id="photoBtn">拍照</button>
+            <p class="photo-hint">请将手掌对准镜头，展开五指</p>
+        </div>
+
+        <!-- 扫描页面 -->
+        <div class="page-scan" id="pageScan">
+            <div class="scan-container">
+                <img id="scanImage" src="" alt="手掌照片">
+                <div class="scan-overlay">
+                    <div class="scan-grid"></div>
+                    <div class="scan-line"></div>
+                    <div class="scan-dots">
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="scan-progress">
+                <p class="scan-text" id="scanText">分析生命线结构</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div class="page-result" id="pageResult">
+            <!-- 手相标注图 -->
+            <div class="result-image-section">
+                <img id="resultImage" src="" alt="手掌分析">
+                <div class="palm-annotation">
+                    <svg width="100%" height="100%" style="position:absolute;top:0;left:0;" id="palmSvg">
+                        <!-- 感情线 -->
+                        <path d="M 22% 58% Q 40% 48% 75% 52%" fill="none" stroke="#C9A96E" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+                        <!-- 智慧线 -->
+                        <path d="M 20% 62% Q 40% 60% 68% 68%" fill="none" stroke="#E8B04A" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+                        <!-- 生命线 -->
+                        <path d="M 28% 30% Q 22% 50% 30% 82%" fill="none" stroke="#D4956A" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+                    </svg>
+                    <div class="line-label" style="bottom: 38%; right: 12%;"><span class="num">1</span>感情线</div>
+                    <div class="line-label" style="bottom: 28%; right: 18%;"><span class="num">2</span>头脑线</div>
+                    <div class="line-label" style="bottom: 15%; left: 15%;"><span class="num">3</span>生命线</div>
+                </div>
+            </div>
+
+            <!-- 标签 -->
+            <div class="tags-section fade-in">
+                <div class="tag-item"><span class="tag-num">1</span>感情线</div>
+                <div class="tag-item"><span class="tag-num">2</span>头脑线</div>
+                <div class="tag-item"><span class="tag-num">3</span>命运线</div>
+            </div>
+
+            <p class="tags-desc fade-in">线条清晰，微微上扬，情感细腻但理性，<br>在关系中追求真诚与稳定</p>
+
+            <!-- 分析结果区 -->
+            <div class="analysis-section" id="analysisSection">
+                <h2 class="section-title">你的基本特质</h2>
+            </div>
+
+            <!-- 分享按钮 -->
+            <div class="share-section">
+                <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
+                <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
+            </div>
+        </div>
+
+        <!-- 隐藏输入 -->
+        <input type="file" id="cameraInput" accept="image/*" capture="environment">
+    </div>
+
+    <script>
+        // 页面元素
+        const pageHome = document.getElementById('pageHome');
+        const pageScan = document.getElementById('pageScan');
+        const pageResult = document.getElementById('pageResult');
+        const photoBtn = document.getElementById('photoBtn');
+        const cameraInput = document.getElementById('cameraInput');
+        const scanImage = document.getElementById('scanImage');
+        const resultImage = document.getElementById('resultImage');
+        const scanText = document.getElementById('scanText');
+        const progressFill = document.getElementById('progressFill');
+        const analysisSection = document.getElementById('analysisSection');
+
+        // 扫描提示文案
+        const scanTexts = [
+            '分析生命线结构',
+            '识别智慧线走向',
+            '解读感情线特征',
+            '计算掌丘饱满度',
+            '分析手指比例',
+            '识别掌纹交汇点',
+            '解析事业线深度',
+            '评估财运线形态',
+            '综合五行属性',
+            '生成分析报告'
+        ];
+
+        // 10个分析结果
+        const analysisData = [
+            {
+                icon: '🖐',
+                title: '独立而自信',
+                subtitle: '手型与掌形分析',
+                feature: '手指修长舒展，掌型偏长，指节分明，整体手型属于"哲学手"或"艺术手"类型。',
+                interpretation: '五行中属木型手，主生发与思考。掌型修长者天生具备独立思维能力，不随波逐流，内心有清晰的自我定位。',
+                trend: '倾向于独立决策，在团队中更适合担任策划或创意角色，未来一段时间可能迎来个人品牌提升的契机。',
+                action: '建议每周留出独处时间进行深度思考，记录灵感和想法，这将是你最重要的竞争力。'
+            },
+            {
+                icon: '❤️',
+                title: '情感细腻深沉',
+                subtitle: '感情线解读',
+                feature: '感情线从小指下方起始，弧度柔和上扬，延伸至食指与中指之间，线条清晰无断裂。',
+                interpretation: '此为"标准感情线"上位形态，主情感丰富且理性兼具。上扬弧度表明在感情中追求精神层面的契合。',
+                trend: '容易在感情中投入深厚情感，但也善于用理性保护自己。未来一段时间感情运势平稳向好。',
+                action: '在人际关系中适当表达内心感受，不必过度压抑情绪，真诚沟通是深化关系的关键。'
+            },
+            {
+                icon: '🧠',
+                title: '思维敏锐清晰',
+                subtitle: '智慧线（头脑线）解读',
+                feature: '智慧线起点与生命线稍有重合，中段平直微微下弯，长度延伸超过掌心中线。',
+                interpretation: '头脑线长且走势平稳，主智慧过人，思维缜密。起点与生命线交汇表示做事谨慎，不轻率冒险。',
+                trend: '适合从事需要深度思考和分析的工作，逻辑能力强，但需注意避免过度思虑导致焦虑。',
+                action: '建议培养"想三步做一步"的行动习惯，避免完美主义带来的决策延迟。'
+            },
+            {
+                icon: '🌿',
+                title: '生命力稳健绵长',
+                subtitle: '生命线解读',
+                feature: '生命线弧度饱满，从虎口上方起始，环绕拇指根部大鱼际，线条深刻清晰。',
+                interpretation: '生命线饱满有力，主精力充沛、体质良好。弧度大表示生活热情高涨，活力四射。',
+                trend: '整体健康运势较好，但需要注意季节交替时的身体调养，尤其是脾胃方面。',
+                action: '保持规律运动习惯，建议每天步行8000步以上，注重饮食节律，避免过度熬夜。'
+            },
+            {
+                icon: '💼',
+                title: '事业稳步上升',
+                subtitle: '事业线解读',
+                feature: '事业线从掌底中部起始，直线上升至中指根部，中段有轻微偏转但未断裂。',
+                interpretation: '事业线明晰主事业心强，方向感明确。中段轻微偏转表示在职业中期可能经历一次方向调整。',
+                trend: '未来一段时间事业运势走高，适合拓展新领域或承担更大责任，转型期反而是机遇。',
+                action: '当前阶段适合积累专业技能和人脉资源，为下一次跃升做好准备。'
+            },
+            {
+                icon: '💰',
+                title: '财运渐入佳境',
+                subtitle: '财运线与太阳线',
+                feature: '无名指下方可见短小但清晰的纵纹（太阳线），小指根部有细密财运纹。',
+                interpretation: '太阳线显现主声望与正财运佳，细密财运纹表示理财意识逐渐觉醒，偏财运中等。',
+                trend: '容易通过个人能力和口碑获取财富，而非投机取巧。未来半年有加薪或新收入渠道出现的可能。',
+                action: '建议开始系统学习理财知识，建立"收入-储蓄-投资"三分法则，量入为出。'
+            },
+            {
+                icon: '🏔',
+                title: '意志力与执行力',
+                subtitle: '拇指形态分析',
+                feature: '拇指粗壮有力，第一指节（意志节）饱满，第二指节（逻辑节）长度适中。',
+                interpretation: '拇指在手相中代表一个人的意志力和领导力，第一节饱满者决断力强，说到做到。',
+                trend: '适合担任领导角色或独立创业，但需注意在坚持己见与听取他人建议之间找到平衡。',
+                action: '每做一个重要决定前，给自己24小时冷静期，同时征询一位信任之人的意见。'
+            },
+            {
+                icon: '✨',
+                title: '人际魅力与表达',
+                subtitle: '食指与水星丘分析',
+                feature: '食指长度接近中指，指尖略呈圆锥形。小指下方水星丘微微隆起。',
+                interpretation: '食指长者主自信与领导力，水星丘饱满主沟通能力与商业头脑。二者结合表示社交中具备天然的影响力。',
+                trend: '容易成为社交场合的焦点人物，表达能力出众，适合从事需要演讲、谈判或教育类的工作。',
+                action: '可以尝试参与公开演讲或内容创作，将天赋转化为实际影响力。'
+            },
+            {
+                icon: '🔮',
+                title: '直觉力与创造力',
+                subtitle: '月丘与神秘十字纹',
+                feature: '掌心中部隐约可见十字纹路交汇，手掌外侧（月丘区域）微微隆起。',
+                interpretation: '神秘十字纹在手相学中极为少见，主第六感敏锐。月丘饱满者想象力丰富，常有灵感涌现。',
+                trend: '适合从事创意、艺术、心理或灵性相关领域。梦境中可能获得有价值的启示。',
+                action: '建议在床头放一本笔记本，记录梦境和突发灵感，定期整理可能发现有价值的洞察。'
+            },
+            {
+                icon: '⚖️',
+                title: '内外平衡与成长',
+                subtitle: '掌纹综合评估',
+                feature: '三大主线（生命线、智慧线、感情线）间距匀称，掌心纹路细密但不杂乱。',
+                interpretation: '三线均衡代表身、心、情的协调发展。细密纹路表示内心世界丰富，对生活有细腻的感知力。',
+                trend: '当前处于人生上升期，内外兼修是未来3-5年的主旋律。需要注意工作与生活的平衡。',
+                action: '建议建立"身心平衡"日程表：工作日专注效率，周末留给家人和自我滋养，动静结合。'
+            }
+        ];
+
+        // 拍照按钮点击
+        photoBtn.addEventListener('click', () => {
+            cameraInput.click();
+        });
+
+        // 文件选择后
+        cameraInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imageUrl = event.target.result;
+                scanImage.src = imageUrl;
+                resultImage.src = imageUrl;
+                startScan();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 开始扫描
+        function startScan() {
+            pageHome.style.display = 'none';
+            pageScan.style.display = 'block';
+            pageScan.classList.add('fade-in');
+
+            let progress = 0;
+            let textIndex = 0;
+
+            const interval = setInterval(() => {
+                progress += 2;
+                progressFill.style.width = progress + '%';
+
+                if (progress % 20 === 0 && textIndex < scanTexts.length) {
+                    scanText.textContent = scanTexts[textIndex];
+                    textIndex++;
+                }
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(showResult, 500);
+                }
+            }, 80);
+        }
+
+        // 显示结果
+        function showResult() {
+            pageScan.style.display = 'none';
+            pageResult.style.display = 'block';
+            pageResult.classList.add('fade-in');
+
+            // 逐步加载分析卡片
+            renderAnalysisCards();
+        }
+
+        // 渲染分析卡片
+        function renderAnalysisCards() {
+            const titleEl = analysisSection.querySelector('.section-title');
+            
+            analysisData.forEach((item, index) => {
+                setTimeout(() => {
+                    const card = document.createElement('div');
+                    card.className = 'analysis-card slide-up';
+                    card.innerHTML = `
+                        <div class="analysis-card-header">
+                            <div class="analysis-icon">${item.icon}</div>
+                            <div>
+                                <div class="analysis-card-title">${item.title}</div>
+                                <div class="analysis-card-subtitle">${item.subtitle}</div>
+                            </div>
+                        </div>
+                        <div class="analysis-detail">
+                            <div class="detail-row">
+                                <span class="detail-label">可见特征</span>
+                                <span class="detail-content">${item.feature}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">玄学解释</span>
+                                <span class="detail-content">${item.interpretation}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">趋势提示</span>
+                                <span class="detail-content">${item.trend}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">行动建议</span>
+                                <span class="detail-content">${item.action}</span>
+                            </div>
+                        </div>
+                    `;
+                    analysisSection.appendChild(card);
+                }, index * 150);
+            });
+        }
+
+        // 分享按钮
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: '手相解码 - 我的掌纹分析报告',
+                    text: '我刚完成了手相解码分析，来看看你的掌纹密码吧！',
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                alert('报告已保存！长按图片即可分享给好友');
+            }
+        });
+    </script>
+</body>
+</html>
