@@ -266,8 +266,29 @@
             { icon: '⚖️', title: '内外平衡与成长', subtitle: '掌纹综合评估', feature: '三大主线间距匀称，掌心纹路细密但不杂乱。', interpretation: '三线均衡代表身、心、情的协调发展。细密纹路表示内心世界丰富。', trend: '当前处于人生上升期，内外兼修是未来3-5年的主旋律。需注意工作与生活的平衡。', action: '建议建立"身心平衡"日程表：工作日专注效率，周末留给家人和自我滋养。' }
         ];
 
-        // 拍照
-        photoBtn.addEventListener('click', () => cameraInput.click());
+        // 拍照 - 跳转到相机页面
+        photoBtn.addEventListener('click', () => {
+            window.location.href = 'camera.html';
+        });
+
+        // 从相机页面返回时，检查是否有已拍摄的图片
+        function checkCapturedImage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('captured') === 'true') {
+                const imageData = localStorage.getItem('palmImage');
+                if (imageData) {
+                    localStorage.removeItem('palmImage');
+                    history.replaceState(null, '', window.location.pathname);
+                    
+                    scanImage.src = imageData;
+                    uploadedImage = new Image();
+                    uploadedImage.onload = () => startProcess();
+                    uploadedImage.src = imageData;
+                }
+            }
+        }
+        
+        checkCapturedImage();
 
         cameraInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
