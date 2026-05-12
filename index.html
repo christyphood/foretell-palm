@@ -216,45 +216,83 @@
             width: 260px;
             height: 340px;
             z-index: 1;
-            opacity: 0.18;
+            opacity: 0.22;
             pointer-events: none;
         }
         .home-hand-anim svg {
             width: 100%;
             height: 100%;
-            animation: handBreathe 6s ease-in-out 4s infinite;
+            animation: handBreathe 6s ease-in-out 3.2s infinite;
         }
         .home-hand-anim .hand-outline {
             fill: none;
-            stroke: rgba(255,255,255,0.7);
-            stroke-width: 1.2;
+            stroke: rgba(255,255,255,0.72);
+            stroke-width: 1.15;
             stroke-linecap: round;
             stroke-linejoin: round;
-            stroke-dasharray: 1800;
-            stroke-dashoffset: 1800;
-            animation: drawHand 4s ease-in-out forwards;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawHand 3.1s ease-in-out forwards;
+        }
+        .home-hand-anim .palm-line-glow {
+            fill: none;
+            stroke: rgba(255,255,255,0.38);
+            stroke-width: 3.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            filter: blur(1.4px);
+            pointer-events: none;
         }
         .home-hand-anim .palm-line {
             fill: none;
-            stroke: rgba(255,255,255,0.5);
-            stroke-width: 0.8;
+            stroke: rgba(255,255,255,0.58);
+            stroke-width: 1.05;
             stroke-linecap: round;
-            stroke-dasharray: 400;
-            stroke-dashoffset: 400;
+            stroke-linejoin: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
         }
-        .home-hand-anim .palm-line-1 { animation: drawLine 1.5s ease-in-out 3s forwards; }
-        .home-hand-anim .palm-line-2 { animation: drawLine 1.5s ease-in-out 3.4s forwards; }
-        .home-hand-anim .palm-line-3 { animation: drawLine 1.5s ease-in-out 3.8s forwards; }
+        .home-hand-anim .palm-line-glow.palm-line-1 {
+            animation: drawLine 1.12s ease-out 2.25s forwards, glowStrokePulse 2.4s ease-in-out 3.37s infinite;
+        }
+        .home-hand-anim .palm-line-glow.palm-line-2 {
+            animation: drawLine 1.12s ease-out 2.58s forwards, glowStrokePulse 2.4s ease-in-out 3.7s infinite;
+        }
+        .home-hand-anim .palm-line-glow.palm-line-3 {
+            animation: drawLine 1.12s ease-out 2.9s forwards, glowStrokePulse 2.4s ease-in-out 4.02s infinite;
+        }
+        .home-hand-anim .palm-line.palm-line-1 {
+            animation: drawLine 1.12s ease-out 2.25s forwards, lineGlowPulse 2.4s ease-in-out 3.37s infinite;
+        }
+        .home-hand-anim .palm-line.palm-line-2 {
+            animation: drawLine 1.12s ease-out 2.58s forwards, lineGlowPulse 2.4s ease-in-out 3.7s infinite;
+        }
+        .home-hand-anim .palm-line.palm-line-3 {
+            animation: drawLine 1.12s ease-out 2.9s forwards, lineGlowPulse 2.4s ease-in-out 4.02s infinite;
+        }
+        .home-hand-anim .line-label {
+            fill: rgba(255,255,255,0.42);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            opacity: 0;
+            text-shadow: 0 0 8px rgba(255,255,255,0.35);
+        }
+        .home-hand-anim .line-label.lb-1 { animation: labelFadeIn 0.65s ease-out 3.35s forwards; }
+        .home-hand-anim .line-label.lb-2 { animation: labelFadeIn 0.65s ease-out 3.68s forwards; }
+        .home-hand-anim .line-label.lb-3 { animation: labelFadeIn 0.65s ease-out 4s forwards; }
         .home-hand-anim .palm-dot {
             fill: rgba(255,255,255,0.6);
             opacity: 0;
-            animation: dotAppear 0.6s ease-out forwards;
+            animation: dotAppear 0.55s ease-out forwards;
         }
-        .home-hand-anim .palm-dot:nth-child(1) { animation-delay: 4.2s; }
-        .home-hand-anim .palm-dot:nth-child(2) { animation-delay: 4.5s; }
-        .home-hand-anim .palm-dot:nth-child(3) { animation-delay: 4.8s; }
-        .home-hand-anim .palm-dot:nth-child(4) { animation-delay: 5.1s; }
-        .home-hand-anim .palm-dot:nth-child(5) { animation-delay: 5.4s; }
+        .home-hand-anim .palm-dot:nth-child(1) { animation-delay: 3.25s; }
+        .home-hand-anim .palm-dot:nth-child(2) { animation-delay: 3.5s; }
+        .home-hand-anim .palm-dot:nth-child(3) { animation-delay: 3.75s; }
+        .home-hand-anim .palm-dot:nth-child(4) { animation-delay: 4s; }
+        .home-hand-anim .palm-dot:nth-child(5) { animation-delay: 4.25s; }
 
         @keyframes drawHand {
             to { stroke-dashoffset: 0; }
@@ -262,9 +300,27 @@
         @keyframes drawLine {
             to { stroke-dashoffset: 0; }
         }
+        @keyframes lineGlowPulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 2px rgba(255,255,255,0.22));
+                stroke: rgba(255,255,255,0.5);
+            }
+            50% {
+                filter: drop-shadow(0 0 10px rgba(255,245,228,0.5));
+                stroke: rgba(255,255,255,0.82);
+            }
+        }
+        @keyframes glowStrokePulse {
+            0%, 100% { stroke: rgba(255,255,255,0.2); opacity: 0.75; }
+            50% { stroke: rgba(255,250,240,0.55); opacity: 1; }
+        }
         @keyframes handBreathe {
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
             50% { transform: scale(1.02); filter: drop-shadow(0 0 12px rgba(255,255,255,0.08)); }
+        }
+        @keyframes labelFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         @keyframes dotAppear {
             0% { opacity: 0; r: 0; }
@@ -727,35 +783,22 @@
                 </div>
                 <div class="home-hand-anim">
                     <svg viewBox="0 0 220 300" xmlns="http://www.w3.org/2000/svg">
-                        <path class="hand-outline" d="
-                            M110,290 C90,290 48,280 42,250
-                            L30,195
-                            C28,185 32,178 38,175
-                            C44,172 50,174 53,180
-                            L62,210
-                            L55,145 L48,80
-                            C47,70 52,63 60,62
-                            C68,61 75,67 76,77
-                            L84,145
-                            L82,65 L80,30
-                            C79,20 85,12 94,11
-                            C103,10 110,18 111,28
-                            L114,65 L116,145
-                            L120,75 L126,32
-                            C127,22 134,15 142,16
-                            C150,17 156,25 155,35
-                            L148,78 L140,145
-                            L152,90 L162,55
-                            C164,45 172,40 180,42
-                            C188,44 192,53 190,63
-                            L175,120 L168,155
-                            L172,195
-                            C178,235 155,270 130,285
-                            C125,288 118,290 110,290 Z
+                        <path class="hand-outline" pathLength="100" d="
+                            M110,288 C88,288 50,276 42,250 C34,224 32,198 40,174 C48,154 64,148 76,160
+                            C86,172 88,198 86,224 L82,168 C78,118 84,72 94,44 C100,28 112,22 124,30
+                            C136,40 140,64 136,100 L132,152 C136,96 146,52 160,38 C176,28 194,40 198,60
+                            C202,84 192,122 178,158 C190,132 206,124 214,138 C222,152 220,176 206,192
+                            L186,212 L180,242 C192,268 176,288 140,292 C124,294 118,292 110,288 Z
                         "/>
-                        <path class="palm-line palm-line-1" d="M65,195 C80,180 100,178 120,182 C135,185 150,190 165,195"/>
-                        <path class="palm-line palm-line-2" d="M70,210 C85,200 105,196 125,200 C140,204 155,210 168,218"/>
-                        <path class="palm-line palm-line-3" d="M78,175 C85,195 88,215 85,240 C83,255 78,268 72,278"/>
+                        <path class="palm-line-glow palm-line-1" pathLength="100" d="M58,196 C76,180 96,176 120,180 C138,183 156,188 176,195"/>
+                        <path class="palm-line palm-line-1" pathLength="100" d="M58,196 C76,180 96,176 120,180 C138,183 156,188 176,195"/>
+                        <path class="palm-line-glow palm-line-2" pathLength="100" d="M64,212 C84,200 106,196 128,200 C146,203 162,209 178,216"/>
+                        <path class="palm-line palm-line-2" pathLength="100" d="M64,212 C84,200 106,196 128,200 C146,203 162,209 178,216"/>
+                        <path class="palm-line-glow palm-line-3" pathLength="100" d="M88,172 C78,196 74,222 72,248 C70,264 68,278 66,292"/>
+                        <path class="palm-line palm-line-3" pathLength="100" d="M88,172 C78,196 74,222 72,248 C70,264 68,278 66,292"/>
+                        <text class="line-label lb-1" x="118" y="172" text-anchor="middle">感情线</text>
+                        <text class="line-label lb-2" x="124" y="232" text-anchor="middle">生命线</text>
+                        <text class="line-label lb-3" x="44" y="238" text-anchor="middle">命运线</text>
                         <g>
                             <circle class="palm-dot" cx="85" cy="185" r="0"/>
                             <circle class="palm-dot" cx="120" cy="182" r="0"/>
