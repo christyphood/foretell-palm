@@ -1,0 +1,40 @@
+# data/
+# data/images/
+# data/masks/
+# data/train_images_512/
+# data/train_masks_512/
+# data/masks_resized/
+# DISTRIBUTION_GUIDE.md
+
+# results/
+# results/
+# *.pth
+# *.pt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Logs
+# *.log
+# training_log.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary
+*~
+.cache/

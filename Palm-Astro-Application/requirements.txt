@@ -1,0 +1,21 @@
+# ── 核心依赖 ──────────────────────────────────────────────────────────────────
+opencv-python>=4.8.0
+opencv-contrib-python>=4.8.0    # 提供 ximgproc.thinning 骨架化
+numpy>=1.24.0
+scipy>=1.10.0
+pillow>=9.0.0
+onnxruntime>=1.16.0             # MediaPipe 手部关键点 ONNX 推理
+
+# ── Web UI ────────────────────────────────────────────────────────────────────
+gradio>=4.0.0
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# ── 可选：U-Net fallback（需要训练好的权重）──────────────────────────────────
+# torch
+# torchvision
+# segmentation-models-pytorch
+# albumentations
+# pandas
+# matplotlib
+# scikit-learn
