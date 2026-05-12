@@ -48,6 +48,15 @@
         }
         .app.result-active .header h1 { color: #fff; }
         .app.result-active .header p { color: rgba(255,255,255,0.9); }
+        .app.result-active .header > div:first-of-type {
+            display: none;
+        }
+        .app.result-active .header {
+            justify-content: flex-end;
+            align-items: flex-start;
+            padding-top: 52px;
+            padding-bottom: 8px;
+        }
         .app.result-active .close-btn {
             background: rgba(255,255,255,0.07);
             border-color: rgba(255,255,255,0.18);
@@ -396,19 +405,16 @@
             max-height: min(52vh, 340px);
             object-fit: contain;
             object-position: center top;
-            border-radius: 20px;
-            margin-top: 8px;
-            margin-bottom: 16px;
+            border-radius: 0;
+            margin-top: 4px;
+            margin-bottom: 12px;
             display: block;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-            border: 1px solid rgba(255,255,255,0.1);
-            background: #000;
+            box-shadow: none;
+            border: none;
+            background: transparent;
         }
         .result-persona {
-            text-align: center;
-            color: #fff;
-            margin-bottom: 20px;
-            padding: 0 8px;
+            display: none;
         }
         .result-persona-main {
             font-size: 26px;
@@ -769,7 +775,7 @@
             <!-- RESULT -->
             <div class="section section-result" id="sectionResult">
                 <div class="result-scroll">
-                    <img id="resultHeroImg" class="result-hero-img" src="images/result-hero.png" width="762" height="954" alt="手相主题插画" decoding="async">
+                    <img id="resultHeroImg" class="result-hero-img" src="images/result-hero.png" width="626" height="644" alt="" decoding="async">
                     <div class="result-persona">
                         <div id="resultPersonaMain" class="result-persona-main"></div>
                         <div id="resultPersonaSub" class="result-persona-sub"></div>
@@ -1406,7 +1412,7 @@
                     if (px < minX) minX = px; if (py < minY) minY = py;
                     if (px > maxX) maxX = px; if (py > maxY) maxY = py;
                 }
-                const padX = (maxX - minX) * 0.22, padY = (maxY - minY) * 0.22;
+                const padX = (maxX - minX) * 0.28, padY = (maxY - minY) * 0.28;
                 minX = Math.max(0, minX - padX); minY = Math.max(0, minY - padY);
                 maxX = Math.min(w, maxX + padX); maxY = Math.min(h, maxY + padY);
                 const rw = maxX - minX, rh = maxY - minY;
@@ -1472,10 +1478,18 @@
                 ctx.restore();
             }
 
+            const lineCx = cw * 0.5, lineCy = ch * 0.5;
+            const LINE_COMPACT = 0.85;
+            const compact = (p) => ({
+                x: lineCx + (p.x - lineCx) * LINE_COMPACT,
+                y: lineCy + (p.y - lineCy) * LINE_COMPACT
+            });
+            const compactPoly = (pts) => pts.map(compact);
+
             const heartPts = [5, 9, 13, 17].map(i => toC(i));
-            heartPts[1].y -= ch * 0.032; heartPts[1].x += cw * 0.035;
-            heartPts[2].y -= ch * 0.018;
-            drawGlowLine(heartPts, 1.4);
+            heartPts[1].y -= ch * 0.024; heartPts[1].x += cw * 0.028;
+            heartPts[2].y -= ch * 0.012;
+            drawGlowLine(compactPoly(heartPts), 1.35);
 
             const headStart = {
                 x: (L(5).x + L(1).x) / 2, y: (L(5).y + L(0).y) * 0.48
@@ -1490,7 +1504,7 @@
                 x: (p.x - sx) / sw * cw,
                 y: (p.y - sy) / sh * ch
             });
-            drawGlowLine([mapPt(headStart), mapPt(headMid1), mapPt(headMid2), mapPt(headEnd)], 1.25);
+            drawGlowLine(compactPoly([mapPt(headStart), mapPt(headMid1), mapPt(headMid2), mapPt(headEnd)]), 1.2);
 
             const lifeStart = {
                 x: (L(5).x + L(1).x) / 2 - (L(5).x - L(1).x) * 0.1,
@@ -1508,7 +1522,7 @@
                 x: L(0).x + (L(1).x - L(0).x) * 0.1,
                 y: L(0).y - (L(0).y - L(1).y) * 0.05
             };
-            drawGlowLine([mapPt(lifeStart), mapPt(lifeMid1), mapPt(lifeMid2), mapPt(lifeEnd)], 1.25);
+            drawGlowLine(compactPoly([mapPt(lifeStart), mapPt(lifeMid1), mapPt(lifeMid2), mapPt(lifeEnd)]), 1.2);
 
             const fateStart = {
                 x: (L(0).x + L(9).x) / 2,
@@ -1522,7 +1536,7 @@
                 x: L(9).x,
                 y: L(9).y + (L(0).y - L(9).y) * 0.1
             };
-            drawGlowLine([mapPt(fateStart), mapPt(fateMid), mapPt(fateEnd)], 1.05);
+            drawGlowLine(compactPoly([mapPt(fateStart), mapPt(fateMid), mapPt(fateEnd)]), 1.0);
         }
 
         // ==========================================
