@@ -206,17 +206,45 @@
             100% { opacity: 0.7; r: 3; }
         }
         .start-btn {
-            width: 136px; height: 136px; border-radius: 50%;
+            width: 124px; height: 124px; border-radius: 50%;
             background: #fff;
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.6);
-            color: #000; font-size: 24px; font-weight: 700;
+            color: #000; font-size: 22px; font-weight: 700;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 8px 28px rgba(0,0,0,0.12);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             letter-spacing: 1px;
             position: relative; z-index: 2;
             animation: startBtnFloat 3.2s ease-in-out infinite;
+            overflow: visible;
+        }
+        .start-btn::before {
+            content: "";
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.34);
+            box-shadow: 0 0 14px rgba(255,255,255,0.24);
+            opacity: 0;
+            animation: startBtnPulse 2.8s ease-out infinite;
+            pointer-events: none;
+        }
+        .start-btn::after {
+            content: "";
+            position: absolute;
+            inset: -18px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(255,255,255,0.72) 0 2px, transparent 3px),
+                radial-gradient(circle at 96% 50%, rgba(255,255,255,0.46) 0 1.6px, transparent 2.6px),
+                radial-gradient(circle at 50% 100%, rgba(255,255,255,0.4) 0 1.4px, transparent 2.4px),
+                radial-gradient(circle at 4% 50%, rgba(255,255,255,0.52) 0 1.8px, transparent 2.8px),
+                radial-gradient(circle at 82% 16%, rgba(255,255,255,0.38) 0 1.2px, transparent 2.2px),
+                radial-gradient(circle at 18% 84%, rgba(255,255,255,0.34) 0 1.2px, transparent 2.2px);
+            opacity: 0.72;
+            animation: startBtnOrbit 7s linear infinite;
+            pointer-events: none;
         }
         .start-btn:hover {
             transform: translateY(-3px);
@@ -227,6 +255,15 @@
         @keyframes startBtnFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
+        }
+        @keyframes startBtnPulse {
+            0% { transform: scale(0.88); opacity: 0; }
+            28% { opacity: 0.62; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+        @keyframes startBtnOrbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* ===== CAMERA ===== */
