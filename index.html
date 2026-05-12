@@ -43,6 +43,38 @@
             border-color: rgba(255,255,255,0.18);
             color: #fff;
         }
+        /* 拍照 / 识别：顶栏浮在渐变上，与内容区共用 app 背景，减轻顶部分割感 */
+        .app.camera-active .header,
+        .app.scan-active .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            background: transparent;
+            pointer-events: none;
+            padding-top: max(52px, calc(env(safe-area-inset-top, 0px) + 36px));
+            padding-left: 24px;
+            padding-right: 24px;
+            padding-bottom: 10px;
+        }
+        .app.camera-active .header > div,
+        .app.camera-active .header .close-btn,
+        .app.scan-active .header > div,
+        .app.scan-active .header .close-btn {
+            pointer-events: auto;
+        }
+        .app.camera-active .section-camera,
+        .app.scan-active .section-scan {
+            background: transparent;
+            padding-top: max(118px, calc(env(safe-area-inset-top, 0px) + 102px));
+        }
+        .app.camera-active .camera-container {
+            margin-top: 4px;
+        }
+        .app.scan-active .scan-box {
+            margin-top: 4px;
+        }
         .app.result-active {
             background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
         }
@@ -304,7 +336,7 @@
             padding: 0 20px;
             display: flex;
             flex-direction: column;
-            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+            background: transparent;
         }
         .camera-container {
             position: relative;
@@ -363,7 +395,7 @@
         /* ===== SCAN ===== */
         .section-scan {
             padding: 0 20px;
-            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+            background: transparent;
         }
         .scan-box {
             position: relative; width: 100%; aspect-ratio: 674 / 982;
