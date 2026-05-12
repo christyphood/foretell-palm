@@ -35,6 +35,16 @@
         .app.camera-active {
             background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
         }
+        .app.scan-active {
+            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+        }
+        .app.scan-active .header h1 { color: #fff; }
+        .app.scan-active .header p { color: rgba(255,255,255,0.9); }
+        .app.scan-active .close-btn {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.18);
+            color: #fff;
+        }
         .app.home-active .header {
             opacity: 0;
             pointer-events: none;
@@ -210,7 +220,10 @@
         #fileInput { display: none; }
 
         /* ===== SCAN ===== */
-        .section-scan { padding: 0 20px; }
+        .section-scan {
+            padding: 0 20px;
+            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+        }
         .scan-box {
             position: relative; width: 100%; aspect-ratio: 674 / 982;
             margin: 10px auto 0;
@@ -247,7 +260,7 @@
         .scan-dot:nth-child(5) { top: 70%; left: 45%; animation-delay: 1.2s; }
         @keyframes dotPulse { 0%,100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.5); opacity: 1; } }
         .scan-progress { margin-top: 20px; text-align: center; }
-        .scan-text { font-size: 16px; color: #3a2a1a; margin-bottom: 12px; }
+        .scan-text { font-size: 16px; color: #fff; margin-bottom: 12px; }
         .progress-bar { width: 80%; height: 4px; background: #E8DED0; border-radius: 2px; margin: 0 auto; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #C9A96E, #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
 
@@ -616,6 +629,8 @@
             else app.classList.remove('home-active');
             if (target === sectionCamera) app.classList.add('camera-active');
             else app.classList.remove('camera-active');
+            if (target === sectionScan) app.classList.add('scan-active');
+            else app.classList.remove('scan-active');
 
             if (target === sectionResult) {
                 document.body.style.overflow = 'hidden';
