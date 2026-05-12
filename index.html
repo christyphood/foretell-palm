@@ -419,6 +419,9 @@
             padding-top: max(4px, env(safe-area-inset-top, 0px));
         }
         .result-scroll { padding: 0 20px 48px; }
+        .result-hero-block {
+            margin-bottom: 8px;
+        }
         .result-hero-img {
             width: 100%;
             height: auto;
@@ -427,28 +430,30 @@
             object-position: center top;
             border-radius: 0;
             margin-top: -8px;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             display: block;
             box-shadow: none;
             border: none;
             background: transparent;
         }
-        .result-persona {
-            display: none;
+        .result-hero-caption {
+            text-align: center;
+            color: #fff;
+            padding: 0 8px 8px;
         }
-        .result-persona-main {
-            font-size: 26px;
+        .result-hero-title-main {
+            font-size: 22px;
             font-weight: 700;
             letter-spacing: 2px;
-            line-height: 1.25;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.35);
+            line-height: 1.3;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.35);
         }
-        .result-persona-sub {
+        .result-hero-title-sub {
             display: block;
             margin-top: 6px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             color: rgba(255,255,255,0.88);
         }
         .result-keywords-card {
@@ -795,10 +800,12 @@
             <!-- RESULT -->
             <div class="section section-result" id="sectionResult">
                 <div class="result-scroll">
-                    <img id="resultHeroImg" class="result-hero-img" src="images/result-hero.png" width="626" height="644" alt="" decoding="async">
-                    <div class="result-persona">
-                        <div id="resultPersonaMain" class="result-persona-main"></div>
-                        <div id="resultPersonaSub" class="result-persona-sub"></div>
+                    <div class="result-hero-block">
+                        <img id="resultHeroImg" class="result-hero-img" src="images/result-hero-balanced.png" width="634" height="588" alt="" decoding="async">
+                        <div class="result-hero-caption">
+                            <div id="resultHeroTitleMain" class="result-hero-title-main"></div>
+                            <div id="resultHeroTitleSub" class="result-hero-title-sub"></div>
+                        </div>
                     </div>
                     <div class="result-keywords-card">
                         <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
@@ -861,8 +868,9 @@
         const keywordsGrid = document.getElementById('keywordsGrid');
         const linesSection = document.getElementById('linesSection');
         const traitsContainer = document.getElementById('traitsContainer');
-        const resultPersonaMain = document.getElementById('resultPersonaMain');
-        const resultPersonaSub = document.getElementById('resultPersonaSub');
+        const resultHeroImg = document.getElementById('resultHeroImg');
+        const resultHeroTitleMain = document.getElementById('resultHeroTitleMain');
+        const resultHeroTitleSub = document.getElementById('resultHeroTitleSub');
 
         // ==========================================
         // Section transition
@@ -943,8 +951,8 @@
             traitsContainer.innerHTML = '';
             keywordsGrid.innerHTML = '';
             linesSection.innerHTML = '';
-            if (resultPersonaMain) resultPersonaMain.textContent = '';
-            if (resultPersonaSub) resultPersonaSub.textContent = '';
+            if (resultHeroTitleMain) resultHeroTitleMain.textContent = '';
+            if (resultHeroTitleSub) resultHeroTitleSub.textContent = '';
             document.getElementById('palmHero').classList.remove('visible');
             document.getElementById('palmHeroSvg').innerHTML = '';
             handGuide.classList.remove('detected');
@@ -1748,6 +1756,41 @@
         }
 
         // ==========================================
+        // Result hero: image + caption by palm type
+        // ==========================================
+        const RESULT_HERO_CONFIG = {
+            long: {
+                img: 'images/result-hero-long.png',
+                w: 600, h: 580,
+                titleMain: '哲学手',
+                titleSub: '思想者气质'
+            },
+            balanced: {
+                img: 'images/result-hero-balanced.png',
+                w: 634, h: 588,
+                titleMain: '灵感捕手',
+                titleSub: '捕捉瞬息万变'
+            },
+            square: {
+                img: 'images/result-hero-square.png',
+                w: 394, h: 372,
+                titleMain: '清冷手',
+                titleSub: '自带疏离高级'
+            }
+        };
+
+        function applyResultHero(palmType) {
+            const cfg = RESULT_HERO_CONFIG[palmType] || RESULT_HERO_CONFIG.balanced;
+            if (resultHeroImg) {
+                resultHeroImg.src = cfg.img;
+                resultHeroImg.width = cfg.w;
+                resultHeroImg.height = cfg.h;
+            }
+            if (resultHeroTitleMain) resultHeroTitleMain.textContent = cfg.titleMain;
+            if (resultHeroTitleSub) resultHeroTitleSub.textContent = cfg.titleSub;
+        }
+
+        // ==========================================
         // Result
         // ==========================================
         function showResult(segResult, landmarks) {
@@ -1757,6 +1800,8 @@
             const analysis = analyzePalm(landmarks);
             const reading = generateReading(analysis);
             const pt = reading.palmType || 'balanced';
+
+            applyResultHero(pt);
 
             if (landmarks && uploadedImage) {
                 drawPalmThumbWithLines(uploadedImage, landmarks, pt);
@@ -1778,9 +1823,6 @@
             } else if (uploadedImage) {
                 drawPalmThumbWithLines(uploadedImage, null, pt);
             }
-
-            if (resultPersonaMain) resultPersonaMain.textContent = reading.personaMain || '';
-            if (resultPersonaSub) resultPersonaSub.textContent = reading.personaSub || '';
 
             keywordsGrid.innerHTML = reading.keywords.map((kw) =>
                 `<div class="keyword-item">
