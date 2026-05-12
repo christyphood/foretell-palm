@@ -425,27 +425,32 @@
             letter-spacing: 3px;
             color: rgba(255,255,255,0.88);
         }
-        .result-row-cards {
-            display: flex;
-            gap: 12px;
-            align-items: stretch;
-            margin-bottom: 14px;
-        }
-        .palm-thumb {
-            width: 110px; height: 110px; border-radius: 16px;
-            object-fit: cover; flex-shrink: 0;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-            background: #1a1a1a;
-            border: 1px solid rgba(255,255,255,0.12);
-        }
         .result-keywords-card {
-            flex: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 14px;
             background: #fff;
             border-radius: 18px;
-            padding: 14px 12px 16px;
+            padding: 12px 14px 14px;
+            margin-bottom: 14px;
             box-shadow: 0 8px 28px rgba(0,0,0,0.2);
         }
-        .keywords-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px; }
+        .palm-thumb-inline {
+            flex-shrink: 0;
+            width: 104px;
+            height: 104px;
+            border-radius: 14px;
+            display: block;
+            background: #111;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+        }
+        .keywords-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .keywords-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 10px; }
         .keywords-grid { display: flex; gap: 12px; justify-content: space-between; }
         .keyword-item { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 0; }
         .keyword-icon.keyword-orbit {
@@ -769,9 +774,9 @@
                         <div id="resultPersonaMain" class="result-persona-main"></div>
                         <div id="resultPersonaSub" class="result-persona-sub"></div>
                     </div>
-                    <div class="result-row-cards">
-                        <canvas id="palmThumbCanvas" class="palm-thumb" width="300" height="300"></canvas>
-                        <div class="result-keywords-card">
+                    <div class="result-keywords-card">
+                        <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
+                        <div class="keywords-col">
                             <div class="keywords-title">关键词</div>
                             <div class="keywords-grid" id="keywordsGrid"></div>
                         </div>
@@ -1381,9 +1386,15 @@
         }
 
         // ==========================================
-        // Thumbnail
+        // Keywords card: palm ROI + glowing line overlay
         // ==========================================
-        function drawPalmThumb(img, landmarks) {
+        const THUMB_LINE_COLORS = {
+            long:     { main: 'rgba(180,210,255,0.92)', glow: 'rgba(140,180,255,0.35)' },
+            square:   { main: 'rgba(255,210,140,0.92)', glow: 'rgba(230,180,100,0.35)' },
+            balanced: { main: 'rgba(180,230,200,0.92)', glow: 'rgba(150,210,180,0.35)' }
+        };
+
+        function drawPalmThumbWithLines(img, landmarks, palmType) {
             const ctx = palmThumbCanvas.getContext('2d');
             const w = img.naturalWidth, h = img.naturalHeight;
             let sx, sy, sw, sh;
@@ -1395,7 +1406,7 @@
                     if (px < minX) minX = px; if (py < minY) minY = py;
                     if (px > maxX) maxX = px; if (py > maxY) maxY = py;
                 }
-                const padX = (maxX - minX) * 0.25, padY = (maxY - minY) * 0.25;
+                const padX = (maxX - minX) * 0.22, padY = (maxY - minY) * 0.22;
                 minX = Math.max(0, minX - padX); minY = Math.max(0, minY - padY);
                 maxX = Math.min(w, maxX + padX); maxY = Math.min(h, maxY + padY);
                 const rw = maxX - minX, rh = maxY - minY;
@@ -1407,10 +1418,111 @@
                 const side = Math.min(w, h) * 0.45;
                 sx = (w - side) / 2; sy = h * 0.25; sw = side; sh = side;
             }
+            const displayPx = 104;
             const dpr = window.devicePixelRatio || 2;
-            palmThumbCanvas.width = 110 * dpr; palmThumbCanvas.height = 110 * dpr;
-            palmThumbCanvas.style.width = '110px'; palmThumbCanvas.style.height = '110px';
-            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 110 * dpr, 110 * dpr);
+            const cw = Math.round(displayPx * dpr), ch = Math.round(displayPx * dpr);
+            palmThumbCanvas.width = cw;
+            palmThumbCanvas.height = ch;
+            palmThumbCanvas.style.width = displayPx + 'px';
+            palmThumbCanvas.style.height = displayPx + 'px';
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+
+            if (!landmarks || landmarks.length < 21) return;
+
+            const lm = landmarks;
+            const toC = (i) => ({
+                x: (lm[i].x * w - sx) / sw * cw,
+                y: (lm[i].y * h - sy) / sh * ch
+            });
+            const gc = THUMB_LINE_COLORS[palmType] || THUMB_LINE_COLORS.balanced;
+            const L = (i) => ({ x: lm[i].x * w, y: lm[i].y * h });
+
+            function drawGlowLine(points, width) {
+                if (points.length < 2) return;
+                ctx.save();
+                ctx.strokeStyle = gc.glow;
+                ctx.lineWidth = width + 4;
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.filter = 'blur(3px)';
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    const prev = points[i - 1], curr = points[i];
+                    const mx = (prev.x + curr.x) / 2, my = (prev.y + curr.y) / 2;
+                    ctx.quadraticCurveTo(prev.x, prev.y, mx, my);
+                }
+                ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+                ctx.stroke();
+                ctx.restore();
+                ctx.save();
+                ctx.strokeStyle = gc.main;
+                ctx.lineWidth = width;
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.shadowColor = gc.main;
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    const prev = points[i - 1], curr = points[i];
+                    const mx = (prev.x + curr.x) / 2, my = (prev.y + curr.y) / 2;
+                    ctx.quadraticCurveTo(prev.x, prev.y, mx, my);
+                }
+                ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            const heartPts = [5, 9, 13, 17].map(i => toC(i));
+            heartPts[1].y -= ch * 0.032; heartPts[1].x += cw * 0.035;
+            heartPts[2].y -= ch * 0.018;
+            drawGlowLine(heartPts, 1.4);
+
+            const headStart = {
+                x: (L(5).x + L(1).x) / 2, y: (L(5).y + L(0).y) * 0.48
+            };
+            const headMid1 = { x: (L(5).x + L(9).x) / 2, y: (L(5).y + L(0).y) * 0.50 };
+            const headMid2 = { x: (L(9).x + L(13).x) / 2, y: (L(9).y + L(0).y) * 0.52 };
+            const headEnd = {
+                x: L(13).x + (L(17).x - L(13).x) * 0.4,
+                y: (L(13).y + L(0).y) * 0.54
+            };
+            const mapPt = (p) => ({
+                x: (p.x - sx) / sw * cw,
+                y: (p.y - sy) / sh * ch
+            });
+            drawGlowLine([mapPt(headStart), mapPt(headMid1), mapPt(headMid2), mapPt(headEnd)], 1.25);
+
+            const lifeStart = {
+                x: (L(5).x + L(1).x) / 2 - (L(5).x - L(1).x) * 0.1,
+                y: (L(5).y + L(0).y) * 0.46
+            };
+            const lifeMid1 = {
+                x: L(1).x + (L(0).x - L(1).x) * 0.3,
+                y: L(1).y + (L(0).y - L(1).y) * 0.4
+            };
+            const lifeMid2 = {
+                x: L(1).x + (L(0).x - L(1).x) * 0.15,
+                y: L(1).y + (L(0).y - L(1).y) * 0.7
+            };
+            const lifeEnd = {
+                x: L(0).x + (L(1).x - L(0).x) * 0.1,
+                y: L(0).y - (L(0).y - L(1).y) * 0.05
+            };
+            drawGlowLine([mapPt(lifeStart), mapPt(lifeMid1), mapPt(lifeMid2), mapPt(lifeEnd)], 1.25);
+
+            const fateStart = {
+                x: (L(0).x + L(9).x) / 2,
+                y: L(0).y - (L(0).y - L(9).y) * 0.05
+            };
+            const fateMid = {
+                x: (L(0).x + L(9).x) / 2 + (L(9).x - L(0).x) * 0.05,
+                y: (L(0).y + L(9).y) / 2
+            };
+            const fateEnd = {
+                x: L(9).x,
+                y: L(9).y + (L(0).y - L(9).y) * 0.1
+            };
+            drawGlowLine([mapPt(fateStart), mapPt(fateMid), mapPt(fateEnd)], 1.05);
         }
 
         // ==========================================
@@ -1608,22 +1720,30 @@
             traitsContainer.innerHTML = '';
             switchTo(sectionResult);
 
-            if (segResult && segResult.roi_image) {
+            const analysis = analyzePalm(landmarks);
+            const reading = generateReading(analysis);
+            const pt = reading.palmType || 'balanced';
+
+            if (landmarks && uploadedImage) {
+                drawPalmThumbWithLines(uploadedImage, landmarks, pt);
+            } else if (segResult && segResult.roi_image) {
                 const roiImg = new Image();
                 roiImg.onload = () => {
                     const ctx = palmThumbCanvas.getContext('2d');
                     const dpr = window.devicePixelRatio || 2;
-                    palmThumbCanvas.width = 110 * dpr; palmThumbCanvas.height = 110 * dpr;
-                    palmThumbCanvas.style.width = '110px'; palmThumbCanvas.style.height = '110px';
-                    ctx.drawImage(roiImg, 0, 0, 110 * dpr, 110 * dpr);
+                    const displayPx = 104;
+                    const cw = Math.round(displayPx * dpr), ch = Math.round(displayPx * dpr);
+                    palmThumbCanvas.width = cw;
+                    palmThumbCanvas.height = ch;
+                    palmThumbCanvas.style.width = displayPx + 'px';
+                    palmThumbCanvas.style.height = displayPx + 'px';
+                    const rw = roiImg.naturalWidth, rh = roiImg.naturalHeight;
+                    ctx.drawImage(roiImg, 0, 0, rw, rh, 0, 0, cw, ch);
                 };
                 roiImg.src = segResult.roi_image;
-            } else {
-                drawPalmThumb(uploadedImage, landmarks);
+            } else if (uploadedImage) {
+                drawPalmThumbWithLines(uploadedImage, null, pt);
             }
-
-            const analysis = analyzePalm(landmarks);
-            const reading = generateReading(analysis);
 
             if (resultPersonaMain) resultPersonaMain.textContent = reading.personaMain || '';
             if (resultPersonaSub) resultPersonaSub.textContent = reading.personaSub || '';
