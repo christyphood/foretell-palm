@@ -43,6 +43,16 @@
             border-color: rgba(255,255,255,0.18);
             color: #fff;
         }
+        .app.result-active {
+            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+        }
+        .app.result-active .header h1 { color: #fff; }
+        .app.result-active .header p { color: rgba(255,255,255,0.9); }
+        .app.result-active .close-btn {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.18);
+            color: #fff;
+        }
         .app.home-active .header {
             opacity: 0;
             pointer-events: none;
@@ -372,73 +382,127 @@
         .progress-bar { width: 80%; height: 4px; background: #E8DED0; border-radius: 2px; margin: 0 auto; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #C9A96E, #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
 
-        /* ===== RESULT ===== */
-        .section-result { padding: 0 20px 40px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        /* ===== RESULT (dark) ===== */
+        .section-result {
+            padding: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+        }
+        .result-scroll { padding: 0 20px 48px; }
         .result-hero-canvas {
             width: 100%; border-radius: 20px;
-            margin-top: 6px; margin-bottom: 20px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            margin-top: 8px; margin-bottom: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.45);
             display: block;
+            border: 1px solid rgba(255,255,255,0.12);
         }
-        .result-top-card {
-            background: rgba(255,255,255,0.65);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 20px; padding: 20px; margin-top: 10px;
+        .result-persona {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 20px;
+            padding: 0 8px;
         }
-        .result-top-row { display: flex; gap: 16px; align-items: flex-start; }
+        .result-persona-main {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1.25;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.35);
+        }
+        .result-persona-sub {
+            display: block;
+            margin-top: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.88);
+        }
+        .result-row-cards {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            margin-bottom: 14px;
+        }
         .palm-thumb {
-            width: 110px; height: 110px; border-radius: 14px;
+            width: 110px; height: 110px; border-radius: 16px;
             object-fit: cover; flex-shrink: 0;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            background: #f0e6d6;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.12);
         }
-        .keywords-section { flex: 1; }
-        .keywords-title { font-size: 16px; font-weight: 700; color: #2D2D2D; margin-bottom: 12px; }
-        .keywords-grid { display: flex; gap: 16px; justify-content: flex-start; }
-        .keyword-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .keyword-icon {
-            width: 40px; height: 40px; border-radius: 12px;
-            background: rgba(255,255,255,0.8);
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        .result-keywords-card {
+            flex: 1;
+            background: #fff;
+            border-radius: 18px;
+            padding: 14px 12px 16px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.2);
         }
-        .keyword-label { font-size: 11px; color: #4a4a4a; }
-        .lines-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.06); }
-        .line-row { display: flex; margin-bottom: 14px; gap: 12px; line-height: 1.6; }
+        .keywords-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px; }
+        .keywords-grid { display: flex; gap: 12px; justify-content: space-between; }
+        .keyword-item { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+        .keyword-icon.keyword-orbit {
+            width: 40px; height: 40px; border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0 22%, rgba(240,240,240,1) 23% 38%, transparent 39%),
+                radial-gradient(circle, transparent 48%, rgba(180,180,180,0.35) 49% 52%, transparent 53%),
+                radial-gradient(circle, transparent 62%, rgba(120,120,120,0.25) 63% 68%, transparent 70%);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+        }
+        .keyword-icon.keyword-orbit::after {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.12);
+            opacity: 0.85;
+        }
+        .keyword-label { font-size: 10px; color: #333; text-align: center; line-height: 1.35; }
+        .result-lines-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px 16px 16px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+        }
+        .lines-section { margin-top: 0; padding-top: 0; border-top: none; }
+        .line-row { display: flex; margin-bottom: 14px; gap: 12px; line-height: 1.65; }
         .line-row:last-child { margin-bottom: 0; }
-        .line-name { font-size: 13px; font-weight: 600; color: #3a2a1a; min-width: 52px; flex-shrink: 0; padding-top: 1px; }
-        .line-desc { font-size: 13px; color: #4a4a4a; }
-        .traits-section { margin-top: 28px; }
-        .traits-title { font-size: 20px; font-weight: 700; color: #2D2D2D; margin-bottom: 16px; padding-left: 4px; }
+        .line-name { font-size: 13px; font-weight: 700; color: #111; min-width: 56px; flex-shrink: 0; padding-top: 1px; }
+        .line-desc { font-size: 13px; color: #333; }
+        .traits-section { margin-top: 22px; }
+        .traits-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 14px; padding-left: 2px; }
         .trait-card {
-            background: rgba(255,255,255,0.65);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 16px; padding: 20px; margin-bottom: 12px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 10px;
             display: flex; gap: 14px; align-items: flex-start;
             opacity: 0; transform: translateY(20px);
             transition: opacity 0.4s ease, transform 0.4s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .trait-card.visible { opacity: 1; transform: translateY(0); }
         .trait-icon {
             width: 42px; height: 42px; border-radius: 12px;
-            background: linear-gradient(135deg, #FDF5E6, #F5E6D3);
+            background: linear-gradient(135deg, #f2f2f2, #e8e8e8);
             display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
         }
-        .trait-title { font-size: 16px; font-weight: 600; color: #2D2D2D; margin-bottom: 4px; }
-        .trait-desc { font-size: 13px; color: #6B5E50; line-height: 1.6; }
-        .share-section { margin-top: 28px; text-align: center; padding-bottom: 40px; }
+        .trait-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; }
+        .trait-desc { font-size: 13px; color: #444; line-height: 1.6; }
+        .share-section { margin-top: 24px; text-align: center; padding-bottom: 32px; }
         .share-btn {
             width: 100%; padding: 16px; border-radius: 28px;
-            background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%);
-            border: none; color: white; font-size: 16px; font-weight: 600;
-            cursor: pointer; box-shadow: 0 8px 24px rgba(201,169,110,0.3);
+            background: linear-gradient(135deg, #e8d4b8 0%, #c9a96e 100%);
+            border: none; color: #1a1208; font-size: 16px; font-weight: 600;
+            cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,0.35);
         }
         .share-btn:active { transform: scale(0.98); }
-        .disclaimer { margin-top: 16px; font-size: 11px; color: #BFAE9D; line-height: 1.6; }
+        .disclaimer { margin-top: 14px; font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.6; }
 
-        /* ===== PALM HERO GRAPHIC ===== */
+        /* ===== PALM HERO GRAPHIC (unused in dark result layout) ===== */
         .palm-hero {
+            display: none;
             position: relative;
             margin: 24px 0;
             border-radius: 24px;
@@ -692,16 +756,30 @@
 
             <!-- RESULT -->
             <div class="section section-result" id="sectionResult">
-                <canvas id="resultHeroCanvas" class="result-hero-canvas"></canvas>
-                <div class="result-top-card">
-                    <div class="result-top-row">
+                <div class="result-scroll">
+                    <canvas id="resultHeroCanvas" class="result-hero-canvas"></canvas>
+                    <div class="result-persona">
+                        <div id="resultPersonaMain" class="result-persona-main"></div>
+                        <div id="resultPersonaSub" class="result-persona-sub"></div>
+                    </div>
+                    <div class="result-row-cards">
                         <canvas id="palmThumbCanvas" class="palm-thumb" width="300" height="300"></canvas>
-                        <div class="keywords-section">
+                        <div class="result-keywords-card">
                             <div class="keywords-title">关键词</div>
                             <div class="keywords-grid" id="keywordsGrid"></div>
                         </div>
                     </div>
-                    <div class="lines-section" id="linesSection"></div>
+                    <div class="result-lines-card">
+                        <div class="lines-section" id="linesSection"></div>
+                    </div>
+                    <div class="traits-section">
+                        <h2 class="traits-title">你的基本特质</h2>
+                        <div id="traitsContainer"></div>
+                    </div>
+                    <div class="share-section">
+                        <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
+                        <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
+                    </div>
                 </div>
                 <div class="palm-hero" id="palmHero">
                     <div class="palm-hero-inner">
@@ -710,14 +788,6 @@
                         <div class="palm-hero-label" id="palmHeroLabel"></div>
                         <div class="palm-hero-sub" id="palmHeroSub"></div>
                     </div>
-                </div>
-                <div class="traits-section">
-                    <h2 class="traits-title">你的基本特质</h2>
-                    <div id="traitsContainer"></div>
-                </div>
-                <div class="share-section">
-                    <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
-                    <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
                 </div>
             </div>
         </div>
@@ -753,6 +823,8 @@
         const keywordsGrid = document.getElementById('keywordsGrid');
         const linesSection = document.getElementById('linesSection');
         const traitsContainer = document.getElementById('traitsContainer');
+        const resultPersonaMain = document.getElementById('resultPersonaMain');
+        const resultPersonaSub = document.getElementById('resultPersonaSub');
 
         // ==========================================
         // Section transition
@@ -779,12 +851,8 @@
             else app.classList.remove('camera-active');
             if (target === sectionScan) app.classList.add('scan-active');
             else app.classList.remove('scan-active');
-
-            if (target === sectionResult) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = 'hidden';
-            }
+            if (target === sectionResult) app.classList.add('result-active');
+            else app.classList.remove('result-active');
         }
 
         // ==========================================
@@ -837,6 +905,8 @@
             traitsContainer.innerHTML = '';
             keywordsGrid.innerHTML = '';
             linesSection.innerHTML = '';
+            if (resultPersonaMain) resultPersonaMain.textContent = '';
+            if (resultPersonaSub) resultPersonaSub.textContent = '';
             document.getElementById('palmHero').classList.remove('visible');
             document.getElementById('palmHeroSvg').innerHTML = '';
             handGuide.classList.remove('detected');
@@ -1170,7 +1240,18 @@
             const headY = (lm[5].y + lm[0].y) * 0.45;
             const lifeArc = dist(lm[1], lm[0]);
             const seed = Math.round((palmRatio * 1000 + indexToRing * 1000 + pinkyToIndex * 1000 + fingerTopalm * 1000) % 100);
-            return { palmRatio, fingerTopalm, indexToRing, pinkyToIndex, thumbToIndex, palmWidth, palmHeight, heartY, headY, lifeArc, seed, indexLen, middleLen, ringLen, pinkyLen, thumbLen };
+            const idxSpan = lm[12].x - lm[8].x;
+            const heartEndT = Math.abs(idxSpan) > 1e-4 ? (lm[13].x - lm[8].x) / idxSpan : 0.5;
+            const palmMidY = (lm[5].y + lm[17].y) / 2;
+            const heartLift = (palmMidY - lm[13].y) / Math.max(palmHeight, 1e-6);
+            const headIndep = dist(lm[2], lm[5]) / Math.max(palmWidth, 1e-6);
+            const headSlump = (lm[13].y - (lm[5].y + lm[0].y) * 0.45) / Math.max(palmHeight, 1e-6);
+            const fateVert = 1 - Math.min(1, Math.abs(lm[9].x - lm[0].x) / (palmWidth * 0.35 + 1e-6));
+            return {
+                palmRatio, fingerTopalm, indexToRing, pinkyToIndex, thumbToIndex, palmWidth, palmHeight,
+                heartY, headY, lifeArc, seed, indexLen, middleLen, ringLen, pinkyLen, thumbLen,
+                heartEndT, heartLift, headIndep, headSlump, fateVert
+            };
         }
 
         function generateReading(analysis) {
@@ -1178,36 +1259,73 @@
             const a = analysis, s = a.seed;
             const palmType = a.palmRatio > 1.15 ? 'long' : a.palmRatio < 0.95 ? 'square' : 'balanced';
             const fingerType = a.fingerTopalm > 0.85 ? 'long' : a.fingerTopalm < 0.7 ? 'short' : 'medium';
+            const personaByType = {
+                long: { main: '哲学手', sub: '思想者气质' },
+                square: { main: '实用手', sub: '行动派气质' },
+                balanced: { main: '均衡手', sub: '多面手气质' }
+            };
+            const personaMain = personaByType[palmType].main;
+            const personaSub = personaByType[palmType].sub;
             const kwPool = {
                 long: { long: ['洞察力', '理想主义', '创造力'], medium: ['方向感', '直觉力', '深度'], short: ['内省力', '坚韧', '感受力'] },
                 square: { long: ['行动力', '领导力', '魄力'], medium: ['务实', '毅力', '稳重'], short: ['执行力', '专注', '踏实'] },
                 balanced: { long: ['适应力', '沟通力', '创造力'], medium: ['方向感', '毅力', '平衡感'], short: ['协调力', '坚持', '洞察力'] }
             };
             const keywords = kwPool[palmType][fingerType] || ['方向感', '毅力', '创造力'];
-            const heartDesc = a.indexToRing > 1.02
-                ? '感情线延伸至食指下方，弧度优美，代表你对感情有极高的理想和标准，追求精神层面的深度连接，容易被有思想深度的人吸引。'
-                : a.indexToRing > 0.97
-                ? '感情线在食指与中指之间结束，线条清晰而稳定，说明你在感情中既有热情也有理智，懂得在付出与自我保护之间保持平衡。'
-                : '感情线偏向中指下方，务实而内敛，代表你在感情中更注重安全感和稳定性，不轻易表达内心，但一旦认定便会全心投入。';
-            const headDesc = a.fingerTopalm > 0.85
-                ? '头脑线修长且微微向下弯曲，延伸至月丘区域，表明你的想象力异常丰富，思维活跃且具有创造天赋，适合从事艺术、设计或文学创作。'
-                : a.fingerTopalm > 0.7
-                ? '头脑线走势平稳，长度适中，起点与生命线略有分离，说明你思维独立、逻辑清晰，善于理性分析问题，适合策划、研究或管理类工作。'
-                : '头脑线短而有力，走势平直，代表你思维敏捷、决断力强，不喜欢拖泥带水，更注重实际效果，是天生的执行者和问题解决者。';
+
+            let heartDesc = '';
+            if (a.heartEndT > 0.62) {
+                heartDesc = '根据关键点推算，感情线收束更靠近食指方向，弧度偏上扬，主理想主义与精神契合，重视承诺与长期经营。';
+            } else if (a.heartEndT < 0.38) {
+                heartDesc = '感情线收束更靠近中指下方，走势偏内敛稳健，主安全感与现实考量，表达克制但投入深、细水长流。';
+            } else {
+                heartDesc = '感情线收束介于食指与中指之间，弧度均衡，热情与理智并存，懂得拿捏分寸，关系更易稳定。';
+            }
+            if (a.heartLift > 0.06) {
+                heartDesc += ' 线条略带上扬，对新鲜体验仍保持开放心态。';
+            } else if (a.heartLift < -0.04) {
+                heartDesc += ' 线条走势偏平，情绪细节不轻易外露。';
+            }
+
+            let headDesc = a.headIndep > 0.2
+                ? '头脑线与生命线在虎口处分流较明显，主独立思考与自我主张，不盲从既有规则。'
+                : '头脑线与生命线早期段较贴近，主审慎与经验积累，习惯在熟悉框架内把方案打磨扎实。';
+            if (a.fingerTopalm > 0.85) {
+                headDesc += ' 线条延伸较长并略向掌缘下倾，联想力与叙事感强，适合创意、设计或策略发散类工作。';
+            } else if (a.fingerTopalm < 0.7) {
+                headDesc += ' 线条偏短直，思维直接、决断利落，更关注结果与执行效率。';
+            } else {
+                headDesc += ' 线条长度适中，逻辑与直觉搭配均衡，擅长把抽象问题结构化后再落地。';
+            }
+            if (a.headSlump > 0.1) {
+                headDesc += ' 下倾幅度较明显，更偏向内省与深层思考。';
+            }
+
             const lifeDesc = a.lifeArc > a.palmWidth * 0.6
                 ? '生命线弧度饱满，环绕大鱼际区域宽阔有力，代表你体质强健、精力充沛，对生活充满热情，行动力强，适应环境变化的能力出众。'
                 : a.lifeArc > a.palmWidth * 0.4
                 ? '生命线弧度适中，走势稳定而清晰，说明你的生活节奏均衡有度，身心状态较为平稳，注重健康与生活品质的平衡。'
                 : '生命线弧度较紧凑，贴近掌心，代表你内心世界丰富但行事谨慎，倾向于在熟悉的环境中发展，重视精神世界的充实。';
-            const kwIcons = ['🧭', '💪', '✨'];
-            const traits = [];
-            if (palmType === 'long') {
-                traits.push({ icon: '🖐', title: '哲学手 · 思想者气质', desc: `掌型修长（比例 ${a.palmRatio.toFixed(2)}），手指纤细舒展，五行属木，天生具备独立思维和深度思考的能力，直觉敏锐，不随波逐流。` });
-            } else if (palmType === 'square') {
-                traits.push({ icon: '🖐', title: '实用手 · 行动派气质', desc: `掌型方正（比例 ${a.palmRatio.toFixed(2)}），五行属土，务实可靠，注重实际行动和可见成果，做事有条不紊，是团队中最可信赖的执行者。` });
-            } else {
-                traits.push({ icon: '🖐', title: '均衡手 · 多面手气质', desc: `掌型比例均衡（${a.palmRatio.toFixed(2)}），兼具感性与理性，适应力强，能在不同角色之间灵活切换，是天生的协调者和沟通桥梁。` });
-            }
+
+            const fateDesc = a.fateVert > 0.55
+                ? '命运线从手腕向中指方向较直、偏差小，象征目标感集中，适合在一到两条主赛道上持续深耕，阶段性成果会更清晰。'
+                : a.fateVert > 0.35
+                ? '命运线略有偏侧或弧度，象征路径更灵活多元，机会常来自跨界、协作与环境变化，关键是把握节奏与取舍。'
+                : '命运线走向发散或掌中轨迹较浅，象征外在轨迹可变度大，更强调自主选择与环境塑造，适合发挥适应力与资源整合。';
+
+            const ratioTxt = a.palmRatio.toFixed(2);
+            const palmShapeDesc = palmType === 'long'
+                ? `掌长宽比约 ${ratioTxt}，偏修长型，主思辨与长线规划，直觉与抽象理解力突出。`
+                : palmType === 'square'
+                ? `掌长宽比约 ${ratioTxt}，偏方正型，主务实落地与执行力，抗压与稳定性较好。`
+                : `掌长宽比约 ${ratioTxt}，比例均衡，感性与理性切换自然，适应多场景角色。`;
+
+            const traits = [{ icon: '🖐', title: '掌型与比例', desc: palmShapeDesc }];
+            traits.push({
+                icon: '🌿',
+                title: '生命线走势',
+                desc: lifeDesc
+            });
             if (a.indexToRing > 1.02) {
                 traits.push({ icon: '☝️', title: '领导型人格', desc: '食指相对较长，主自信与掌控力，天生具备影响他人的能力，适合领导、管理或教育类角色，在团队中容易成为核心人物。' });
             } else if (a.pinkyToIndex > 0.7) {
@@ -1223,31 +1341,33 @@
                 desc: a.fingerTopalm > 0.8 ? '你的头脑线走向表明右脑较为活跃，想象力和创造力是你最大的天赋，适合将抽象概念转化为具体作品或方案。'
                     : '你的头脑线走向表明左脑较为发达，善于系统性思考和条理化分析，在复杂问题面前能迅速理清脉络找到解决方案。'
             });
-            traits.push({ icon: '🌿', title: '生命力' + (a.lifeArc > a.palmWidth * 0.5 ? '旺盛' : '内敛'),
-                desc: a.lifeArc > a.palmWidth * 0.5 ? '生命线弧度开阔，代表你精力充沛、热爱运动和户外活动，身体恢复力强，适合保持积极活跃的生活方式。'
-                    : '生命线走势内敛稳重，代表你更注重内在能量的积蓄和精神层面的滋养，适合通过冥想、阅读等方式维持身心平衡。'
-            });
             const careerPool = [
                 { icon: '💼', title: '事业运势：上升期', desc: '当前掌纹显示你正处于事业积累的关键阶段，近期可能会遇到重要的转折机遇，建议大胆尝试新方向，主动争取展示自己的机会。' },
                 { icon: '💼', title: '事业运势：稳定期', desc: '掌纹显示你的事业根基扎实，当前适合深耕现有领域，积累核心竞争力，不宜贸然转型，稳中求进方为上策。' },
                 { icon: '💼', title: '事业运势：突破期', desc: '掌纹中事业线的走向表明你即将进入一个全新阶段，旧有模式可能被打破，拥抱变化将带来意想不到的收获。' }
             ];
             traits.push(careerPool[s % 3]);
-            return { keywords, kwIcons, heartDesc, headDesc, lifeDesc, traits, palmType };
+            return {
+                keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType
+            };
         }
 
         function getDefaultReading() {
             return {
                 palmType: 'balanced',
-                keywords: ['方向感', '毅力', '创造力'], kwIcons: ['🧭', '💪', '✨'],
+                personaMain: '均衡手',
+                personaSub: '多面手气质',
+                keywords: ['方向感', '毅力', '创造力'],
                 heartDesc: '感情线走势清晰，弧度柔和上扬，代表你情感丰富且理性兼具，在关系中追求真诚与深度连接。',
                 headDesc: '头脑线起点与生命线略分开，线条流畅，代表你思维独立、逻辑清晰，具有良好的判断力和分析能力。',
                 lifeDesc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。',
+                fateDesc: '命运线走势清晰稳定，象征人生方向感明确，适合在既定目标上持续投入，阶段性成果会逐步显现。',
                 traits: [
-                    { icon: '🧠', title: '独立而自信', desc: '手指修长舒展，掌型偏长，象征独立思考与自我驱动，做事有主见。' },
+                    { icon: '🖐', title: '掌型与比例', desc: '掌型比例均衡，兼具感性与理性，适应力强，能在不同角色之间灵活切换。' },
+                    { icon: '🌿', title: '生命线走势', desc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。' },
+                    { icon: '🧠', title: '独立而自信', desc: '做事有主见，善于在复杂信息中抓住主线，适合承担需要判断力的角色。' },
                     { icon: '🔮', title: '理性与直觉并重', desc: '头脑线清晰且略向下，代表逻辑与想象力兼具，擅长分析与创造。' },
                     { icon: '❤️', title: '情感细腻深沉', desc: '感情线弧度柔和上扬，情感丰富且理性兼具，追求精神层面的契合。' },
-                    { icon: '🌿', title: '生命力稳健绵长', desc: '生命线弧度饱满，精力充沛、体质良好，生活热情高涨。' },
                     { icon: '💼', title: '事业稳步上升', desc: '事业线明晰，方向感明确，适合拓展新领域或承担更大责任。' }
                 ]
             };
@@ -1291,26 +1411,25 @@
             }
             ctx.putImageData(imageData, 0, 0);
 
-            // Soft vignette overlay
-            const vg = ctx.createRadialGradient(W/2, H*0.45, W*0.15, W/2, H*0.45, W*0.75);
-            vg.addColorStop(0, 'rgba(255,255,255,0)');
-            vg.addColorStop(0.7, 'rgba(255,255,255,0.05)');
-            vg.addColorStop(1, 'rgba(245,240,230,0.55)');
+            // Dark-mode vignette (edges blend into result page background)
+            const vg = ctx.createRadialGradient(W/2, H*0.45, W*0.12, W/2, H*0.45, W*0.78);
+            vg.addColorStop(0, 'rgba(0,0,0,0)');
+            vg.addColorStop(0.55, 'rgba(0,0,0,0.12)');
+            vg.addColorStop(1, 'rgba(8,8,10,0.72)');
             ctx.fillStyle = vg;
             ctx.fillRect(0, 0, W, H);
 
-            // Fade edges to background color
-            const edgeFade = ctx.createLinearGradient(0, H - 120, 0, H);
-            edgeFade.addColorStop(0, 'rgba(240,225,210,0)');
-            edgeFade.addColorStop(1, 'rgba(240,225,210,0.95)');
+            const edgeFade = ctx.createLinearGradient(0, H - 140, 0, H);
+            edgeFade.addColorStop(0, 'rgba(12,12,14,0)');
+            edgeFade.addColorStop(1, 'rgba(12,12,14,0.92)');
             ctx.fillStyle = edgeFade;
-            ctx.fillRect(0, H - 120, W, 120);
+            ctx.fillRect(0, H - 140, W, 140);
 
-            const topFade = ctx.createLinearGradient(0, 0, 0, 80);
-            topFade.addColorStop(0, 'rgba(240,225,210,0.6)');
-            topFade.addColorStop(1, 'rgba(240,225,210,0)');
+            const topFade = ctx.createLinearGradient(0, 0, 0, 100);
+            topFade.addColorStop(0, 'rgba(12,12,14,0.75)');
+            topFade.addColorStop(1, 'rgba(12,12,14,0)');
             ctx.fillStyle = topFade;
-            ctx.fillRect(0, 0, W, 80);
+            ctx.fillRect(0, 0, W, 100);
 
             if (!landmarks || landmarks.length < 21) return;
 
@@ -1688,11 +1807,13 @@
 
             const pt = reading.palmType || 'balanced';
             renderResultHero(uploadedImage, landmarks, pt);
-            renderPalmHero(pt);
 
-            keywordsGrid.innerHTML = reading.keywords.map((kw, i) =>
+            if (resultPersonaMain) resultPersonaMain.textContent = reading.personaMain || '';
+            if (resultPersonaSub) resultPersonaSub.textContent = reading.personaSub || '';
+
+            keywordsGrid.innerHTML = reading.keywords.map((kw) =>
                 `<div class="keyword-item">
-                    <div class="keyword-icon">${reading.kwIcons[i]}</div>
+                    <div class="keyword-icon keyword-orbit" aria-hidden="true"></div>
                     <span class="keyword-label">${kw}</span>
                 </div>`
             ).join('');
@@ -1700,7 +1821,7 @@
             const lines = [
                 { name: '感情线', desc: reading.heartDesc },
                 { name: '头脑线', desc: reading.headDesc },
-                { name: '命运线', desc: reading.lifeDesc }
+                { name: '命运线', desc: reading.fateDesc }
             ];
             linesSection.innerHTML = lines.map(l =>
                 `<div class="line-row">
