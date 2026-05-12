@@ -394,8 +394,8 @@
         let palmDetectedCount = 0;
         let isFrontCamera = false;
         let lastPalmCenter = null;
-        const DETECTION_THRESHOLD = 10;
-        const STABILITY_THRESHOLD = 0.02;
+        const DETECTION_THRESHOLD = 18;
+        const STABILITY_THRESHOLD = 0.015;
         
         closeBtn.addEventListener('click', () => {
             stopCamera();
@@ -416,8 +416,8 @@
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: { ideal: 'environment' },
-                        width: { ideal: 1280 },
-                        height: { ideal: 960 }
+                        width: { ideal: 1920 },
+                        height: { ideal: 1440 }
                     },
                     audio: false
                 });
@@ -441,8 +441,8 @@
                     stream = await navigator.mediaDevices.getUserMedia({
                         video: {
                             facingMode: 'user',
-                            width: { ideal: 1280 },
-                            height: { ideal: 960 }
+                            width: { ideal: 1920 },
+                            height: { ideal: 1440 }
                         },
                         audio: false
                     });
@@ -586,9 +586,13 @@
             return extendedCount >= 4;
         }
         
-        function captureAndProcess() {
+        async function captureAndProcess() {
             isDetecting = false;
-            processingOverlay.classList.add('visible');
+            
+            detectionStatus.textContent = '已锁定，正在对焦...';
+            detectionStatus.classList.add('visible', 'success');
+            
+            await new Promise(r => setTimeout(r, 800));
             
             const canvas = document.createElement('canvas');
             canvas.width = cameraVideo.videoWidth;
@@ -601,7 +605,9 @@
             }
             ctx.drawImage(cameraVideo, 0, 0);
             
-            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+            processingOverlay.classList.add('visible');
+            
+            const imageData = canvas.toDataURL('image/jpeg', 0.92);
             
             stopCamera();
             
