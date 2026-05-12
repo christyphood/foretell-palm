@@ -332,14 +332,25 @@
             const hasSegData = segResult && segResult.success &&
                 (segResult.life_line || segResult.head_line || segResult.heart_line);
 
-            if (hasSegData) {
+            if (hasSegData && segResult.roi_center && segResult.roi_radius) {
                 // 使用 Huterox/palm_recongnition 的 Gabor+骨架化 精确线条结果
-                // 坐标已归一化到旋转后全图，直接映射到显示尺寸
+                // 坐标是 ROI 内的点映射到全图坐标系（归一化 0~1）
+                // 需要还原到原图上的实际位置
+
+                // ROI 在全图中的区域
+                const roiCx = segResult.roi_center[0] * w;
+                const roiCy = segResult.roi_center[1] * h;
+                const roiR = segResult.roi_radius * Math.min(w, h);
+                const roiSide = roiR * Math.SQRT2; // 正方形边长 = radius * sqrt(2)
+                const roiX1 = roiCx - roiSide / 2;
+                const roiY1 = roiCy - roiSide / 2;
+
                 lineConfigs.forEach(config => {
                     const pts = segResult[config.key];
                     if (!pts || pts.length < 3) return;
 
-                    // 归一化坐标直接映射到显示坐标
+                    // 坐标已经是全图归一化坐标（后端做了 roi_x1 + p[0] 的映射）
+                    // 但由于 ROI 很小，线条集中在小区域，直接画
                     const displayPts = pts.map(p => ({
                         x: p[0] * w,
                         y: p[1] * h
@@ -348,25 +359,24 @@
                     // 绘制平滑曲线
                     ctx.beginPath();
                     ctx.strokeStyle = config.color;
-                    ctx.lineWidth = 2.5;
+                    ctx.lineWidth = 3;
                     ctx.lineCap = 'round';
                     ctx.lineJoin = 'round';
                     ctx.shadowColor = config.color;
-                    ctx.shadowBlur = 5;
-                    ctx.globalAlpha = 0.9;
+                    ctx.shadowBlur = 6;
+                    ctx.globalAlpha = 0.95;
 
                     drawSmoothCurve(ctx, displayPts);
                     ctx.stroke();
                     ctx.shadowBlur = 0;
                     ctx.globalAlpha = 1;
 
-                    // 标签放在线条中点
-                    const midIdx = Math.floor(displayPts.length / 2);
-                    const midPt = displayPts[midIdx];
+                    // 标签放在线条端点偏移位置
+                    const endPt = displayPts[displayPts.length - 1];
                     const label = document.createElement('div');
                     label.className = 'line-label';
-                    const lx = Math.min(92, Math.max(8, (midPt.x / w) * 100 + 5));
-                    const ly = Math.min(92, Math.max(5, (midPt.y / h) * 100 - 4));
+                    const lx = Math.min(92, Math.max(8, (endPt.x / w) * 100 + 4));
+                    const ly = Math.min(92, Math.max(5, (endPt.y / h) * 100 - 3));
                     label.style.left = lx + '%';
                     label.style.top = ly + '%';
                     label.innerHTML = `<span class="num">${config.num}</span>${config.name}`;
@@ -374,18 +384,33 @@
                 });
 
                 // 绘制 ROI 区域指示（半透明虚线圆）
-                if (segResult.roi_center) {
-                    const roiCx = segResult.roi_center[0] * w;
-                    const roiCy = segResult.roi_center[1] * h;
-                    const roiR = (segResult.roi_radius || 0.15) * Math.min(w, h);
+                ctx.beginPath();
+                ctx.arc(roiCx, roiCy, roiR, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(201, 169, 110, 0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 同时用关键点估计法在全图上画主线（更直观）
+                const kp = estimateKeypoints(w, h);
+                const palmCenter = { x: (kp[0].x + kp[5].x + kp[13].x) / 3, y: (kp[0].y + kp[5].y + kp[13].y) / 3 };
+                const palmLines = computePalmLines(kp, palmCenter, w, h);
+
+                palmLines.forEach(line => {
                     ctx.beginPath();
-                    ctx.arc(roiCx, roiCy, roiR, 0, Math.PI * 2);
-                    ctx.strokeStyle = 'rgba(201, 169, 110, 0.4)';
-                    ctx.lineWidth = 1.5;
-                    ctx.setLineDash([5, 5]);
+                    ctx.strokeStyle = line.color;
+                    ctx.lineWidth = line.width;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.shadowColor = line.color;
+                    ctx.shadowBlur = 5;
+                    ctx.globalAlpha = 0.85;
+                    drawSmoothCurve(ctx, line.points);
                     ctx.stroke();
-                    ctx.setLineDash([]);
-                }
+                    ctx.shadowBlur = 0;
+                    ctx.globalAlpha = 1;
+                });
             } else {
                 // 回退：使用关键点估计法
                 const kp = estimateKeypoints(w, h);
