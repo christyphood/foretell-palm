@@ -25,6 +25,13 @@
             overflow: hidden;
             background: #0a0c11;
         }
+        .app.camera-active .header h1 { color: #fff; }
+        .app.camera-active .header p { color: rgba(255,255,255,0.9); }
+        .app.camera-active .close-btn {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.18);
+            color: #fff;
+        }
         .app.home-active .header {
             opacity: 0;
             pointer-events: none;
@@ -139,14 +146,19 @@
         .start-btn:active { transform: scale(0.93); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 
         /* ===== CAMERA ===== */
-        .section-camera { padding: 0 20px; display: flex; flex-direction: column; }
+        .section-camera {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+        }
         .camera-container {
             position: relative;
             width: 100%; aspect-ratio: 674 / 982;
-            margin: 10px auto 0;
+            margin: 14px auto 0;
             background: rgba(255,255,255,0.46);
             backdrop-filter: blur(7.8px); -webkit-backdrop-filter: blur(7.8px);
-            border: 1px solid rgba(255,255,255,0.19);
+            border: 1px solid #e3ceee;
             border-radius: 20px; overflow: hidden;
         }
         .camera-video {
@@ -183,15 +195,15 @@
         .detection-status.success { background: rgba(76,175,80,0.85); }
         .camera-hint {
             text-align: center; margin-top: 24px;
-            font-size: 16px; color: #3a2a1a; line-height: 1.5;
+            font-size: 18px; color: #fff; line-height: 1.5;
         }
         .upload-section {
             display: flex; align-items: center; justify-content: center;
             gap: 8px; margin-top: 20px; cursor: pointer; padding: 12px;
         }
         .upload-section:active { opacity: 0.7; }
-        .upload-text { font-size: 16px; color: #3a2a1a; }
-        .upload-icon { width: 18px; height: 18px; color: #3a2a1a; }
+        .upload-text { font-size: 16px; color: #fff; }
+        .upload-icon { width: 18px; height: 18px; color: #fff; }
         #fileInput { display: none; }
 
         /* ===== SCAN ===== */
@@ -599,6 +611,8 @@
 
             if (target === sectionHome) app.classList.add('home-active');
             else app.classList.remove('home-active');
+            if (target === sectionCamera) app.classList.add('camera-active');
+            else app.classList.remove('camera-active');
 
             if (target === sectionResult) {
                 document.body.style.overflow = 'hidden';
