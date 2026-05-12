@@ -10,6 +10,7 @@ onnxruntime>=1.16.0             # MediaPipe 手部关键点 ONNX 推理
 gradio>=4.0.0
 flask>=3.0.0
 flask-cors>=4.0.0
+gunicorn>=22.0.0
 
 # ── 可选：U-Net fallback（需要训练好的权重）──────────────────────────────────
 # torch

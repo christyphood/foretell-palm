@@ -1,0 +1,10 @@
+# Render：从仓库根部署，保证上一级目录的 index.html 可被 / 路由托管。
+# 控制台也可手动建 Web Service，字段与下面对齐即可（勿把 Root Directory 设为子目录，
+# 否则父目录的 index.html 不会进入实例，首页会 404）。
+services:
+  - type: web
+    name: palm-recognition-api
+    runtime: python
+    buildCommand: pip install -r Palm-Astro-Application/requirements.txt
+    startCommand: cd Palm-Astro-Application && gunicorn api_server:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 300
+    healthCheckPath: /health

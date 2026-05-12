@@ -251,9 +251,10 @@ def health():
 
 
 if __name__ == '__main__':
+    port = int(os.environ.get("PORT", "5050"))
     print("=" * 60)
     print("  掌纹识别 API 服务器")
     print("  基于 Huterox/palm_recongnition")
-    print("  端口: 5050")
+    print(f"  端口: {port} (Render 等平台通过环境变量 PORT 注入)")
     print("=" * 60)
-    app.run(host='0.0.0.0', port=5050, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False)
