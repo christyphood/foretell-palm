@@ -230,6 +230,138 @@
         }
         .share-btn:active { transform: scale(0.98); }
         .disclaimer { margin-top: 16px; font-size: 11px; color: #BFAE9D; line-height: 1.6; }
+
+        /* ===== PALM HERO GRAPHIC ===== */
+        .palm-hero {
+            position: relative;
+            margin: 24px 0;
+            border-radius: 24px;
+            overflow: hidden;
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s;
+        }
+        .palm-hero.visible { opacity: 1; transform: translateY(0); }
+
+        .palm-hero-inner {
+            position: relative;
+            padding: 32px 20px 28px;
+            background: rgba(255,255,255,0.35);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 24px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .palm-hero-glow {
+            position: absolute; top: 50%; left: 50%;
+            width: 200px; height: 200px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.5;
+            pointer-events: none;
+            animation: glowPulse 4s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.55; transform: translate(-50%, -50%) scale(1.15); }
+        }
+
+        .palm-hero-svg-wrap {
+            position: relative;
+            width: 180px; height: 180px;
+            margin: 0 auto 20px;
+            z-index: 1;
+        }
+        .palm-hero-svg-wrap svg {
+            width: 100%; height: 100%;
+            filter: drop-shadow(0 0 12px var(--hero-glow-color, rgba(192,214,232,0.4)));
+        }
+
+        .palm-hero-label {
+            position: relative; z-index: 1;
+            font-size: 20px; font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .palm-hero-sub {
+            position: relative; z-index: 1;
+            font-size: 12px; opacity: 0.7;
+            letter-spacing: 1px;
+        }
+
+        /* --- Philosopher (long) --- */
+        .palm-hero.type-long { --hero-glow-color: rgba(180, 210, 240, 0.5); }
+        .palm-hero.type-long .palm-hero-inner {
+            background: linear-gradient(160deg, rgba(230,240,252,0.45) 0%, rgba(210,225,245,0.3) 100%);
+            border-color: rgba(200,220,245,0.5);
+        }
+        .palm-hero.type-long .palm-hero-glow {
+            background: radial-gradient(circle, rgba(180,210,245,0.7), rgba(200,180,240,0.3), transparent);
+        }
+        .palm-hero.type-long .palm-hero-label { color: #4A6A8A; }
+        .palm-hero.type-long .palm-hero-sub { color: #6A8AAA; }
+
+        /* --- Practical (square) --- */
+        .palm-hero.type-square { --hero-glow-color: rgba(210, 180, 140, 0.5); }
+        .palm-hero.type-square .palm-hero-inner {
+            background: linear-gradient(160deg, rgba(250,240,225,0.45) 0%, rgba(240,225,200,0.3) 100%);
+            border-color: rgba(220,200,170,0.5);
+        }
+        .palm-hero.type-square .palm-hero-glow {
+            background: radial-gradient(circle, rgba(220,190,140,0.7), rgba(200,170,120,0.3), transparent);
+        }
+        .palm-hero.type-square .palm-hero-label { color: #8A6A3A; }
+        .palm-hero.type-square .palm-hero-sub { color: #A08050; }
+
+        /* --- Balanced --- */
+        .palm-hero.type-balanced { --hero-glow-color: rgba(190, 210, 190, 0.5); }
+        .palm-hero.type-balanced .palm-hero-inner {
+            background: linear-gradient(160deg, rgba(235,245,235,0.45) 0%, rgba(225,240,235,0.3) 100%);
+            border-color: rgba(200,225,210,0.5);
+        }
+        .palm-hero.type-balanced .palm-hero-glow {
+            background: radial-gradient(circle, rgba(170,210,180,0.7), rgba(200,220,190,0.3), transparent);
+        }
+        .palm-hero.type-balanced .palm-hero-label { color: #4A7A5A; }
+        .palm-hero.type-balanced .palm-hero-sub { color: #6A9A7A; }
+
+        /* SVG animation keyframes */
+        @keyframes heroSpin { to { transform: rotate(360deg); } }
+        @keyframes heroSpinReverse { to { transform: rotate(-360deg); } }
+        @keyframes heroBreathe {
+            0%, 100% { transform: scale(1); opacity: 0.85; }
+            50% { transform: scale(1.04); opacity: 1; }
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes heroWave {
+            0% { d: path("M20,100 C50,85 80,115 110,100 C140,85 170,115 200,100"); }
+            50% { d: path("M20,100 C50,115 80,85 110,100 C140,115 170,85 200,100"); }
+            100% { d: path("M20,100 C50,85 80,115 110,100 C140,85 170,115 200,100"); }
+        }
+        @keyframes heroWave2 {
+            0% { d: path("M10,110 C45,125 75,95 110,110 C145,125 175,95 210,110"); }
+            50% { d: path("M10,110 C45,95 75,125 110,110 C145,95 175,125 210,110"); }
+            100% { d: path("M10,110 C45,125 75,95 110,110 C145,125 175,95 210,110"); }
+        }
+        @keyframes heroWave3 {
+            0% { d: path("M0,120 C40,105 70,135 110,120 C150,105 180,135 220,120"); }
+            50% { d: path("M0,120 C40,135 70,105 110,120 C150,135 180,105 220,120"); }
+            100% { d: path("M0,120 C40,105 70,135 110,120 C150,105 180,135 220,120"); }
+        }
+        @keyframes heroDotOrbit {
+            0% { transform: rotate(0deg) translateX(58px) rotate(0deg); opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { transform: rotate(360deg) translateX(58px) rotate(-360deg); opacity: 0.6; }
+        }
+        @keyframes centerPulse {
+            0%, 100% { r: 3; opacity: 0.5; }
+            50% { r: 5; opacity: 0.9; }
+        }
     </style>
 </head>
 <body>
@@ -317,6 +449,14 @@
                         </div>
                     </div>
                     <div class="lines-section" id="linesSection"></div>
+                </div>
+                <div class="palm-hero" id="palmHero">
+                    <div class="palm-hero-inner">
+                        <div class="palm-hero-glow"></div>
+                        <div class="palm-hero-svg-wrap" id="palmHeroSvg"></div>
+                        <div class="palm-hero-label" id="palmHeroLabel"></div>
+                        <div class="palm-hero-sub" id="palmHeroSub"></div>
+                    </div>
                 </div>
                 <div class="traits-section">
                     <h2 class="traits-title">你的基本特质</h2>
@@ -433,6 +573,8 @@
             traitsContainer.innerHTML = '';
             keywordsGrid.innerHTML = '';
             linesSection.innerHTML = '';
+            document.getElementById('palmHero').classList.remove('visible');
+            document.getElementById('palmHeroSvg').innerHTML = '';
             handGuide.classList.remove('detected');
             detectionStatus.classList.remove('visible', 'success');
             cameraPlaceholder.style.display = 'flex';
@@ -827,11 +969,12 @@
                 { icon: '💼', title: '事业运势：突破期', desc: '掌纹中事业线的走向表明你即将进入一个全新阶段，旧有模式可能被打破，拥抱变化将带来意想不到的收获。' }
             ];
             traits.push(careerPool[s % 3]);
-            return { keywords, kwIcons, heartDesc, headDesc, lifeDesc, traits };
+            return { keywords, kwIcons, heartDesc, headDesc, lifeDesc, traits, palmType };
         }
 
         function getDefaultReading() {
             return {
+                palmType: 'balanced',
                 keywords: ['方向感', '毅力', '创造力'], kwIcons: ['🧭', '💪', '✨'],
                 heartDesc: '感情线走势清晰，弧度柔和上扬，代表你情感丰富且理性兼具，在关系中追求真诚与深度连接。',
                 headDesc: '头脑线起点与生命线略分开，线条流畅，代表你思维独立、逻辑清晰，具有良好的判断力和分析能力。',
@@ -880,6 +1023,194 @@
         }
 
         // ==========================================
+        // Palm Hero Graphic
+        // ==========================================
+        const palmHero = document.getElementById('palmHero');
+        const palmHeroSvg = document.getElementById('palmHeroSvg');
+        const palmHeroLabel = document.getElementById('palmHeroLabel');
+        const palmHeroSub = document.getElementById('palmHeroSub');
+
+        function renderPalmHero(palmType) {
+            palmHero.className = 'palm-hero type-' + palmType;
+
+            const heroData = {
+                long: {
+                    label: '哲 学 手',
+                    sub: '悬浮的无限阶梯 · 思想的深邃与逻辑的循环',
+                    svg: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="auroraA" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="rgba(180,210,245,0.9)"/>
+                                <stop offset="100%" stop-color="rgba(200,180,240,0.6)"/>
+                            </linearGradient>
+                            <linearGradient id="auroraB" x1="100%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="rgba(200,220,250,0.8)"/>
+                                <stop offset="100%" stop-color="rgba(170,200,235,0.5)"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Outer hexagon - slow spin -->
+                        <g style="transform-origin:100px 100px; animation: heroSpin 30s linear infinite">
+                            <polygon points="100,18 168,52 168,148 100,182 32,148 32,52"
+                                fill="none" stroke="url(#auroraA)" stroke-width="0.7" opacity="0.6"/>
+                        </g>
+                        <!-- Second hexagon - counter-rotate -->
+                        <g style="transform-origin:100px 100px; animation: heroSpinReverse 22s linear infinite">
+                            <polygon points="100,35 155,58 155,142 100,165 45,142 45,58"
+                                fill="none" stroke="url(#auroraB)" stroke-width="0.8" opacity="0.7"/>
+                        </g>
+                        <!-- Third hexagon - faster spin -->
+                        <g style="transform-origin:100px 100px; animation: heroSpin 16s linear infinite">
+                            <polygon points="100,52 142,70 142,130 100,148 58,130 58,70"
+                                fill="none" stroke="url(#auroraA)" stroke-width="0.9" opacity="0.8"/>
+                        </g>
+                        <!-- Inner hexagon - counter-rotate, brighter -->
+                        <g style="transform-origin:100px 100px; animation: heroSpinReverse 12s linear infinite">
+                            <polygon points="100,66 130,80 130,120 100,134 70,120 70,80"
+                                fill="none" stroke="rgba(200,220,250,0.9)" stroke-width="1"/>
+                        </g>
+                        <!-- Innermost - gentle float -->
+                        <g style="transform-origin:100px 100px; animation: heroFloat 5s ease-in-out infinite">
+                            <polygon points="100,78 118,88 118,112 100,122 82,112 82,88"
+                                fill="rgba(210,230,255,0.1)" stroke="rgba(210,230,255,0.95)" stroke-width="1"/>
+                        </g>
+                        <!-- Cross lines through center -->
+                        <g style="transform-origin:100px 100px; animation: heroSpin 40s linear infinite">
+                            <line x1="100" y1="30" x2="100" y2="170" stroke="rgba(200,215,240,0.2)" stroke-width="0.4"/>
+                            <line x1="39" y1="65" x2="161" y2="135" stroke="rgba(200,215,240,0.2)" stroke-width="0.4"/>
+                            <line x1="39" y1="135" x2="161" y2="65" stroke="rgba(200,215,240,0.2)" stroke-width="0.4"/>
+                        </g>
+                        <!-- Orbiting dots -->
+                        <g style="transform-origin:100px 100px; animation: heroDotOrbit 10s linear infinite">
+                            <circle cx="100" cy="100" r="2.5" fill="rgba(200,220,255,0.9)"/>
+                        </g>
+                        <g style="transform-origin:100px 100px; animation: heroDotOrbit 14s linear infinite reverse">
+                            <circle cx="100" cy="100" r="2" fill="rgba(190,180,240,0.8)"/>
+                        </g>
+                        <!-- Center pulse -->
+                        <circle cx="100" cy="100" r="3" fill="rgba(220,235,255,0.8)"
+                            style="animation: centerPulse 3s ease-in-out infinite"/>
+                    </svg>`
+                },
+                square: {
+                    label: '实 用 手',
+                    sub: '稳固的几何基石 · 行动的力量与秩序的结晶',
+                    svg: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="earthA" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="rgba(220,190,140,0.9)"/>
+                                <stop offset="100%" stop-color="rgba(200,170,120,0.6)"/>
+                            </linearGradient>
+                            <linearGradient id="earthB" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="rgba(210,180,130,0.8)"/>
+                                <stop offset="100%" stop-color="rgba(190,160,110,0.5)"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Isometric cube - front face -->
+                        <g style="animation: heroBreathe 5s ease-in-out infinite">
+                            <polygon points="100,60 145,82 145,127 100,149 55,127 55,82"
+                                fill="rgba(230,210,175,0.12)" stroke="url(#earthA)" stroke-width="1" stroke-linejoin="round"/>
+                            <line x1="100" y1="60" x2="100" y2="149" stroke="rgba(210,180,130,0.4)" stroke-width="0.6"/>
+                            <line x1="55" y1="82" x2="145" y2="82" stroke="rgba(210,180,130,0.3)" stroke-width="0.5"/>
+                            <line x1="55" y1="127" x2="145" y2="127" stroke="rgba(210,180,130,0.3)" stroke-width="0.5"/>
+                        </g>
+                        <!-- Outer square ring - slow rotate -->
+                        <g style="transform-origin:100px 105px; animation: heroSpin 40s linear infinite">
+                            <rect x="30" y="35" width="140" height="140" rx="4"
+                                fill="none" stroke="url(#earthB)" stroke-width="0.6" opacity="0.5"
+                                transform="rotate(0,100,105)"/>
+                        </g>
+                        <!-- Second square - counter-rotate -->
+                        <g style="transform-origin:100px 105px; animation: heroSpinReverse 28s linear infinite">
+                            <rect x="42" y="47" width="116" height="116" rx="3"
+                                fill="none" stroke="rgba(210,185,140,0.6)" stroke-width="0.7"/>
+                        </g>
+                        <!-- Inner diamond accent -->
+                        <g style="transform-origin:100px 105px; animation: heroSpin 20s linear infinite">
+                            <rect x="70" y="75" width="60" height="60" rx="2"
+                                fill="none" stroke="rgba(220,195,150,0.7)" stroke-width="0.8"
+                                transform="rotate(45,100,105)"/>
+                        </g>
+                        <!-- Stable vertical/horizontal lines -->
+                        <g opacity="0.25">
+                            <line x1="100" y1="25" x2="100" y2="185" stroke="rgba(200,175,125,0.5)" stroke-width="0.4"/>
+                            <line x1="20" y1="105" x2="180" y2="105" stroke="rgba(200,175,125,0.5)" stroke-width="0.4"/>
+                        </g>
+                        <!-- Corner anchor dots - breathing -->
+                        <g style="animation: heroBreathe 4s ease-in-out infinite">
+                            <circle cx="55" cy="82" r="2.5" fill="rgba(220,195,150,0.8)"/>
+                            <circle cx="145" cy="82" r="2.5" fill="rgba(220,195,150,0.8)"/>
+                            <circle cx="55" cy="127" r="2.5" fill="rgba(220,195,150,0.8)"/>
+                            <circle cx="145" cy="127" r="2.5" fill="rgba(220,195,150,0.8)"/>
+                        </g>
+                        <!-- Center dot -->
+                        <circle cx="100" cy="105" r="3" fill="rgba(225,200,155,0.9)"
+                            style="animation: centerPulse 3.5s ease-in-out infinite"/>
+                    </svg>`
+                },
+                balanced: {
+                    label: '均 衡 手',
+                    sub: '流动的和谐曲线 · 感性与理性的交融共振',
+                    svg: `<svg viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="flowA" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="rgba(170,210,180,0.8)"/>
+                                <stop offset="50%" stop-color="rgba(180,200,210,0.9)"/>
+                                <stop offset="100%" stop-color="rgba(190,180,210,0.7)"/>
+                            </linearGradient>
+                            <linearGradient id="flowB" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="rgba(190,220,195,0.6)"/>
+                                <stop offset="100%" stop-color="rgba(180,195,220,0.8)"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Wave paths with CSS animation -->
+                        <path d="M20,100 C50,85 80,115 110,100 C140,85 170,115 200,100"
+                            fill="none" stroke="url(#flowA)" stroke-width="1.2" opacity="0.9"
+                            style="animation: heroWave 6s ease-in-out infinite"/>
+                        <path d="M10,110 C45,125 75,95 110,110 C145,125 175,95 210,110"
+                            fill="none" stroke="url(#flowB)" stroke-width="0.9" opacity="0.7"
+                            style="animation: heroWave2 7s ease-in-out infinite"/>
+                        <path d="M0,120 C40,105 70,135 110,120 C150,105 180,135 220,120"
+                            fill="none" stroke="rgba(175,205,185,0.5)" stroke-width="0.7" opacity="0.6"
+                            style="animation: heroWave3 8s ease-in-out infinite"/>
+                        <!-- Upper mirror waves -->
+                        <path d="M20,85 C55,70 85,100 110,85 C135,70 165,100 200,85"
+                            fill="none" stroke="rgba(185,210,195,0.4)" stroke-width="0.6"
+                            style="animation: heroWave 7s ease-in-out infinite reverse"/>
+                        <path d="M15,70 C50,55 80,85 110,70 C140,55 170,85 205,70"
+                            fill="none" stroke="rgba(180,200,210,0.3)" stroke-width="0.5"
+                            style="animation: heroWave2 8s ease-in-out infinite reverse"/>
+                        <!-- Center circle with orbit -->
+                        <g style="animation: heroBreathe 5s ease-in-out infinite">
+                            <circle cx="110" cy="100" r="22" fill="rgba(185,215,195,0.08)"
+                                stroke="rgba(180,210,190,0.6)" stroke-width="0.8"/>
+                        </g>
+                        <g style="transform-origin:110px 100px; animation: heroDotOrbit 12s linear infinite">
+                            <circle cx="110" cy="100" r="2" fill="rgba(175,210,185,0.9)"/>
+                        </g>
+                        <g style="transform-origin:110px 100px; animation: heroDotOrbit 16s linear infinite reverse">
+                            <circle cx="110" cy="100" r="1.8" fill="rgba(185,195,220,0.8)"/>
+                        </g>
+                        <!-- Yin-yang inspired half circles -->
+                        <g style="transform-origin:110px 100px; animation: heroSpin 24s linear infinite" opacity="0.4">
+                            <path d="M110,68 A32,32 0 0 1 110,132" fill="none" stroke="rgba(170,205,180,0.7)" stroke-width="0.7"/>
+                            <path d="M110,132 A32,32 0 0 1 110,68" fill="none" stroke="rgba(185,190,215,0.7)" stroke-width="0.7"/>
+                        </g>
+                        <!-- Center pulse -->
+                        <circle cx="110" cy="100" r="3" fill="rgba(185,215,200,0.9)"
+                            style="animation: centerPulse 3s ease-in-out infinite"/>
+                    </svg>`
+                }
+            };
+
+            const data = heroData[palmType] || heroData.balanced;
+            palmHeroSvg.innerHTML = data.svg;
+            palmHeroLabel.textContent = data.label;
+            palmHeroSub.textContent = data.sub;
+
+            requestAnimationFrame(() => palmHero.classList.add('visible'));
+        }
+
+        // ==========================================
         // Result
         // ==========================================
         function showResult(segResult, landmarks) {
@@ -902,6 +1233,8 @@
 
             const analysis = analyzePalm(landmarks);
             const reading = generateReading(analysis);
+
+            renderPalmHero(reading.palmType || 'balanced');
 
             keywordsGrid.innerHTML = reading.keywords.map((kw, i) =>
                 `<div class="keyword-item">
