@@ -137,19 +137,14 @@
         <input type="file" id="cameraInput" accept="image/*" capture="environment">
     </div>
 
-    <!-- 
-      后端 API: Palm-Astro-Application/api_server.py
-      基于 Huterox/palm_recongnition (https://github.com/Huterox/palm_recongnition)
-      
-      核心流程：
-        1. 21个手部关键点检测（MediaPipe ONNX）
-        2. 图像旋转矫正（腕部→中指向量对齐）
-        3. 手部分割（GrabCut）
-        4. PSO 算法精确定位掌心 ROI
-        5. Gabor 滤波器 + 骨架化提取掌纹线条
-        6. 三线识别（感情线、智慧线、生命线）
-      
-      启动后端: cd Palm-Astro-Application && python api_server.py
+    <!--
+      本地：cd Palm-Astro-Application && python3 api_server.py
+            浏览器打开 http://127.0.0.1:5050/（与 /analyze 同源）
+
+      GitHub Pages：只能托管本页静态文件，不能跑 Python。要把 api_server 部署到
+      Render / Railway / Fly.io 等 HTTPS 服务后，用链接打开，例如：
+      https://你的用户名.github.io/foretell-palm/?api=https://你的后端域名
+      （后端需开启 CORS；本仓库 api_server 已使用 flask_cors）
     -->
 
     <script>
@@ -166,6 +161,44 @@
         const analysisSection = document.getElementById('analysisSection');
 
         let uploadedImage = null;
+        /** 后端失败时，浏览器 MediaPipe 检测到的 21 点（0~1，相对原图宽高）；无检测则为 null */
+        let lastClientKeypointsNormalized = null;
+        let handLandmarkerInstance = null;
+
+        /**
+         * API 根地址（不含 /analyze）。
+         * - 查询参数 ?api=https://xxx 用于 GitHub Pages + 已部署的 HTTPS 后端
+         * - localStorage.palmApiBase 可持久保存同一域名
+         * - 本机 http://127.0.0.1:5050/ 打开时用相对路径，无混合内容问题
+         */
+        function getPalmApiBase() {
+            const params = new URLSearchParams(location.search);
+            const fromQuery = params.get('api');
+            if (fromQuery) {
+                try {
+                    const u = new URL(fromQuery);
+                    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+                    return u.origin + u.pathname.replace(/\/$/, '');
+                } catch (_) {
+                    return null;
+                }
+            }
+            try {
+                const saved = localStorage.getItem('palmApiBase');
+                if (saved) {
+                    const u = new URL(saved);
+                    return u.origin + u.pathname.replace(/\/$/, '');
+                }
+            } catch (_) {}
+
+            const { protocol, hostname, port } = location;
+            const local = hostname === 'localhost' || hostname === '127.0.0.1';
+            if (local && port === '5050') return '';
+            if (protocol === 'file:') return 'http://127.0.0.1:5050';
+            if (protocol === 'http:' && local) return 'http://127.0.0.1:5050';
+            if (protocol === 'https:') return null;
+            return 'http://127.0.0.1:5050';
+        }
 
         const scanTexts = [
             '加载 MediaPipe 手部关键点模型...',
@@ -226,24 +259,48 @@
             // 调用后端 Huterox/palm_recongnition 掌纹识别 API
             // 流程: 关键点检测 → 旋转矫正 → GrabCut分割 → PSO定位 → Gabor增强 → 三线识别
             let segResult = null;
-            try {
-                scanText.textContent = '正在调用 palm_recongnition AI 掌纹识别...';
-                const canvas = document.createElement('canvas');
-                canvas.width = uploadedImage.naturalWidth;
-                canvas.height = uploadedImage.naturalHeight;
-                canvas.getContext('2d').drawImage(uploadedImage, 0, 0);
-                const b64 = canvas.toDataURL('image/jpeg', 0.85);
+            lastClientKeypointsNormalized = null;
+            const apiBase = getPalmApiBase();
+            if (apiBase === null) {
+                console.warn('[palm] 当前为 HTTPS 页面且未配置 ?api= 后端地址，无法访问本机 http API。');
+                scanText.textContent = '请在链接后加 ?api=你的HTTPS后端地址，或本地用 http://127.0.0.1:5050/';
+            } else {
+                try {
+                    scanText.textContent = '正在调用 palm_recongnition AI 掌纹识别...';
+                    const canvas = document.createElement('canvas');
+                    canvas.width = uploadedImage.naturalWidth;
+                    canvas.height = uploadedImage.naturalHeight;
+                    canvas.getContext('2d').drawImage(uploadedImage, 0, 0);
+                    const b64 = canvas.toDataURL('image/jpeg', 0.85);
 
-                const resp = await fetch('http://localhost:5050/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: b64 })
-                });
-                segResult = await resp.json();
-                console.log('[palm_recongnition] API 响应:', segResult);
-            } catch(e) {
-                console.warn('[palm_recongnition] API 连接失败，使用关键点估计法:', e);
-                console.warn('请确保后端已启动: cd Palm-Astro-Application && python api_server.py');
+                    const url = (apiBase || '') + '/analyze';
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: b64 })
+                    });
+                    segResult = await resp.json();
+                    if (!resp.ok) {
+                        console.warn('[palm_recongnition] HTTP', resp.status, segResult);
+                        segResult = segResult && typeof segResult === 'object'
+                            ? { ...segResult, success: false }
+                            : { success: false, error: 'HTTP ' + resp.status };
+                    }
+                    console.log('[palm_recongnition] API 响应:', segResult);
+                } catch (e) {
+                    console.warn('[palm_recongnition] API 连接失败，使用关键点估计法:', e);
+                    console.warn('本地请运行: cd Palm-Astro-Application && python3 api_server.py，并打开 http://127.0.0.1:5050/');
+                }
+            }
+
+            // 无后端或失败时：用浏览器端 MediaPipe 手部 21 点驱动曲线（每张图不同；仍非掌纹纹理级 AI）
+            if (!segResult || !segResult.success) {
+                try {
+                    scanText.textContent = '加载浏览器端手部模型…';
+                    lastClientKeypointsNormalized = await detectHandKeypointsNormalized(uploadedImage);
+                } catch (e) {
+                    console.warn('[palm] 浏览器端手部检测不可用:', e);
+                }
             }
 
             // 继续动画
@@ -288,10 +345,14 @@
                 desc.innerHTML = `基于 <a href="https://github.com/Huterox/palm_recongnition" style="color:#C9A96E;">Huterox/palm_recongnition</a> AI识别<br>` +
                     `关键点检测 → PSO定位 → Gabor增强 → 三线提取<br>` +
                     `<small style="color:#A89580;">生命线 ${f.life_length}px | 智慧线 ${f.head_length}px | 感情线 ${f.heart_length}px</small>`;
+            } else if (lastClientKeypointsNormalized) {
+                const desc = document.querySelector('.tags-desc');
+                desc.innerHTML = `基于浏览器 MediaPipe 手部 21 点估算主线走向（每张图会随手势变化）<br>` +
+                    `<small style="color:#A89580;">非掌纹纹理级识别。连接后端可跑 Gabor + PSO + 骨架化 的完整流程。</small>`;
             } else {
                 const desc = document.querySelector('.tags-desc');
-                desc.innerHTML = `基于21关键点检测估计掌纹位置<br>` +
-                    `<small style="color:#A89580;">后端未连接，使用本地估计法。启动后端获取AI精准识别。</small>`;
+                desc.innerHTML = `基于固定比例示意图（未检测到手掌或模型加载失败）<br>` +
+                    `<small style="color:#A89580;">请展开五指、光线充足；或启动后端 / 配置 ?api= 获取 AI 结果。</small>`;
             }
 
             renderAnalysisCards(segResult);
@@ -332,31 +393,16 @@
             const hasSegData = segResult && segResult.success &&
                 (segResult.life_line || segResult.head_line || segResult.heart_line);
 
-            if (hasSegData && segResult.roi_center && segResult.roi_radius) {
-                // 使用 Huterox/palm_recongnition 的 Gabor+骨架化 精确线条结果
-                // 坐标是 ROI 内的点映射到全图坐标系（归一化 0~1）
-                // 需要还原到原图上的实际位置
-
-                // ROI 在全图中的区域
-                const roiCx = segResult.roi_center[0] * w;
-                const roiCy = segResult.roi_center[1] * h;
-                const roiR = segResult.roi_radius * Math.min(w, h);
-                const roiSide = roiR * Math.SQRT2; // 正方形边长 = radius * sqrt(2)
-                const roiX1 = roiCx - roiSide / 2;
-                const roiY1 = roiCy - roiSide / 2;
-
+            if (hasSegData) {
                 lineConfigs.forEach(config => {
                     const pts = segResult[config.key];
                     if (!pts || pts.length < 3) return;
 
-                    // 坐标已经是全图归一化坐标（后端做了 roi_x1 + p[0] 的映射）
-                    // 但由于 ROI 很小，线条集中在小区域，直接画
                     const displayPts = pts.map(p => ({
                         x: p[0] * w,
                         y: p[1] * h
                     }));
 
-                    // 绘制平滑曲线
                     ctx.beginPath();
                     ctx.strokeStyle = config.color;
                     ctx.lineWidth = 3;
@@ -371,7 +417,6 @@
                     ctx.shadowBlur = 0;
                     ctx.globalAlpha = 1;
 
-                    // 标签放在线条端点偏移位置
                     const endPt = displayPts[displayPts.length - 1];
                     const label = document.createElement('div');
                     label.className = 'line-label';
@@ -383,37 +428,20 @@
                     palmAnnotation.appendChild(label);
                 });
 
-                // 绘制 ROI 区域指示（半透明虚线圆）
-                ctx.beginPath();
-                ctx.arc(roiCx, roiCy, roiR, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(201, 169, 110, 0.4)';
-                ctx.lineWidth = 1.5;
-                ctx.setLineDash([5, 5]);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                // 同时用关键点估计法在全图上画主线（更直观）
-                const kp = estimateKeypoints(w, h);
-                const palmCenter = { x: (kp[0].x + kp[5].x + kp[13].x) / 3, y: (kp[0].y + kp[5].y + kp[13].y) / 3 };
-                const palmLines = computePalmLines(kp, palmCenter, w, h);
-
-                palmLines.forEach(line => {
+                if (segResult.roi_center && segResult.roi_radius != null) {
+                    const roiCx = segResult.roi_center[0] * w;
+                    const roiCy = segResult.roi_center[1] * h;
+                    const roiR = segResult.roi_radius * Math.min(w, h);
                     ctx.beginPath();
-                    ctx.strokeStyle = line.color;
-                    ctx.lineWidth = line.width;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.shadowColor = line.color;
-                    ctx.shadowBlur = 5;
-                    ctx.globalAlpha = 0.85;
-                    drawSmoothCurve(ctx, line.points);
+                    ctx.arc(roiCx, roiCy, roiR, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(201, 169, 110, 0.4)';
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([5, 5]);
                     ctx.stroke();
-                    ctx.shadowBlur = 0;
-                    ctx.globalAlpha = 1;
-                });
+                    ctx.setLineDash([]);
+                }
             } else {
-                // 回退：使用关键点估计法
-                const kp = estimateKeypoints(w, h);
+                const kp = keypointsForDraw(w, h);
                 const palmCenter = { x: (kp[0].x + kp[5].x + kp[13].x) / 3, y: (kp[0].y + kp[5].y + kp[13].y) / 3 };
                 const palmLines = computePalmLines(kp, palmCenter, w, h);
 
@@ -438,6 +466,47 @@
                     label.innerHTML = `<span class="num">${line.num}</span>${line.name}`;
                     palmAnnotation.appendChild(label);
                 });
+            }
+        }
+
+        /** 将归一化 21 点映射到当前画布像素；无则固定示意图 */
+        function keypointsForDraw(w, h) {
+            if (lastClientKeypointsNormalized && lastClientKeypointsNormalized.length >= 21) {
+                return lastClientKeypointsNormalized.map(p => ({ x: p.x * w, y: p.y * h }));
+            }
+            return estimateKeypoints(w, h);
+        }
+
+        /**
+         * 浏览器端 MediaPipe Hand Landmarker（需联网拉 wasm + 模型）。
+         * 返回 21 个 {x,y}，坐标为 0~1（相对原图）。
+         */
+        async function detectHandKeypointsNormalized(imgEl) {
+            if (!imgEl || !imgEl.naturalWidth) return null;
+            try {
+                if (!handLandmarkerInstance) {
+                    const { HandLandmarker, FilesetResolver } = await import(
+                        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm'
+                    );
+                    const wasmPath = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
+                    const fileset = await FilesetResolver.forVisionTasks(wasmPath);
+                    handLandmarkerInstance = await HandLandmarker.createFromOptions(fileset, {
+                        baseOptions: {
+                            modelAssetPath:
+                                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+                            delegate: 'CPU'
+                        },
+                        runningMode: 'IMAGE',
+                        numHands: 1
+                    });
+                }
+                const result = handLandmarkerInstance.detect(imgEl);
+                const lm = result.landmarks && result.landmarks[0];
+                if (!lm || lm.length < 21) return null;
+                return lm.map(p => ({ x: p.x, y: p.y }));
+            } catch (e) {
+                console.warn('[palm] MediaPipe HandLandmarker:', e);
+                return null;
             }
         }
 
