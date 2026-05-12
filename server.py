@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'Palm-Astro-Application'))
 
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import cv2
 import numpy as np
@@ -22,6 +22,15 @@ from albumentations.pytorch import ToTensorV2
 
 app = Flask(__name__)
 CORS(app)
+
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+@app.route("/")
+def serve_index():
+    """与 /analyze 同源提供前端，避免只打开根路径时出现 404。"""
+    return send_from_directory(_REPO_ROOT, "index.html")
+
 
 # 模型加载
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'Palm-Astro-Application', 'results', 'best_model.pth')
@@ -179,4 +188,5 @@ def health():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5050, debug=False)
+    port = int(os.environ.get("PORT", "5050"))
+    app.run(host="0.0.0.0", port=port, debug=False)
