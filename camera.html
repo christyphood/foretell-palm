@@ -433,7 +433,9 @@
         let isDetecting = false;
         let palmDetectedCount = 0;
         let isFrontCamera = false;
-        const DETECTION_THRESHOLD = 5;
+        let lastPalmCenter = null;
+        const DETECTION_THRESHOLD = 10;
+        const STABILITY_THRESHOLD = 0.02;
         
         closeBtn.addEventListener('click', () => {
             stopCamera();
@@ -541,17 +543,30 @@
                     const landmarks = result.landmarks[0];
                     
                     if (isPalmOpen(landmarks)) {
-                        palmDetectedCount++;
-                        handGuide.classList.add('detected');
-                        detectionStatus.textContent = `手掌已识别 (${palmDetectedCount}/${DETECTION_THRESHOLD})`;
-                        detectionStatus.classList.add('visible', 'success');
+                        const palmCenter = getPalmCenter(landmarks);
+                        const isStable = isPalmStable(palmCenter);
+                        lastPalmCenter = palmCenter;
                         
-                        if (palmDetectedCount >= DETECTION_THRESHOLD) {
-                            captureAndProcess();
-                            return;
+                        if (isStable) {
+                            palmDetectedCount++;
+                            handGuide.classList.add('detected');
+                            detectionStatus.textContent = `手掌已识别，保持不动 (${palmDetectedCount}/${DETECTION_THRESHOLD})`;
+                            detectionStatus.classList.add('visible', 'success');
+                            
+                            if (palmDetectedCount >= DETECTION_THRESHOLD) {
+                                captureAndProcess();
+                                return;
+                            }
+                        } else {
+                            palmDetectedCount = Math.max(0, palmDetectedCount - 2);
+                            handGuide.classList.add('detected');
+                            detectionStatus.textContent = '请保持手掌稳定';
+                            detectionStatus.classList.add('visible');
+                            detectionStatus.classList.remove('success');
                         }
                     } else {
                         palmDetectedCount = Math.max(0, palmDetectedCount - 1);
+                        lastPalmCenter = null;
                         handGuide.classList.remove('detected');
                         detectionStatus.textContent = '请张开手掌';
                         detectionStatus.classList.add('visible');
@@ -559,6 +574,7 @@
                     }
                 } else {
                     palmDetectedCount = Math.max(0, palmDetectedCount - 1);
+                    lastPalmCenter = null;
                     handGuide.classList.remove('detected');
                     detectionStatus.textContent = '未检测到手掌';
                     detectionStatus.classList.add('visible');
@@ -569,6 +585,25 @@
             }
             
             requestAnimationFrame(detectLoop);
+        }
+        
+        function getPalmCenter(landmarks) {
+            const wrist = landmarks[0];
+            const middleMcp = landmarks[9];
+            const indexMcp = landmarks[5];
+            const pinkyMcp = landmarks[17];
+            return {
+                x: (wrist.x + middleMcp.x + indexMcp.x + pinkyMcp.x) / 4,
+                y: (wrist.y + middleMcp.y + indexMcp.y + pinkyMcp.y) / 4
+            };
+        }
+        
+        function isPalmStable(currentCenter) {
+            if (!lastPalmCenter) return true;
+            const dx = currentCenter.x - lastPalmCenter.x;
+            const dy = currentCenter.y - lastPalmCenter.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < STABILITY_THRESHOLD;
         }
         
         function isPalmOpen(landmarks) {
