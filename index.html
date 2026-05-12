@@ -384,14 +384,15 @@
                 }
             }
 
-            if (!hasBackendAiResult(segResult)) {
-                try {
-                    scanText.textContent = '使用浏览器端手部模型检测...';
-                    segResult = segResult || {};
-                    segResult._clientLandmarks = await detectHandLandmarks(uploadedImage);
-                } catch (e) {
-                    console.warn('[palm] client hand detection fail:', e);
-                }
+            // Always detect landmarks for palm cropping
+            try {
+                scanText.textContent = '检测手掌位置...';
+                const landmarks = await detectHandLandmarks(uploadedImage);
+                if (!segResult) segResult = {};
+                segResult._clientLandmarks = landmarks;
+            } catch (e) {
+                console.warn('[palm] client hand detection fail:', e);
+                if (!segResult) segResult = {};
             }
 
             for (let i = 1; i < scanTexts.length; i++) {
@@ -439,15 +440,17 @@
         function cropPalmByLandmarks(img, landmarks) {
             if (!landmarks || landmarks.length < 21) return cropPalmCenter(img);
             const w = img.naturalWidth, h = img.naturalHeight;
+            // Use palm-area keypoints (wrist + finger MCPs) to define palm region
+            const palmIndices = [0, 1, 2, 5, 9, 13, 17];
             let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
-            for (const lm of landmarks) {
-                const px = lm.x * w, py = lm.y * h;
+            for (const i of palmIndices) {
+                const px = landmarks[i].x * w, py = landmarks[i].y * h;
                 if (px < minX) minX = px;
                 if (py < minY) minY = py;
                 if (px > maxX) maxX = px;
                 if (py > maxY) maxY = py;
             }
-            const pad = (maxX - minX) * 0.15;
+            const pad = (maxX - minX) * 0.2;
             minX = Math.max(0, minX - pad);
             minY = Math.max(0, minY - pad);
             maxX = Math.min(w, maxX + pad);
@@ -457,17 +460,19 @@
             const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
             const sx = Math.max(0, cx - side / 2);
             const sy = Math.max(0, cy - side / 2);
+            const actualW = Math.min(side, w - sx);
+            const actualH = Math.min(side, h - sy);
             const c = document.createElement('canvas');
-            const size = 300;
-            c.width = size; c.height = size;
-            c.getContext('2d').drawImage(img, sx, sy, Math.min(side, w - sx), Math.min(side, h - sy), 0, 0, size, size);
+            c.width = 300; c.height = 300;
+            c.getContext('2d').drawImage(img, sx, sy, actualW, actualH, 0, 0, 300, 300);
             return c.toDataURL('image/jpeg', 0.88);
         }
 
         function cropPalmCenter(img) {
             const w = img.naturalWidth, h = img.naturalHeight;
-            const side = Math.min(w, h) * 0.7;
-            const sx = (w - side) / 2, sy = (h - side) / 2;
+            // Crop center 45% — just the palm area
+            const side = Math.min(w, h) * 0.45;
+            const sx = (w - side) / 2, sy = h * 0.3;
             const c = document.createElement('canvas');
             c.width = 300; c.height = 300;
             c.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, 300, 300);
