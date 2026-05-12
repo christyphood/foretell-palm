@@ -13,13 +13,9 @@
             overflow-x: hidden;
         }
         .page { max-width: 414px; margin: 0 auto; min-height: 100vh; position: relative; }
-
-        /* Header */
         .header {
             padding: 60px 24px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            display: flex; justify-content: space-between; align-items: flex-start;
         }
         .header h1 { font-size: 21px; font-weight: 700; color: #000; line-height: 1.2; margin-bottom: 4px; }
         .header p { font-size: 11px; color: #4a4a4a; }
@@ -31,8 +27,6 @@
             display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
         .close-btn:active { transform: scale(0.95); }
-
-        /* ========== Page 1: Home ========== */
         .page-home {
             display: flex; flex-direction: column; align-items: center;
             justify-content: center; padding-top: 28vh;
@@ -43,32 +37,24 @@
             border: none; color: white; font-size: 20px; font-weight: 600;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 12px 40px rgba(201,169,110,0.4);
-            transition: transform 0.3s ease;
-            letter-spacing: 1px;
+            transition: transform 0.3s ease; letter-spacing: 1px;
         }
         .start-btn:active { transform: scale(0.95); }
-
-        /* ========== Page 2: Scan ========== */
         .page-scan { display: none; padding: 0 20px; }
         .scan-box {
-            position: relative; width: 100%;
-            aspect-ratio: 674 / 982;
+            position: relative; width: 100%; aspect-ratio: 674 / 982;
             margin: 10px auto 0;
             background: rgba(255,255,255,0.46);
             backdrop-filter: blur(7.8px); -webkit-backdrop-filter: blur(7.8px);
             border: 1px solid rgba(255,255,255,0.19);
             border-radius: 20px; overflow: hidden;
         }
-        .scan-box img {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; object-fit: cover;
-        }
+        .scan-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .scan-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
         .scan-grid {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                linear-gradient(rgba(201,169,110,0.12) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(201,169,110,0.12) 1px, transparent 1px);
+            background: linear-gradient(rgba(201,169,110,0.12) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(201,169,110,0.12) 1px, transparent 1px);
             background-size: 25% 25%;
         }
         .scan-line {
@@ -84,20 +70,17 @@
             background: #FFD700; animation: dotPulse 1.5s ease-in-out infinite;
             box-shadow: 0 0 8px rgba(255,215,0,0.6);
         }
-        .scan-dot:nth-child(1) { top: 35%; left: 40%; animation-delay: 0s; }
-        .scan-dot:nth-child(2) { top: 40%; left: 60%; animation-delay: 0.3s; }
-        .scan-dot:nth-child(3) { top: 55%; left: 35%; animation-delay: 0.6s; }
-        .scan-dot:nth-child(4) { top: 60%; left: 55%; animation-delay: 0.9s; }
+        .scan-dot:nth-child(1) { top: 35%; left: 40%; }
+        .scan-dot:nth-child(2) { top: 40%; left: 60%; animation-delay: .3s; }
+        .scan-dot:nth-child(3) { top: 55%; left: 35%; animation-delay: .6s; }
+        .scan-dot:nth-child(4) { top: 60%; left: 55%; animation-delay: .9s; }
         .scan-dot:nth-child(5) { top: 70%; left: 45%; animation-delay: 1.2s; }
         @keyframes dotPulse { 0%,100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.5); opacity: 1; } }
         .scan-progress { margin-top: 20px; text-align: center; }
         .scan-text { font-size: 16px; color: #3a2a1a; margin-bottom: 12px; }
         .progress-bar { width: 80%; height: 4px; background: #E8DED0; border-radius: 2px; margin: 0 auto; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #C9A96E, #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
-
-        /* ========== Page 3: Result ========== */
         .page-result { display: none; padding: 0 20px 40px; }
-
         .result-top-card {
             background: rgba(255,255,255,0.65);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -109,6 +92,7 @@
             width: 110px; height: 110px; border-radius: 14px;
             object-fit: cover; flex-shrink: 0;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            background: #f0e6d6;
         }
         .keywords-section { flex: 1; }
         .keywords-title { font-size: 16px; font-weight: 700; color: #2D2D2D; margin-bottom: 12px; }
@@ -117,20 +101,14 @@
         .keyword-icon {
             width: 40px; height: 40px; border-radius: 12px;
             background: rgba(255,255,255,0.8);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
         }
         .keyword-label { font-size: 11px; color: #4a4a4a; }
-
         .lines-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.06); }
         .line-row { display: flex; margin-bottom: 14px; gap: 12px; line-height: 1.6; }
         .line-row:last-child { margin-bottom: 0; }
-        .line-name {
-            font-size: 13px; font-weight: 600; color: #3a2a1a;
-            min-width: 52px; flex-shrink: 0; padding-top: 1px;
-        }
+        .line-name { font-size: 13px; font-weight: 600; color: #3a2a1a; min-width: 52px; flex-shrink: 0; padding-top: 1px; }
         .line-desc { font-size: 13px; color: #4a4a4a; }
-
         .traits-section { margin-top: 28px; }
         .traits-title { font-size: 20px; font-weight: 700; color: #2D2D2D; margin-bottom: 16px; padding-left: 4px; }
         .trait-card {
@@ -143,12 +121,10 @@
         .trait-icon {
             width: 42px; height: 42px; border-radius: 12px;
             background: linear-gradient(135deg, #FDF5E6, #F5E6D3);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
         }
         .trait-title { font-size: 16px; font-weight: 600; color: #2D2D2D; margin-bottom: 4px; }
         .trait-desc { font-size: 13px; color: #6B5E50; line-height: 1.6; }
-
         .share-section { margin-top: 28px; text-align: center; padding-bottom: 40px; }
         .share-btn {
             width: 100%; padding: 16px; border-radius: 28px;
@@ -158,32 +134,21 @@
         }
         .share-btn:active { transform: scale(0.98); }
         .disclaimer { margin-top: 16px; font-size: 11px; color: #BFAE9D; line-height: 1.6; }
-
-        /* Animations */
         .fade-in { animation: fadeIn 0.6s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .slide-up { animation: slideUp 0.5s ease forwards; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-        #cameraInput { display: none; }
     </style>
 </head>
 <body>
     <div class="page">
         <div class="header">
-            <div>
-                <h1>手相解码</h1>
-                <p>读懂掌心纹路，读懂你的天生底色</p>
-            </div>
+            <div><h1>手相解码</h1><p>读懂掌心纹路，读懂你的天生底色</p></div>
             <button class="close-btn" onclick="history.back()">✕</button>
         </div>
-
-        <!-- Page 1: Home -->
         <div class="page-home" id="pageHome">
             <button class="start-btn" id="startBtn">开始手相占卜</button>
         </div>
-
-        <!-- Page 2: Scanning -->
         <div class="page-scan" id="pageScan">
             <div class="scan-box">
                 <img id="scanImage" src="" alt="手掌照片">
@@ -191,11 +156,7 @@
                     <div class="scan-grid"></div>
                     <div class="scan-line"></div>
                     <div class="scan-dots">
-                        <div class="scan-dot"></div>
-                        <div class="scan-dot"></div>
-                        <div class="scan-dot"></div>
-                        <div class="scan-dot"></div>
-                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div><div class="scan-dot"></div><div class="scan-dot"></div><div class="scan-dot"></div><div class="scan-dot"></div>
                     </div>
                 </div>
             </div>
@@ -204,12 +165,10 @@
                 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             </div>
         </div>
-
-        <!-- Page 3: Result -->
         <div class="page-result" id="pageResult">
             <div class="result-top-card fade-in">
                 <div class="result-top-row">
-                    <img id="palmThumb" class="palm-thumb" src="" alt="掌纹">
+                    <canvas id="palmThumbCanvas" class="palm-thumb" width="300" height="300"></canvas>
                     <div class="keywords-section">
                         <div class="keywords-title">关键词</div>
                         <div class="keywords-grid" id="keywordsGrid"></div>
@@ -217,22 +176,18 @@
                 </div>
                 <div class="lines-section" id="linesSection"></div>
             </div>
-
             <div class="traits-section">
                 <h2 class="traits-title">你的基本特质</h2>
                 <div id="traitsContainer"></div>
             </div>
-
             <div class="share-section">
                 <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
                 <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
             </div>
         </div>
-
-        <input type="file" id="cameraInput" accept="image/*" capture="environment">
     </div>
 
-    <script>
+    <script type="module">
         const pageHome = document.getElementById('pageHome');
         const pageScan = document.getElementById('pageScan');
         const pageResult = document.getElementById('pageResult');
@@ -240,7 +195,7 @@
         const scanImage = document.getElementById('scanImage');
         const scanText = document.getElementById('scanText');
         const progressFill = document.getElementById('progressFill');
-        const palmThumb = document.getElementById('palmThumb');
+        const palmThumbCanvas = document.getElementById('palmThumbCanvas');
         const keywordsGrid = document.getElementById('keywordsGrid');
         const linesSection = document.getElementById('linesSection');
         const traitsContainer = document.getElementById('traitsContainer');
@@ -248,21 +203,12 @@
         let uploadedImage = null;
         let handLandmarkerInstance = null;
 
-        // ==========================================
-        // API base
-        // ==========================================
         function getPalmApiBase() {
             const params = new URLSearchParams(location.search);
             let fromQuery = params.get('api');
-            if (fromQuery) {
-                try { fromQuery = decodeURIComponent(fromQuery.trim()); localStorage.setItem('palmApiBase', fromQuery); } catch (_) {}
-            }
-            if (!fromQuery && location.hash && location.hash.startsWith('#api=')) {
-                try { fromQuery = decodeURIComponent(location.hash.slice(5).split('&')[0].trim()); if (fromQuery.startsWith('http')) localStorage.setItem('palmApiBase', fromQuery); } catch (_) {}
-            }
-            if (fromQuery) {
-                try { const u = new URL(fromQuery); if (u.protocol !== 'https:' && u.protocol !== 'http:') return null; return u.origin + u.pathname.replace(/\/$/, ''); } catch (_) { return null; }
-            }
+            if (fromQuery) { try { fromQuery = decodeURIComponent(fromQuery.trim()); localStorage.setItem('palmApiBase', fromQuery); } catch (_) {} }
+            if (!fromQuery && location.hash && location.hash.startsWith('#api=')) { try { fromQuery = decodeURIComponent(location.hash.slice(5).split('&')[0].trim()); if (fromQuery.startsWith('http')) localStorage.setItem('palmApiBase', fromQuery); } catch (_) {} }
+            if (fromQuery) { try { const u = new URL(fromQuery); return u.origin + u.pathname.replace(/\/$/, ''); } catch (_) { return null; } }
             try { const saved = localStorage.getItem('palmApiBase'); if (saved) { const u = new URL(saved.trim()); return u.origin + u.pathname.replace(/\/$/, ''); } } catch (_) {}
             const { protocol, hostname, port } = location;
             const local = hostname === 'localhost' || hostname === '127.0.0.1';
@@ -273,62 +219,232 @@
             return 'http://127.0.0.1:5050';
         }
 
-        function hasBackendAiResult(seg) {
-            if (!seg || !seg.success) return false;
-            return !!(seg.features || seg.heart_line || seg.head_line || seg.life_line || seg.roi_image || seg.annotated_image || seg.rotated_image);
+        function hasBackendResult(seg) {
+            return seg && seg.success && !!(seg.features || seg.roi_image);
+        }
+
+        const scanTexts = [
+            '加载手部关键点模型...', '检测 21 个手部关键点...',
+            '旋转矫正图像...', '分割手部前景...',
+            '定位掌心 ROI 区域...', '增强掌纹纹理...',
+            '提取掌纹线条...', '分析感情线结构...',
+            '分析头脑线结构...', '分析生命线结构...', '生成分析报告...'
+        ];
+
+        // ==========================================
+        // MediaPipe hand detection
+        // ==========================================
+        async function detectHandLandmarks(imgEl) {
+            if (!imgEl || !imgEl.naturalWidth) return null;
+            if (!handLandmarkerInstance) {
+                const { HandLandmarker, FilesetResolver } = await import(
+                    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm'
+                );
+                const fileset = await FilesetResolver.forVisionTasks(
+                    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
+                );
+                handLandmarkerInstance = await HandLandmarker.createFromOptions(fileset, {
+                    baseOptions: {
+                        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+                        delegate: 'CPU'
+                    },
+                    runningMode: 'IMAGE',
+                    numHands: 1
+                });
+            }
+            const result = handLandmarkerInstance.detect(imgEl);
+            const lm = result.landmarks && result.landmarks[0];
+            if (!lm || lm.length < 21) return null;
+            return lm.map(p => ({ x: p.x, y: p.y }));
         }
 
         // ==========================================
-        // Scan animation text
+        // Palm analysis from landmarks
         // ==========================================
-        const scanTexts = [
-            '加载手部关键点模型...',
-            '检测 21 个手部关键点...',
-            '旋转矫正图像...',
-            '分割手部前景...',
-            '定位掌心 ROI 区域...',
-            '增强掌纹纹理...',
-            '提取掌纹线条...',
-            '分析感情线结构...',
-            '分析头脑线结构...',
-            '分析生命线结构...',
-            '生成分析报告...'
-        ];
+        function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+        function analyzePalm(lm) {
+            if (!lm || lm.length < 21) return null;
+
+            const palmWidth = dist(lm[5], lm[17]);
+            const palmHeight = dist(lm[0], lm[9]);
+            const palmRatio = palmHeight / palmWidth;
+
+            const indexLen = dist(lm[5], lm[6]) + dist(lm[6], lm[7]) + dist(lm[7], lm[8]);
+            const middleLen = dist(lm[9], lm[10]) + dist(lm[10], lm[11]) + dist(lm[11], lm[12]);
+            const ringLen = dist(lm[13], lm[14]) + dist(lm[14], lm[15]) + dist(lm[15], lm[16]);
+            const pinkyLen = dist(lm[17], lm[18]) + dist(lm[18], lm[19]) + dist(lm[19], lm[20]);
+            const thumbLen = dist(lm[1], lm[2]) + dist(lm[2], lm[3]) + dist(lm[3], lm[4]);
+
+            const fingerTopalm = middleLen / palmHeight;
+            const indexToRing = indexLen / ringLen;
+            const pinkyToIndex = pinkyLen / indexLen;
+            const thumbToIndex = thumbLen / indexLen;
+
+            const heartY = (lm[5].y + lm[17].y) / 2;
+            const headY = (lm[5].y + lm[0].y) * 0.45;
+            const lifeArc = dist(lm[1], lm[0]);
+
+            const seed = Math.round(
+                (palmRatio * 1000 + indexToRing * 1000 + pinkyToIndex * 1000 + fingerTopalm * 1000) % 100
+            );
+
+            return {
+                palmRatio, fingerTopalm, indexToRing, pinkyToIndex, thumbToIndex,
+                palmWidth, palmHeight, heartY, headY, lifeArc, seed,
+                indexLen, middleLen, ringLen, pinkyLen, thumbLen
+            };
+        }
+
+        function generateReading(analysis) {
+            if (!analysis) return getDefaultReading();
+            const a = analysis;
+            const s = a.seed;
+
+            const palmType = a.palmRatio > 1.15 ? 'long' : a.palmRatio < 0.95 ? 'square' : 'balanced';
+            const fingerType = a.fingerTopalm > 0.85 ? 'long' : a.fingerTopalm < 0.7 ? 'short' : 'medium';
+
+            const kwPool = {
+                long: { long: ['洞察力', '理想主义', '创造力'], medium: ['方向感', '直觉力', '深度'], short: ['内省力', '坚韧', '感受力'] },
+                square: { long: ['行动力', '领导力', '魄力'], medium: ['务实', '毅力', '稳重'], short: ['执行力', '专注', '踏实'] },
+                balanced: { long: ['适应力', '沟通力', '创造力'], medium: ['方向感', '毅力', '平衡感'], short: ['协调力', '坚持', '洞察力'] }
+            };
+            const keywords = kwPool[palmType][fingerType] || ['方向感', '毅力', '创造力'];
+
+            const heartDesc = a.indexToRing > 1.02
+                ? '感情线延伸至食指下方，弧度优美，代表你对感情有极高的理想和标准，追求精神层面的深度连接，容易被有思想深度的人吸引。'
+                : a.indexToRing > 0.97
+                ? '感情线在食指与中指之间结束，线条清晰而稳定，说明你在感情中既有热情也有理智，懂得在付出与自我保护之间保持平衡。'
+                : '感情线偏向中指下方，务实而内敛，代表你在感情中更注重安全感和稳定性，不轻易表达内心，但一旦认定便会全心投入。';
+
+            const headDesc = a.fingerTopalm > 0.85
+                ? '头脑线修长且微微向下弯曲，延伸至月丘区域，表明你的想象力异常丰富，思维活跃且具有创造天赋，适合从事艺术、设计或文学创作。'
+                : a.fingerTopalm > 0.7
+                ? '头脑线走势平稳，长度适中，起点与生命线略有分离，说明你思维独立、逻辑清晰，善于理性分析问题，适合策划、研究或管理类工作。'
+                : '头脑线短而有力，走势平直，代表你思维敏捷、决断力强，不喜欢拖泥带水，更注重实际效果，是天生的执行者和问题解决者。';
+
+            const lifeDesc = a.lifeArc > a.palmWidth * 0.6
+                ? '生命线弧度饱满，环绕大鱼际区域宽阔有力，代表你体质强健、精力充沛，对生活充满热情，行动力强，适应环境变化的能力出众。'
+                : a.lifeArc > a.palmWidth * 0.4
+                ? '生命线弧度适中，走势稳定而清晰，说明你的生活节奏均衡有度，身心状态较为平稳，注重健康与生活品质的平衡。'
+                : '生命线弧度较紧凑，贴近掌心，代表你内心世界丰富但行事谨慎，倾向于在熟悉的环境中发展，重视精神世界的充实。';
+
+            const kwIcons = ['🧭', '💪', '✨'];
+
+            const traits = [];
+            if (palmType === 'long') {
+                traits.push({ icon: '🖐', title: '哲学手 · 思想者气质', desc: `掌型修长（比例 ${a.palmRatio.toFixed(2)}），手指纤细舒展，五行属木，天生具备独立思维和深度思考的能力，直觉敏锐，不随波逐流。` });
+            } else if (palmType === 'square') {
+                traits.push({ icon: '🖐', title: '实用手 · 行动派气质', desc: `掌型方正（比例 ${a.palmRatio.toFixed(2)}），五行属土，务实可靠，注重实际行动和可见成果，做事有条不紊，是团队中最可信赖的执行者。` });
+            } else {
+                traits.push({ icon: '🖐', title: '均衡手 · 多面手气质', desc: `掌型比例均衡（${a.palmRatio.toFixed(2)}），兼具感性与理性，适应力强，能在不同角色之间灵活切换，是天生的协调者和沟通桥梁。` });
+            }
+
+            if (a.indexToRing > 1.02) {
+                traits.push({ icon: '☝️', title: '领导型人格', desc: '食指相对较长，主自信与掌控力，天生具备影响他人的能力，适合领导、管理或教育类角色，在团队中容易成为核心人物。' });
+            } else if (a.pinkyToIndex > 0.7) {
+                traits.push({ icon: '🗣️', title: '社交型人格', desc: '小指比例较长，主沟通与商业直觉，表达能力出色，善于察言观色和建立人际关系，在社交和商业场合如鱼得水。' });
+            } else {
+                traits.push({ icon: '🎯', title: '专注型人格', desc: '手指比例均衡紧凑，主专注与执行力，能够长时间沉浸在一件事中，精益求精，适合需要深度钻研的专业领域。' });
+            }
+
+            traits.push({ icon: '❤️', title: s % 2 === 0 ? '情感深沉而忠诚' : '情感丰富而热烈',
+                desc: s % 2 === 0
+                    ? '你的感情线形态表明你对感情慢热但极其忠诚，一旦建立深度信任便会全力以赴，重视长期关系的稳定与成长。'
+                    : '你的感情线形态表明你情感表达直接而真诚，容易被新鲜事物和有趣的灵魂吸引，在关系中追求激情与精神共鸣并存。'
+            });
+
+            traits.push({ icon: '🧠', title: a.fingerTopalm > 0.8 ? '创意思维出众' : '逻辑分析见长',
+                desc: a.fingerTopalm > 0.8
+                    ? '你的头脑线走向表明右脑较为活跃，想象力和创造力是你最大的天赋，适合将抽象概念转化为具体作品或方案。'
+                    : '你的头脑线走向表明左脑较为发达，善于系统性思考和条理化分析，在复杂问题面前能迅速理清脉络找到解决方案。'
+            });
+
+            traits.push({ icon: '🌿', title: '生命力' + (a.lifeArc > a.palmWidth * 0.5 ? '旺盛' : '内敛'),
+                desc: a.lifeArc > a.palmWidth * 0.5
+                    ? '生命线弧度开阔，代表你精力充沛、热爱运动和户外活动，身体恢复力强，适合保持积极活跃的生活方式。'
+                    : '生命线走势内敛稳重，代表你更注重内在能量的积蓄和精神层面的滋养，适合通过冥想、阅读等方式维持身心平衡。'
+            });
+
+            const careerPool = [
+                { icon: '💼', title: '事业运势：上升期', desc: '当前掌纹显示你正处于事业积累的关键阶段，近期可能会遇到重要的转折机遇，建议大胆尝试新方向，主动争取展示自己的机会。' },
+                { icon: '💼', title: '事业运势：稳定期', desc: '掌纹显示你的事业根基扎实，当前适合深耕现有领域，积累核心竞争力，不宜贸然转型，稳中求进方为上策。' },
+                { icon: '💼', title: '事业运势：突破期', desc: '掌纹中事业线的走向表明你即将进入一个全新阶段，旧有模式可能被打破，拥抱变化将带来意想不到的收获。' }
+            ];
+            traits.push(careerPool[s % 3]);
+
+            return { keywords, kwIcons, heartDesc, headDesc, lifeDesc, traits };
+        }
+
+        function getDefaultReading() {
+            return {
+                keywords: ['方向感', '毅力', '创造力'], kwIcons: ['🧭', '💪', '✨'],
+                heartDesc: '感情线走势清晰，弧度柔和上扬，代表你情感丰富且理性兼具，在关系中追求真诚与深度连接。',
+                headDesc: '头脑线起点与生命线略分开，线条流畅，代表你思维独立、逻辑清晰，具有良好的判断力和分析能力。',
+                lifeDesc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。',
+                traits: [
+                    { icon: '🧠', title: '独立而自信', desc: '手指修长舒展，掌型偏长，象征独立思考与自我驱动，做事有主见。' },
+                    { icon: '🔮', title: '理性与直觉并重', desc: '头脑线清晰且略向下，代表逻辑与想象力兼具，擅长分析与创造。' },
+                    { icon: '❤️', title: '情感细腻深沉', desc: '感情线弧度柔和上扬，情感丰富且理性兼具，追求精神层面的契合。' },
+                    { icon: '🌿', title: '生命力稳健绵长', desc: '生命线弧度饱满，精力充沛、体质良好，生活热情高涨。' },
+                    { icon: '💼', title: '事业稳步上升', desc: '事业线明晰，方向感明确，适合拓展新领域或承担更大责任。' }
+                ]
+            };
+        }
 
         // ==========================================
-        // Analysis data
+        // Thumbnail: crop palm area via canvas
         // ==========================================
-        const keywordsData = [
-            { icon: '🧭', label: '方向感' },
-            { icon: '💪', label: '毅力' },
-            { icon: '✨', label: '创造力' }
-        ];
+        function drawPalmThumb(img, landmarks) {
+            const ctx = palmThumbCanvas.getContext('2d');
+            const w = img.naturalWidth, h = img.naturalHeight;
 
-        const linesData = [
-            { name: '感情线', desc: '线条清晰，微微上扬，情感细腻但理性，在关系中追求真诚与稳定' },
-            { name: '头脑线', desc: '起点与生命线略分开，独立思考，线条较长且向下延伸，想象力丰富，适合创意、策划、语言或心理相关领域。' },
-            { name: '命运线', desc: '线条清晰，微微上扬，情感细腻但理性，在关系中追求真诚与稳定' }
-        ];
+            let sx, sy, sw, sh;
 
-        const traitsData = [
-            { icon: '🧠', title: '独立而自信', desc: '手指修长舒展，掌型偏长，象征独立思考与自我驱动，做事有主见。' },
-            { icon: '🔮', title: '理性与直觉并重', desc: '头脑线清晰且略向下，代表逻辑与想象力兼具，擅长分析与创造' },
-            { icon: '❤️', title: '情感细腻深沉', desc: '感情线弧度柔和上扬，情感丰富且理性兼具，追求精神层面的契合。' },
-            { icon: '🌿', title: '生命力稳健绵长', desc: '生命线弧度饱满，精力充沛、体质良好，生活热情高涨。' },
-            { icon: '💼', title: '事业稳步上升', desc: '事业线明晰，方向感明确，适合拓展新领域或承担更大责任。' },
-            { icon: '💰', title: '财运渐入佳境', desc: '太阳线显现，理财意识逐渐觉醒，容易通过个人能力获取财富。' }
-        ];
+            if (landmarks && landmarks.length >= 21) {
+                const palmPts = [0, 1, 2, 5, 9, 13, 17];
+                let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+                for (const i of palmPts) {
+                    const px = landmarks[i].x * w, py = landmarks[i].y * h;
+                    if (px < minX) minX = px;
+                    if (py < minY) minY = py;
+                    if (px > maxX) maxX = px;
+                    if (py > maxY) maxY = py;
+                }
+                const padX = (maxX - minX) * 0.25;
+                const padY = (maxY - minY) * 0.25;
+                minX = Math.max(0, minX - padX);
+                minY = Math.max(0, minY - padY);
+                maxX = Math.min(w, maxX + padX);
+                maxY = Math.min(h, maxY + padY);
+                const rw = maxX - minX, rh = maxY - minY;
+                const side = Math.max(rw, rh);
+                const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+                sx = Math.max(0, cx - side / 2);
+                sy = Math.max(0, cy - side / 2);
+                sw = Math.min(side, w - sx);
+                sh = Math.min(side, h - sy);
+            } else {
+                const side = Math.min(w, h) * 0.45;
+                sx = (w - side) / 2;
+                sy = h * 0.25;
+                sw = side;
+                sh = side;
+            }
+
+            const dpr = window.devicePixelRatio || 2;
+            palmThumbCanvas.width = 110 * dpr;
+            palmThumbCanvas.height = 110 * dpr;
+            palmThumbCanvas.style.width = '110px';
+            palmThumbCanvas.style.height = '110px';
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 110 * dpr, 110 * dpr);
+        }
 
         // ==========================================
-        // Navigation: Home → Camera
+        // Navigation
         // ==========================================
-        startBtn.addEventListener('click', () => {
-            window.location.href = 'camera.html';
-        });
+        startBtn.addEventListener('click', () => { window.location.href = 'camera.html'; });
 
-        // ==========================================
-        // Return from camera with captured image
-        // ==========================================
         function checkCapturedImage() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('captured') === 'true') {
@@ -346,7 +462,7 @@
         checkCapturedImage();
 
         // ==========================================
-        // Scan process
+        // Scan
         // ==========================================
         async function startProcess() {
             pageHome.style.display = 'none';
@@ -371,29 +487,22 @@
                     canvas.height = uploadedImage.naturalHeight;
                     canvas.getContext('2d').drawImage(uploadedImage, 0, 0);
                     const b64 = canvas.toDataURL('image/jpeg', 0.85);
-                    const url = (apiBase || '') + '/analyze';
-                    const resp = await fetch(url, {
+                    const resp = await fetch((apiBase || '') + '/analyze', {
                         method: 'POST', mode: 'cors', credentials: 'omit',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ image: b64 })
                     });
                     segResult = await resp.json();
                     if (!resp.ok) segResult = { ...segResult, success: false };
-                } catch (e) {
-                    console.warn('[palm] API fail:', e);
-                }
+                } catch (e) { console.warn('[palm] API fail:', e); }
             }
 
-            // Always detect landmarks for palm cropping
+            let landmarks = null;
             try {
-                scanText.textContent = '检测手掌位置...';
-                const landmarks = await detectHandLandmarks(uploadedImage);
-                if (!segResult) segResult = {};
-                segResult._clientLandmarks = landmarks;
-            } catch (e) {
-                console.warn('[palm] client hand detection fail:', e);
-                if (!segResult) segResult = {};
-            }
+                scanText.textContent = '检测手掌关键点...';
+                landmarks = await detectHandLandmarks(uploadedImage);
+                console.log('[palm] landmarks detected:', !!landmarks);
+            } catch (e) { console.warn('[palm] hand detection fail:', e); }
 
             for (let i = 1; i < scanTexts.length; i++) {
                 await new Promise(r => setTimeout(r, 400));
@@ -406,155 +515,50 @@
             progressFill.style.width = '100%';
             await new Promise(r => setTimeout(r, 400));
 
-            showResult(segResult);
+            showResult(segResult, landmarks);
         }
 
         // ==========================================
-        // Palm cropping helpers
+        // Result
         // ==========================================
-        function loadImage(src) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => resolve(img);
-                img.onerror = reject;
-                img.src = src;
-            });
-        }
-
-        function cropPalmROI(img, roiCenter, roiRadius) {
-            const w = img.naturalWidth, h = img.naturalHeight;
-            const cx = roiCenter[0] * w, cy = roiCenter[1] * h;
-            const r = roiRadius * Math.min(w, h);
-            const side = r * 2.2;
-            const sx = Math.max(0, cx - side / 2);
-            const sy = Math.max(0, cy - side / 2);
-            const sw = Math.min(side, w - sx);
-            const sh = Math.min(side, h - sy);
-            const c = document.createElement('canvas');
-            const size = 300;
-            c.width = size; c.height = size;
-            c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
-            return c.toDataURL('image/jpeg', 0.88);
-        }
-
-        function cropPalmByLandmarks(img, landmarks) {
-            if (!landmarks || landmarks.length < 21) return cropPalmCenter(img);
-            const w = img.naturalWidth, h = img.naturalHeight;
-            // Use palm-area keypoints (wrist + finger MCPs) to define palm region
-            const palmIndices = [0, 1, 2, 5, 9, 13, 17];
-            let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
-            for (const i of palmIndices) {
-                const px = landmarks[i].x * w, py = landmarks[i].y * h;
-                if (px < minX) minX = px;
-                if (py < minY) minY = py;
-                if (px > maxX) maxX = px;
-                if (py > maxY) maxY = py;
-            }
-            const pad = (maxX - minX) * 0.2;
-            minX = Math.max(0, minX - pad);
-            minY = Math.max(0, minY - pad);
-            maxX = Math.min(w, maxX + pad);
-            maxY = Math.min(h, maxY + pad);
-            const sw = maxX - minX, sh = maxY - minY;
-            const side = Math.max(sw, sh);
-            const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
-            const sx = Math.max(0, cx - side / 2);
-            const sy = Math.max(0, cy - side / 2);
-            const actualW = Math.min(side, w - sx);
-            const actualH = Math.min(side, h - sy);
-            const c = document.createElement('canvas');
-            c.width = 300; c.height = 300;
-            c.getContext('2d').drawImage(img, sx, sy, actualW, actualH, 0, 0, 300, 300);
-            return c.toDataURL('image/jpeg', 0.88);
-        }
-
-        function cropPalmCenter(img) {
-            const w = img.naturalWidth, h = img.naturalHeight;
-            // Crop center 45% — just the palm area
-            const side = Math.min(w, h) * 0.45;
-            const sx = (w - side) / 2, sy = h * 0.3;
-            const c = document.createElement('canvas');
-            c.width = 300; c.height = 300;
-            c.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, 300, 300);
-            return c.toDataURL('image/jpeg', 0.88);
-        }
-
-        async function detectHandLandmarks(imgEl) {
-            if (!imgEl || !imgEl.naturalWidth) return null;
-            try {
-                if (!handLandmarkerInstance) {
-                    const { HandLandmarker, FilesetResolver } = await import(
-                        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm'
-                    );
-                    const fileset = await FilesetResolver.forVisionTasks(
-                        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
-                    );
-                    handLandmarkerInstance = await HandLandmarker.createFromOptions(fileset, {
-                        baseOptions: {
-                            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-                            delegate: 'CPU'
-                        },
-                        runningMode: 'IMAGE',
-                        numHands: 1
-                    });
-                }
-                const result = handLandmarkerInstance.detect(imgEl);
-                const lm = result.landmarks && result.landmarks[0];
-                if (!lm || lm.length < 21) return null;
-                return lm.map(p => ({ x: p.x, y: p.y }));
-            } catch (e) {
-                console.warn('[palm] MediaPipe HandLandmarker:', e);
-                return null;
-            }
-        }
-
-        // ==========================================
-        // Result page
-        // ==========================================
-        async function showResult(segResult) {
+        function showResult(segResult, landmarks) {
             pageScan.style.display = 'none';
             pageResult.style.display = 'block';
             pageResult.classList.add('fade-in');
 
-            // Palm thumbnail: prefer backend roi_image → landmarks crop → center crop fallback
+            // Thumbnail: crop palm area
             if (segResult && segResult.roi_image) {
-                palmThumb.src = segResult.roi_image;
-            } else if (segResult && segResult.roi_center && segResult.roi_radius != null && uploadedImage) {
-                const img = segResult.rotated_image ? await loadImage(segResult.rotated_image) : uploadedImage;
-                palmThumb.src = cropPalmROI(img, segResult.roi_center, segResult.roi_radius);
-            } else if (segResult && segResult._clientLandmarks && uploadedImage) {
-                palmThumb.src = cropPalmByLandmarks(uploadedImage, segResult._clientLandmarks);
-            } else if (uploadedImage) {
-                palmThumb.src = cropPalmCenter(uploadedImage);
+                const roiImg = new Image();
+                roiImg.onload = () => {
+                    const ctx = palmThumbCanvas.getContext('2d');
+                    const dpr = window.devicePixelRatio || 2;
+                    palmThumbCanvas.width = 110 * dpr;
+                    palmThumbCanvas.height = 110 * dpr;
+                    ctx.drawImage(roiImg, 0, 0, 110 * dpr, 110 * dpr);
+                };
+                roiImg.src = segResult.roi_image;
+            } else {
+                drawPalmThumb(uploadedImage, landmarks);
             }
 
+            // Analyze and generate personalized reading
+            const analysis = analyzePalm(landmarks);
+            const reading = generateReading(analysis);
+
             // Keywords
-            let kw = keywordsData;
-            if (segResult && segResult.features) {
-                const cls = segResult.classification || {};
-                kw = [
-                    { icon: '🧭', label: cls.palm_type || '方向感' },
-                    { icon: '💪', label: '毅力' },
-                    { icon: '✨', label: '创造力' }
-                ];
-            }
-            keywordsGrid.innerHTML = kw.map(k =>
+            keywordsGrid.innerHTML = reading.keywords.map((kw, i) =>
                 `<div class="keyword-item">
-                    <div class="keyword-icon">${k.icon}</div>
-                    <span class="keyword-label">${k.label}</span>
+                    <div class="keyword-icon">${reading.kwIcons[i]}</div>
+                    <span class="keyword-label">${kw}</span>
                 </div>`
             ).join('');
 
             // Lines
-            let lines = linesData;
-            if (hasBackendAiResult(segResult) && segResult.features) {
-                const f = segResult.features;
-                lines = [
-                    { name: '感情线', desc: `线条清晰，长度 ${f.heart_length}px，曲率 ${f.heart_curvature}，情感细腻但理性，在关系中追求真诚与稳定` },
-                    { name: '头脑线', desc: `起点与生命线略分开，长度 ${f.head_length}px，曲率 ${f.head_curvature}，独立思考，想象力丰富` },
-                    { name: '命运线', desc: `线条清晰，生命线长度 ${f.life_length}px，曲率 ${f.life_curvature}，精力充沛，生活热情高涨` }
-                ];
-            }
+            const lines = [
+                { name: '感情线', desc: reading.heartDesc },
+                { name: '头脑线', desc: reading.headDesc },
+                { name: '命运线', desc: reading.lifeDesc }
+            ];
             linesSection.innerHTML = lines.map(l =>
                 `<div class="line-row">
                     <span class="line-name">${l.name}</span>
@@ -563,7 +567,7 @@
             ).join('');
 
             // Traits
-            traitsData.forEach((item, index) => {
+            reading.traits.forEach((item, index) => {
                 setTimeout(() => {
                     const card = document.createElement('div');
                     card.className = 'trait-card slide-up';
@@ -578,9 +582,6 @@
             });
         }
 
-        // ==========================================
-        // Share
-        // ==========================================
         document.getElementById('shareBtn').addEventListener('click', () => {
             if (navigator.share) {
                 navigator.share({ title: '手相解码', text: '我刚完成了手相解码分析！', url: location.href }).catch(() => {});
