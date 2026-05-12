@@ -23,6 +23,7 @@ from PIL import Image
 
 from utils.palm_roi_extractor import extract_palm_roi
 from utils.palm_line_drawer import process_palm_lines
+from utils.edcc_helper import collect_edcc_optional
 
 # palm 仓库根目录（与 Palm-Astro-Application 同级，含 index.html）
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -101,12 +102,12 @@ def analyze():
     掌纹分析 API。
 
     请求体 JSON:
-      { "image": "data:image/jpeg;base64,..." }
+      { "image": "data:image/jpeg;base64,...", "reference_image": "..." 可选，第二张图用于 EDCC 相似度 }
 
     响应 JSON:
       {
         "success": true/false,
-        "heart_line": [[x, y], ...] | null,   (归一化坐标 0~1，相对于原图)
+        "heart_line": [[x, y], ...] | null,   (归一化 0~1，相对于 rotated_image 像素尺寸)
         "head_line": [[x, y], ...] | null,
         "life_line": [[x, y], ...] | null,
         "features": { ... },
@@ -115,7 +116,9 @@ def analyze():
         "roi_radius": float,    (归一化，相对于图像短边)
         "roi_image": "data:image/jpeg;base64,...",  (标注了线条的ROI图)
         "annotated_image": "data:image/jpeg;base64,...",  (标注了ROI框的全图)
-        "error": null | "错误信息"
+        "rotated_image": "data:image/jpeg;base64,...",  与三线坐标对齐的旋转矫正图（前端应叠在此图上）
+        "error": null | "错误信息",
+        "edcc": { ... }  可选：EDCC 编码与比对，见 https://github.com/leosocy/EDCC-Palmprint-Recognition
       }
     """
     try:
@@ -143,6 +146,8 @@ def analyze():
                 "roi_radius": None,
                 "roi_image": None,
                 "annotated_image": None,
+                "rotated_image": None,
+                "edcc": None,
             })
 
         roi_square = roi_result['roi_square']
@@ -163,7 +168,22 @@ def analyze():
             "roi_radius": None,
             "roi_image": None,
             "annotated_image": None,
+            "rotated_image": None,
+            "edcc": None,
         }
+
+        ref_roi = None
+        ref_decode_error = None
+        if data.get("reference_image"):
+            try:
+                img_ref = decode_base64_image(data["reference_image"])
+                roi_ref_res = extract_palm_roi(img_ref)
+                if roi_ref_res.get("error") is None and roi_ref_res.get("roi_square") is not None:
+                    ref_roi = roi_ref_res["roi_square"]
+                elif roi_ref_res.get("error"):
+                    ref_decode_error = roi_ref_res["error"]
+            except Exception as ref_exc:  # noqa: BLE001
+                ref_decode_error = str(ref_exc)
 
         # ROI 信息（归一化）
         proc_h, proc_w = roi_result['rotated_img'].shape[:2]
@@ -225,6 +245,13 @@ def analyze():
             }
             response['classification'] = _classify(features)
 
+        if response.get("edcc") is None:
+            response["edcc"] = collect_edcc_optional(roi_square, ref_roi, ref_decode_error)
+
+        # 与 heart/head/life 归一化坐标同一像素空间（旋转+缩放后的处理图），避免前端在原图上错位叠线
+        if roi_result.get("rotated_img") is not None:
+            response["rotated_image"] = image_to_base64(roi_result["rotated_img"])
+
         return jsonify(response)
 
     except Exception as e:
@@ -241,6 +268,8 @@ def analyze():
             "roi_radius": None,
             "roi_image": None,
             "annotated_image": None,
+            "rotated_image": None,
+            "edcc": None,
         }), 500
 
 

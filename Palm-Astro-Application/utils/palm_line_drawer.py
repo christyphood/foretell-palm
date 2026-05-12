@@ -3,7 +3,8 @@
 Palm Line Drawer — 在 ROI 上精准绘制掌纹线条
 
 使用 Gabor 滤波器 + 自适应阈值 + 形态学处理提取掌纹线条，
-然后用骨架化和轮廓检测精准绘制生命线、智慧线、感情线。
+骨架化后检索候选轮廓，按几何位置与「脊线响应强度」联合打分，
+最后将轮廓顶点吸附到 Gabor 响应局部极大，使三条主线更贴皮肤纹理。
 """
 
 import cv2
@@ -11,99 +12,145 @@ import numpy as np
 from typing import Tuple, Dict, Optional
 
 
-def _gabor_kernel(ksize, sigma, theta, lambd, gamma, psi):
-    """生成 Gabor 滤波器核。"""
-    return cv2.getGaborKernel((ksize, ksize), sigma, theta, lambd, gamma, psi, ktype=cv2.CV_32F)
-
-
 def enhance_palm_lines(roi_gray):
     """
     用多方向 Gabor 滤波器增强掌纹线条。
-    
-    Args:
-        roi_gray: 灰度 ROI 图像
-    
-    Returns:
-        enhanced: 增强后的掌纹图像
+
+    细线保留：双边滤波保边去噪 + CLAHE + 略轻模糊 + 12 方向 Gabor，
+    使脊线响应更贴真实皮肤纹理走向。
     """
     if roi_gray is None or roi_gray.size == 0:
         return None
-    
-    # 预处理：CLAHE 增强对比度
-    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-    eq = clahe.apply(roi_gray)
-    
-    # 高斯模糊去噪
-    eq = cv2.GaussianBlur(eq, (5, 5), 1.0)
-    
-    # Gabor 滤波器参数（针对掌纹线条优化）
+
+    # 双边滤波：压噪同时尽量不切细掌纹
+    smooth = cv2.bilateralFilter(roi_gray, d=5, sigmaColor=40, sigmaSpace=40)
+
+    clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
+    eq = clahe.apply(smooth)
+
+    # 轻模糊，避免抹掉细纹（原 5x5 易糊线）
+    eq = cv2.GaussianBlur(eq, (3, 3), 0.6)
+
     h, w = roi_gray.shape[:2]
-    ksize  = max(21, int(min(h, w) * 0.08) | 1)  # 奇数
-    sigma  = ksize / 6.0
-    lambd  = ksize / 2.0
-    gamma  = 0.5
-    psi    = 0
-    
-    # 多方向滤波（8 个方向）
-    angles = [i * np.pi / 8 for i in range(8)]
+    ksize = max(21, int(min(h, w) * 0.07) | 1)
+    sigma = ksize / 6.0
+    lambd = max(ksize / 2.2, 5.0)
+    gamma = 0.45
+    psi = 0
+
+    # 12 方向，更密采样纹理走向
+    angles = [i * np.pi / 12 for i in range(12)]
     responses = []
-    
     for theta in angles:
         kernel = cv2.getGaborKernel((ksize, ksize), sigma, theta, lambd, gamma, psi, ktype=cv2.CV_32F)
         filtered = cv2.filter2D(eq, cv2.CV_32F, kernel)
         responses.append(np.abs(filtered))
-    
-    # 取最大响应
+
     enhanced = np.maximum.reduce(responses)
     enhanced = cv2.normalize(enhanced, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-    
     return enhanced
 
 
 def extract_palm_lines_binary(roi_gray):
     """
     从 ROI 提取二值化的掌纹线条。
-    
+
     Returns:
         binary: 二值图像（白色=掌纹线条）
     """
     if roi_gray is None or roi_gray.size == 0:
         return None
-    
-    # Gabor 增强
     enhanced = enhance_palm_lines(roi_gray)
     if enhanced is None:
         return None
-    
-    # 自适应阈值（使用较大的块大小减少碎片）
-    block_size = max(31, int(min(roi_gray.shape) * 0.12) | 1)
+    return _binarize_enhanced(enhanced, roi_gray.shape)
+
+
+def _binarize_enhanced(enhanced: np.ndarray, shape: Tuple[int, ...]) -> np.ndarray:
+    """由 Gabor 响应图得到二值脊线（与 extract_palm_lines_binary 后半段一致）。"""
+    h, w = shape[:2]
+    m = min(h, w)
+    block_size = max(21, int(m * 0.10) | 1)
     binary = cv2.adaptiveThreshold(
         enhanced, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY_INV, block_size, 8
+        cv2.THRESH_BINARY_INV, block_size, 5
     )
-    
-    # 形态学处理：先闭合断裂，再去除小噪点
-    h, w = roi_gray.shape[:2]
-    k_close = max(3, int(min(h, w) * 0.015))
-    k_open  = max(3, int(min(h, w) * 0.01))
-    
+    k_close = max(3, int(min(h, w) * 0.012))
+    k_open = max(3, int(min(h, w) * 0.008))
     kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_close, k_close))
-    kernel_open  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_open, k_open))
-    
-    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel_close, iterations=2)
-    binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN,  kernel_open,  iterations=1)
-    
-    # 去除面积太小的连通域
+    kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k_open, k_open))
+    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel_close, iterations=1)
+    binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel_open, iterations=1)
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary, connectivity=8)
-    min_area = int(h * w * 0.005)  # 至少占 0.5% 面积
+    min_area = int(h * w * 0.004)
     for i in range(1, num_labels):
         if stats[i, cv2.CC_STAT_AREA] < min_area:
             binary[labels == i] = 0
-    
     return binary
 
 
-def identify_major_lines(binary, roi_shape):
+def _skeletonize(binary: np.ndarray) -> np.ndarray:
+    """骨架化：优先 ximgproc.thinning，否则形态学骨架（略粗但可用）。"""
+    bin255 = ((binary > 127).astype(np.uint8) * 255)
+    if hasattr(cv2, "ximgproc") and hasattr(cv2.ximgproc, "thinning"):
+        try:
+            return cv2.ximgproc.thinning(bin255)
+        except cv2.error:
+            pass
+    skel = np.zeros_like(bin255)
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    img = bin255.copy()
+    while True:
+        eroded = cv2.erode(img, element)
+        temp = cv2.dilate(eroded, element)
+        temp = cv2.subtract(img, temp)
+        skel = cv2.bitwise_or(skel, temp)
+        img = eroded.copy()
+        if cv2.countNonZero(img) == 0:
+            break
+    return skel
+
+
+def _mean_ridge_on_map(ridge_map: np.ndarray, cnt: np.ndarray, step: int = 4) -> float:
+    """沿轮廓采样，脊线响应均值（越高越贴真实纹理）。"""
+    if cnt is None or len(cnt) < 2 or ridge_map is None:
+        return 0.0
+    pts = cnt.reshape(-1, 2)
+    h, w = ridge_map.shape[:2]
+    vals = []
+    for i in range(0, len(pts), step):
+        x, y = int(np.clip(pts[i, 0], 0, w - 1)), int(np.clip(pts[i, 1], 0, h - 1))
+        vals.append(float(ridge_map[y, x]))
+    return float(np.mean(vals)) if vals else 0.0
+
+
+def _refine_contour_to_ridge(ridge_map: np.ndarray, cnt: np.ndarray, win: int = 4) -> np.ndarray:
+    """在脊线响应图上做小窗 argmax，把轮廓顶点吸附到局部最强纹理。"""
+    if cnt is None or len(cnt) < 2 or ridge_map is None:
+        return cnt
+    pts = cnt.reshape(-1, 2).astype(np.float32)
+    h, w = ridge_map.shape[:2]
+    n = len(pts)
+    stride = max(1, n // 180)
+    new_pts = []
+    for i in range(0, n, stride):
+        x, y = int(round(pts[i, 0])), int(round(pts[i, 1]))
+        x0, x1 = max(0, x - win), min(w, x + win + 1)
+        y0, y1 = max(0, y - win), min(h, y + win + 1)
+        patch = ridge_map[y0:y1, x0:x1]
+        if patch.size == 0:
+            new_pts.append([x, y])
+            continue
+        flat = patch.reshape(-1)
+        idx = int(np.argmax(flat))
+        py, px = divmod(idx, patch.shape[1])
+        new_pts.append([int(x0 + px), int(y0 + py)])
+    if len(new_pts) < 2:
+        return cnt
+    return np.array(new_pts, dtype=np.int32).reshape(-1, 1, 2)
+
+
+def identify_major_lines(binary, roi_shape, ridge_map: Optional[np.ndarray] = None):
     """
     从二值掌纹图像中识别三条主要线条（生命线、智慧线、感情线）。
     
@@ -117,47 +164,38 @@ def identify_major_lines(binary, roi_shape):
     """
     if binary is None or binary.size == 0:
         return dict(life=None, head=None, heart=None)
-    
+
     h, w = roi_shape[:2]
-    
-    # 骨架化
-    if hasattr(cv2, 'ximgproc'):
-        skeleton = cv2.ximgproc.thinning(binary)
-    else:
-        skeleton = binary
-    
-    # 查找轮廓
-    contours, _ = cv2.findContours(skeleton, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    
+    skeleton = _skeletonize(binary)
+    contours, _ = cv2.findContours(skeleton, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+
     if len(contours) == 0:
         return dict(life=None, head=None, heart=None)
-    
-    # 过滤太短的轮廓，按长度排序
-    min_length = max(w, h) * 0.15
+
+    min_length = max(w, h) * 0.12
     valid_contours = [(cv2.arcLength(c, False), c) for c in contours
                       if cv2.arcLength(c, False) > min_length]
     valid_contours.sort(key=lambda x: x[0], reverse=True)
-    valid_contours = valid_contours[:15]
-    
+    valid_contours = valid_contours[:20]
+
     if not valid_contours:
         return dict(life=None, head=None, heart=None)
-    
-    # 为每条轮廓计算特征
+
     candidates = []
     for arc_len, cnt in valid_contours:
         pts = cnt.reshape(-1, 2)
         xs, ys = pts[:, 0], pts[:, 1]
-        
         x_min, x_max = xs.min(), xs.max()
         y_min, y_max = ys.min(), ys.max()
         x_span = x_max - x_min
         y_span = y_max - y_min
         x_center = (x_min + x_max) / 2
         y_center = (y_min + y_max) / 2
-        
-        # 方向性：横向 vs 纵向
         aspect = x_span / (y_span + 1e-6)
-        
+        ridge_boost = 1.0
+        if ridge_map is not None:
+            mr = _mean_ridge_on_map(ridge_map, cnt)
+            ridge_boost = 1.0 + min(mr, 200.0) / 72.0
         candidates.append(dict(
             cnt=cnt, arc_len=arc_len,
             x_center=x_center, y_center=y_center,
@@ -165,53 +203,44 @@ def identify_major_lines(binary, roi_shape):
             aspect=aspect,
             y_min=y_min, y_max=y_max,
             x_min=x_min, x_max=x_max,
+            ridge_boost=ridge_boost,
         ))
-    
-    # 分类策略
-    life_best  = None
-    head_best  = None
-    heart_best = None
-    
-    life_score  = -1
-    head_score  = -1
-    heart_score = -1
-    
+
+    life_best = head_best = heart_best = None
+    life_score = head_score = heart_score = -1.0
+
     for c in candidates:
-        # 感情线：上部区域（y_center < h*0.4），横向为主（aspect > 1.0）
-        if c['y_center'] < h * 0.45 and c['aspect'] > 0.8 and c['x_span'] > w * 0.25:
-            score = c['arc_len'] * (1.0 - c['y_center'] / h)
+        rb = c["ridge_boost"]
+        # 感情线：偏上、略横向即可（放宽 aspect，更多真实弧）
+        if c["y_center"] < h * 0.48 and c["aspect"] > 0.62 and c["x_span"] > w * 0.22:
+            score = c["arc_len"] * (1.0 - c["y_center"] / h) * rb
             if score > heart_score:
-                heart_score = score
-                heart_best  = c['cnt']
-        
-        # 智慧线：中部区域（h*0.3 < y_center < h*0.7），横向为主
-        if c['y_center'] > h * 0.3 and c['y_center'] < h * 0.75 and c['aspect'] > 0.6 and c['x_span'] > w * 0.25:
-            score = c['arc_len'] * (1.0 - abs(c['y_center'] / h - 0.5))
+                heart_score, heart_best = score, c["cnt"]
+        # 智慧线：中部、横向为主
+        if c["y_center"] > h * 0.28 and c["y_center"] < h * 0.78 and c["aspect"] > 0.52 and c["x_span"] > w * 0.22:
+            score = c["arc_len"] * (1.0 - abs(c["y_center"] / h - 0.52)) * rb
             if score > head_score:
-                head_score = score
-                head_best  = c['cnt']
-        
-        # 生命线：左侧（x_center < w*0.5），纵向跨度大（y_span > h*0.25）
-        if c['x_center'] < w * 0.55 and c['y_span'] > h * 0.2:
-            score = c['arc_len'] * (1.0 - c['x_center'] / w)
+                head_score, head_best = score, c["cnt"]
+        # 生命线：偏左、纵向跨度
+        if c["x_center"] < w * 0.58 and c["y_span"] > h * 0.18:
+            score = c["arc_len"] * (1.05 - c["x_center"] / max(w, 1)) * rb
             if score > life_score:
-                life_score = score
-                life_best  = c['cnt']
-    
-    # 避免同一条轮廓被分配给多个线条
+                life_score, life_best = score, c["cnt"]
+
     assigned = set()
     result = dict(life=None, head=None, heart=None)
-    
-    # 按优先级分配（感情线 > 智慧线 > 生命线）
-    for name, cnt, score in [
-        ('heart', heart_best, heart_score),
-        ('head',  head_best,  head_score),
-        ('life',  life_best,  life_score),
-    ]:
+    for name, cnt in [("heart", heart_best), ("head", head_best), ("life", life_best)]:
         if cnt is not None and id(cnt) not in assigned:
             result[name] = cnt
             assigned.add(id(cnt))
-    
+
+    win = int(max(3, min(h, w) * 0.022))
+    win = min(win, 7)
+    if ridge_map is not None:
+        for key in ("heart", "head", "life"):
+            if result[key] is not None:
+                result[key] = _refine_contour_to_ridge(ridge_map, result[key], win=win)
+
     return result
 
 
@@ -320,15 +349,13 @@ def process_palm_lines(roi_bgr):
     
     # 转灰度
     gray = cv2.cvtColor(roi_bgr, cv2.COLOR_BGR2GRAY) if roi_bgr.ndim == 3 else roi_bgr
-    
-    # 提取二值掌纹
-    binary = extract_palm_lines_binary(gray)
-    if binary is None:
+
+    enhanced = enhance_palm_lines(gray)
+    if enhanced is None:
         return dict(annotated=roi_bgr, binary=None, lines=None, features=None,
                     error="掌纹增强失败")
-    
-    # 识别主要线条
-    lines = identify_major_lines(binary, roi_bgr.shape)
+    binary = _binarize_enhanced(enhanced, gray.shape)
+    lines = identify_major_lines(binary, roi_bgr.shape, ridge_map=enhanced)
     
     # 绘制线条
     annotated = draw_palm_lines_on_roi(roi_bgr, lines, thickness=2)

@@ -12,7 +12,10 @@ flask>=3.0.0
 flask-cors>=4.0.0
 gunicorn>=22.0.0
 
-# ── 可选：U-Net fallback（需要训练好的权重）──────────────────────────────────
+# ── 可选：EDCC 掌纹编码/比对（需先按上游编译 native 库）────────────────────────
+# https://github.com/leosocy/EDCC-Palmprint-Recognition
+# 安装 libedcc 后: cd EDCC-Palmprint-Recognition/pypackage && pip install .
+# （不可仅从本 requirements 一键安装）
 # torch
 # torchvision
 # segmentation-models-pytorch

@@ -167,13 +167,25 @@
 
         /**
          * API 根地址（不含 /analyze）。
-         * - 查询参数 ?api=https://xxx 用于 GitHub Pages + 已部署的 HTTPS 后端
-         * - localStorage.palmApiBase 可持久保存同一域名
-         * - 本机 http://127.0.0.1:5050/ 打开时用相对路径，无混合内容问题
+         * - 查询参数 ?api=https://xxx 或锚点 #api=https://xxx
+         * - localStorage.palmApiBase 记住上次隧道，避免收藏夹不带参数时连不上
+         * - 本机 http://127.0.0.1:5050/ 打开时用相对路径
          */
         function getPalmApiBase() {
             const params = new URLSearchParams(location.search);
-            const fromQuery = params.get('api');
+            let fromQuery = params.get('api');
+            if (fromQuery) {
+                try {
+                    fromQuery = decodeURIComponent(fromQuery.trim());
+                    localStorage.setItem('palmApiBase', fromQuery);
+                } catch (_) {}
+            }
+            if (!fromQuery && location.hash && location.hash.startsWith('#api=')) {
+                try {
+                    fromQuery = decodeURIComponent(location.hash.slice(5).split('&')[0].trim());
+                    if (fromQuery.startsWith('http')) localStorage.setItem('palmApiBase', fromQuery);
+                } catch (_) {}
+            }
             if (fromQuery) {
                 try {
                     const u = new URL(fromQuery);
@@ -186,7 +198,7 @@
             try {
                 const saved = localStorage.getItem('palmApiBase');
                 if (saved) {
-                    const u = new URL(saved);
+                    const u = new URL(saved.trim());
                     return u.origin + u.pathname.replace(/\/$/, '');
                 }
             } catch (_) {}
@@ -198,6 +210,34 @@
             if (protocol === 'http:' && local) return 'http://127.0.0.1:5050';
             if (protocol === 'https:') return null;
             return 'http://127.0.0.1:5050';
+        }
+
+        /** 后端 analyze 是否已成功返回可用结果（不要求一定有 features） */
+        function hasBackendAiResult(seg) {
+            if (!seg || !seg.success) return false;
+            const edccOk = !!(seg.edcc && seg.edcc.available);
+            return !!(seg.features || seg.heart_line || seg.head_line || seg.life_line
+                || seg.roi_image || seg.annotated_image || seg.rotated_image || edccOk);
+        }
+
+        function appendEdccFooter(segResult) {
+            const edc = segResult && segResult.edcc;
+            if (!edc) return;
+            const desc = document.querySelector('.tags-desc');
+            if (!desc) return;
+            if (edc.available) {
+                let t = `EDCC 掌纹编码已生成（digest ${edc.code_digest_sha256 || '?'}`;
+                if (edc.code_length_bytes) t += `，${edc.code_length_bytes} bytes）`;
+                else t += '）';
+                if (edc.similarity_to_reference != null && !Number.isNaN(Number(edc.similarity_to_reference))) {
+                    t += ` · 与参考图相似度 ${Number(edc.similarity_to_reference).toFixed(4)}`;
+                }
+                if (edc.reference_error) t += ` · 参考图：${edc.reference_error}`;
+                desc.innerHTML += `<br><small style="color:#4a6b4a;">${t} · <a href="${edc.doc}">EDCC-Palmprint-Recognition</a>（身份比对类算法）</small>`;
+            } else if (edc.error || edc.install_hint) {
+                const msg = (edc.error || '') + (edc.install_hint ? ' ' + edc.install_hint : '');
+                desc.innerHTML += `<br><small style="color:#A89580;">EDCC 未加载: ${msg}</small>`;
+            }
         }
 
         const scanTexts = [
@@ -276,6 +316,8 @@
                     const url = (apiBase || '') + '/analyze';
                     const resp = await fetch(url, {
                         method: 'POST',
+                        mode: 'cors',
+                        credentials: 'omit',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ image: b64 })
                     });
@@ -293,8 +335,8 @@
                 }
             }
 
-            // 无后端或失败时：用浏览器端 MediaPipe 手部 21 点驱动曲线（每张图不同；仍非掌纹纹理级 AI）
-            if (!segResult || !segResult.success) {
+            // 无后端或失败时：用浏览器端 MediaPipe 手部 21 点驱动曲线
+            if (!hasBackendAiResult(segResult)) {
                 try {
                     scanText.textContent = '加载浏览器端手部模型…';
                     lastClientKeypointsNormalized = await detectHandKeypointsNormalized(uploadedImage);
@@ -322,7 +364,19 @@
             pageScan.style.display = 'none';
             pageResult.style.display = 'block';
             pageResult.classList.add('fade-in');
-            drawPalmFromSegmentation(segResult);
+            // 后端三线坐标按「旋转矫正后的处理图」归一化；有 rotated_image 时必须叠在同一张底图上，否则会整幅错位
+            if (segResult && segResult.rotated_image && segResult.success
+                && (segResult.heart_line || segResult.head_line || segResult.life_line)) {
+                const aligned = new Image();
+                aligned.onload = () => drawPalmFromSegmentation(segResult, aligned);
+                aligned.onerror = () => {
+                    console.warn('[palm] rotated_image 加载失败，回退原图（叠线可能错位）');
+                    drawPalmFromSegmentation(segResult, null);
+                };
+                aligned.src = segResult.rotated_image;
+            } else {
+                drawPalmFromSegmentation(segResult, null);
+            }
 
             // 显示 ROI 识别图片
             const roiSection = document.getElementById('roiSection');
@@ -338,34 +392,48 @@
                 }
             }
 
-            // 如果有真实特征数据，更新标签描述
-            if (segResult && segResult.success && segResult.features) {
-                const f = segResult.features;
+            // 文案：已连后端以 hasBackendAiResult 为准（避免仅有掌线无 features 时被误判）
+            if (hasBackendAiResult(segResult)) {
                 const desc = document.querySelector('.tags-desc');
-                desc.innerHTML = `基于 <a href="https://github.com/Huterox/palm_recongnition" style="color:#C9A96E;">Huterox/palm_recongnition</a> AI识别<br>` +
-                    `关键点检测 → PSO定位 → Gabor增强 → 三线提取<br>` +
-                    `<small style="color:#A89580;">生命线 ${f.life_length}px | 智慧线 ${f.head_length}px | 感情线 ${f.heart_length}px</small>`;
+                if (segResult.features) {
+                    const f = segResult.features;
+                    const alignNote = segResult.rotated_image
+                        ? '<br><small style="color:#A89580;">主图已与算法坐标对齐（旋转矫正后的处理分辨率，可能与原拍照角度不同）</small>'
+                        : '';
+                    desc.innerHTML = `基于 <a href="https://github.com/Huterox/palm_recongnition" style="color:#C9A96E;">Huterox/palm_recongnition</a> 后端 AI 识别<br>` +
+                        `关键点检测 → PSO定位 → Gabor增强 → 三线提取<br>` +
+                        `<small style="color:#A89580;">生命线 ${f.life_length}px | 智慧线 ${f.head_length}px | 感情线 ${f.heart_length}px</small>` +
+                        alignNote;
+                } else {
+                    desc.innerHTML = `基于 <a href="https://github.com/Huterox/palm_recongnition" style="color:#C9A96E;">Huterox/palm_recongnition</a> 后端 AI 识别<br>` +
+                        `已连接后端并返回掌纹线 / ROI 数据（特征摘要暂缺）<br>` +
+                        `<small style="color:#A89580;">若线条异常，请换光线充足、五指张开的照片重试。</small>`;
+                }
             } else if (lastClientKeypointsNormalized) {
                 const desc = document.querySelector('.tags-desc');
                 desc.innerHTML = `基于浏览器 MediaPipe 手部 21 点估算主线走向（每张图会随手势变化）<br>` +
-                    `<small style="color:#A89580;">非掌纹纹理级识别。连接后端可跑 Gabor + PSO + 骨架化 的完整流程。</small>`;
+                    `<small style="color:#A89580;">非掌纹纹理级识别。请在地址栏加上 ?api=你的HTTPS后端 并保留隧道运行，以使用完整后端流程。</small>`;
             } else {
                 const desc = document.querySelector('.tags-desc');
-                desc.innerHTML = `基于固定比例示意图（未检测到手掌或模型加载失败）<br>` +
-                    `<small style="color:#A89580;">请展开五指、光线充足；或启动后端 / 配置 ?api= 获取 AI 结果。</small>`;
+                desc.innerHTML = `未连接后端且未启用浏览器手部模型<br>` +
+                    `<small style="color:#A89580;">GitHub Pages 请打开：<code style="font-size:11px;">?api=https://你的隧道.trycloudflare.com</code>（首次会自动记住，或见 <code>#api=</code>）</small>`;
             }
+
+            appendEdccFooter(segResult);
 
             renderAnalysisCards(segResult);
         }
 
         // ==========================================
         // 基于 Huterox/palm_recongnition 分割结果绘制掌纹
-        // API 返回归一化坐标 (0~1)，对应 ROI 区域内的线条位置
+        // API 归一化坐标 (0~1) 相对于 rotated_image（若有）；否则旧版后端相对原图（易错位）
+        // baseImgOverride: 成功 decode 的 rotated Image 元素
         // ==========================================
 
-        function drawPalmFromSegmentation(segResult) {
+        function drawPalmFromSegmentation(segResult, baseImgOverride) {
             const ctx = palmCanvas.getContext('2d');
-            const img = uploadedImage;
+            const img = (baseImgOverride && baseImgOverride.naturalWidth) ? baseImgOverride : uploadedImage;
+            if (!img || !img.naturalWidth) return;
             const displayWidth = palmCanvas.parentElement.clientWidth;
             const ratio = img.naturalWidth / img.naturalHeight;
             const displayHeight = displayWidth / ratio;
@@ -612,21 +680,48 @@
             // 如果有真实 AI 分析结果，动态生成前两张卡片
             let cards = [...analysisData];
 
-            if (segResult && segResult.success && segResult.features) {
+            if (hasBackendAiResult(segResult)) {
                 const f = segResult.features;
                 const cls = segResult.classification || {};
-
-                // 插入 AI 识别结果卡片到最前面
-                const aiCard = {
-                    icon: '🤖',
-                    title: 'AI 掌纹识别结果',
-                    subtitle: 'Huterox/palm_recongnition 深度学习分析',
-                    feature: `通过21关键点检测 + PSO算法精确定位掌心ROI区域，使用Gabor多方向滤波器增强掌纹纹理，骨架化后识别三条主线。`,
-                    interpretation: `主导线条: ${cls.dominant_line || '未知'} (置信度 ${((cls.confidence || 0) * 100).toFixed(0)}%)。手型分类: ${cls.palm_type || '未知'}。`,
-                    trend: `生命线长度 ${f.life_length}px (曲率 ${f.life_curvature})，智慧线长度 ${f.head_length}px (曲率 ${f.head_curvature})，感情线长度 ${f.heart_length}px (曲率 ${f.heart_curvature})。`,
-                    action: `线条角度 — 生命线 ${f.life_angle}°, 智慧线 ${f.head_angle}°, 感情线 ${f.heart_angle}°。数据由 Gabor 滤波 + 骨架化算法精确计算。`
-                };
+                let aiCard;
+                if (f) {
+                    aiCard = {
+                        icon: '🤖',
+                        title: 'AI 掌纹识别结果',
+                        subtitle: 'Huterox/palm_recongnition 深度学习分析',
+                        feature: `通过21关键点检测 + PSO算法精确定位掌心ROI区域，使用Gabor多方向滤波器增强掌纹纹理，骨架化后识别三条主线。`,
+                        interpretation: `主导线条: ${cls.dominant_line || '未知'} (置信度 ${((cls.confidence || 0) * 100).toFixed(0)}%)。手型分类: ${cls.palm_type || '未知'}。`,
+                        trend: `生命线长度 ${f.life_length}px (曲率 ${f.life_curvature})，智慧线长度 ${f.head_length}px (曲率 ${f.head_curvature})，感情线长度 ${f.heart_length}px (曲率 ${f.heart_curvature})。`,
+                        action: `线条角度 — 生命线 ${f.life_angle}°, 智慧线 ${f.head_angle}°, 感情线 ${f.heart_angle}°。数据由 Gabor 滤波 + 骨架化算法精确计算。`
+                    };
+                } else {
+                    aiCard = {
+                        icon: '🤖',
+                        title: 'AI 掌纹识别结果',
+                        subtitle: '后端已连接',
+                        feature: '已成功调用后端并返回掌纹线或 ROI 图像；当前响应中未包含数值特征字段。',
+                        interpretation: segResult.error ? `提示: ${segResult.error}` : '可尝试更换更清晰的手掌照片。',
+                        trend: '若需完整特征卡片，请确认 Palm-Astro-Application 管线正常返回 features。',
+                        action: '在浏览器开发者工具 Network 中查看 /analyze 返回的 JSON。'
+                    };
+                }
                 cards = [aiCard, ...cards];
+                if (segResult.edcc && segResult.edcc.available) {
+                    const ed = segResult.edcc;
+                    const sim = ed.similarity_to_reference != null && !Number.isNaN(Number(ed.similarity_to_reference))
+                        ? `与参考图 EDCC 相似度: ${Number(ed.similarity_to_reference).toFixed(4)}`
+                        : '可在请求 JSON 中增加 reference_image（base64）计算两掌 ROI 的 EDCC 相似度';
+                    const edCard = {
+                        icon: '📊',
+                        title: 'EDCC 掌纹编码',
+                        subtitle: 'leosocy/EDCC-Palmprint-Recognition',
+                        feature: `competitive code digest=${ed.code_digest_sha256 || '?'}，约 ${ed.code_length_bytes || '?'} bytes。`,
+                        interpretation: 'EDCC 面向「掌纹纹理编码 + 两图匹配」验证场景，不替代单张图上的三条主线几何提取。',
+                        trend: sim,
+                        action: `安装见 ${ed.doc}（cmake 安装 libedcc 后 pip 安装 pypackage）。`,
+                    };
+                    cards.splice(1, 0, edCard);
+                }
             }
 
             cards.forEach((item, index) => {
