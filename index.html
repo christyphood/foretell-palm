@@ -20,11 +20,13 @@
             overflow: hidden;
         }
         .app { max-width: 414px; margin: 0 auto; height: 100vh; position: relative; display: flex; flex-direction: column; }
+        .app.home-active .header { opacity: 0; pointer-events: none; transform: translateY(-8px); }
 
         .header {
             padding: 60px 24px 20px;
             display: flex; justify-content: space-between; align-items: flex-start;
             flex-shrink: 0; position: relative; z-index: 10;
+            transition: opacity 0.25s ease, transform 0.25s ease;
         }
         .header h1 { font-size: 21px; font-weight: 700; color: #000; line-height: 1.2; margin-bottom: 4px; }
         .header p { font-size: 11px; color: #4a4a4a; }
@@ -62,7 +64,7 @@
         .section-home {
             display: flex; flex-direction: column; align-items: center;
             justify-content: flex-end;
-            padding-bottom: 12vh;
+            padding-bottom: 10.5vh;
             position: relative;
         }
         .home-bg {
@@ -70,16 +72,49 @@
             background: url('images/home-bg.png') center center / cover no-repeat;
             pointer-events: none;
         }
+        .home-title-wrap {
+            position: absolute;
+            left: 24px;
+            top: 52px;
+            z-index: 2;
+            color: #000;
+        }
+        .home-title {
+            font-size: 56px;
+            line-height: 1.08;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .home-subtitle {
+            font-size: 14px;
+            line-height: 1.45;
+            color: #4a4a4a;
+        }
+        .home-close-btn {
+            position: absolute;
+            top: 26px;
+            right: 16px;
+            z-index: 2;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1.7px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: transform 0.2s;
+            font-size: 24px; color: #000;
+        }
+        .home-close-btn:active { transform: scale(0.92); }
         .start-btn {
-            width: 120px; height: 120px; border-radius: 50%;
-            background: rgba(255,255,255,0.85);
+            width: 152px; height: 152px; border-radius: 50%;
+            background: #fff;
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.6);
-            color: #2D2D2D; font-size: 20px; font-weight: 700;
+            color: #000; font-size: 28px; font-weight: 700;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             position: relative; z-index: 2;
         }
         .start-btn:active { transform: scale(0.93); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
@@ -391,6 +426,11 @@
             <!-- HOME -->
             <div class="section section-home active" id="sectionHome">
                 <div class="home-bg"></div>
+                <div class="home-title-wrap">
+                    <h1 class="home-title">手相解码</h1>
+                    <p class="home-subtitle">读懂掌心纹路，读懂你的天生底色</p>
+                </div>
+                <button class="home-close-btn" id="homeCloseBtn">×</button>
                 <button class="start-btn" id="startBtn">开始</button>
             </div>
 
@@ -497,9 +537,11 @@
         const sectionScan = document.getElementById('sectionScan');
         const sectionResult = document.getElementById('sectionResult');
         const sections = [sectionHome, sectionCamera, sectionScan, sectionResult];
+        const app = document.querySelector('.app');
 
         const startBtn = document.getElementById('startBtn');
         const closeBtn = document.getElementById('closeBtn');
+        const homeCloseBtn = document.getElementById('homeCloseBtn');
 
         const cameraVideo = document.getElementById('cameraVideo');
         const cameraPlaceholder = document.getElementById('cameraPlaceholder');
@@ -536,6 +578,9 @@
 
             setTimeout(() => prev.classList.remove('exiting'), 600);
 
+            if (target === sectionHome) app.classList.add('home-active');
+            else app.classList.remove('home-active');
+
             if (target === sectionResult) {
                 document.body.style.overflow = 'hidden';
             } else {
@@ -565,6 +610,8 @@
             switchTo(sectionCamera);
             initCamera();
         });
+
+        homeCloseBtn.addEventListener('click', () => history.back());
 
         closeBtn.addEventListener('click', () => {
             stopCamera();
@@ -1484,6 +1531,8 @@
                 alert('报告已保存！长按图片即可分享给好友');
             }
         });
+
+        app.classList.add('home-active');
     </script>
 </body>
 </html>
