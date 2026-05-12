@@ -3,206 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>手相解码 - 基于Huterox/palm_recongnition AI掌纹识别</title>
+    <title>手相解码</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(180deg, #FDF5E6 0%, #F5E6D3 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'PingFang TC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(197deg, #EEDFBA 5.46%, #EFDCD0 71.37%);
             min-height: 100vh;
             overflow-x: hidden;
         }
         .page { max-width: 414px; margin: 0 auto; min-height: 100vh; position: relative; }
-        .header { padding: 60px 24px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .header-left h1 { font-size: 28px; font-weight: 700; color: #2D2D2D; margin-bottom: 8px; }
-        .header-left p { font-size: 14px; color: #8C7B6B; }
-        .close-btn { width: 36px; height: 36px; border-radius: 50%; background: #F5F0EB; border: none; font-size: 18px; color: #666; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .page-home { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 120px; }
-        .photo-btn { width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%); border: none; color: white; font-size: 24px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 40px rgba(201, 169, 110, 0.4); transition: transform 0.3s ease; }
-        .photo-btn:active { transform: scale(0.95); }
-        .photo-hint { margin-top: 24px; font-size: 13px; color: #A89580; }
+
+        /* Header */
+        .header {
+            padding: 60px 24px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .header h1 { font-size: 21px; font-weight: 700; color: #000; line-height: 1.2; margin-bottom: 4px; }
+        .header p { font-size: 11px; color: #4a4a4a; }
+        .close-btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border: 1.7px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .close-btn:active { transform: scale(0.95); }
+
+        /* ========== Page 1: Home ========== */
+        .page-home {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding-top: 28vh;
+        }
+        .start-btn {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%);
+            border: none; color: white; font-size: 20px; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 12px 40px rgba(201,169,110,0.4);
+            transition: transform 0.3s ease;
+            letter-spacing: 1px;
+        }
+        .start-btn:active { transform: scale(0.95); }
+
+        /* ========== Page 2: Scan ========== */
         .page-scan { display: none; padding: 0 20px; }
-        .scan-container { position: relative; width: 100%; border-radius: 16px; overflow: hidden; margin-top: 10px; }
-        .scan-container img { width: 100%; display: block; }
+        .scan-box {
+            position: relative; width: 100%;
+            aspect-ratio: 674 / 982;
+            margin: 10px auto 0;
+            background: rgba(255,255,255,0.46);
+            backdrop-filter: blur(7.8px); -webkit-backdrop-filter: blur(7.8px);
+            border: 1px solid rgba(255,255,255,0.19);
+            border-radius: 20px; overflow: hidden;
+        }
+        .scan-box img {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; object-fit: cover;
+        }
         .scan-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-        .scan-line { position: absolute; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #C9A96E, transparent); animation: scanMove 2.5s ease-in-out infinite; box-shadow: 0 0 20px rgba(201, 169, 110, 0.6); }
+        .scan-grid {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                linear-gradient(rgba(201,169,110,0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201,169,110,0.12) 1px, transparent 1px);
+            background-size: 25% 25%;
+        }
+        .scan-line {
+            position: absolute; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, #C9A96E, transparent);
+            animation: scanMove 2.5s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(201,169,110,0.6);
+        }
         @keyframes scanMove { 0% { top: 0%; } 50% { top: 95%; } 100% { top: 0%; } }
-        .scan-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(rgba(201,169,110,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,0.1) 1px, transparent 1px); background-size: 25% 25%; }
         .scan-dots { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-        .scan-dot { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #FFD700; animation: dotPulse 1.5s ease-in-out infinite; box-shadow: 0 0 8px rgba(255, 215, 0, 0.6); }
+        .scan-dot {
+            position: absolute; width: 12px; height: 12px; border-radius: 50%;
+            background: #FFD700; animation: dotPulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(255,215,0,0.6);
+        }
         .scan-dot:nth-child(1) { top: 35%; left: 40%; animation-delay: 0s; }
         .scan-dot:nth-child(2) { top: 40%; left: 60%; animation-delay: 0.3s; }
         .scan-dot:nth-child(3) { top: 55%; left: 35%; animation-delay: 0.6s; }
         .scan-dot:nth-child(4) { top: 60%; left: 55%; animation-delay: 0.9s; }
         .scan-dot:nth-child(5) { top: 70%; left: 45%; animation-delay: 1.2s; }
-        @keyframes dotPulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.5); opacity: 1; } }
+        @keyframes dotPulse { 0%,100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.5); opacity: 1; } }
         .scan-progress { margin-top: 20px; text-align: center; }
-        .scan-text { font-size: 16px; color: #2D2D2D; margin-bottom: 12px; }
+        .scan-text { font-size: 16px; color: #3a2a1a; margin-bottom: 12px; }
         .progress-bar { width: 80%; height: 4px; background: #E8DED0; border-radius: 2px; margin: 0 auto; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #C9A96E, #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
+
+        /* ========== Page 3: Result ========== */
         .page-result { display: none; padding: 0 20px 40px; }
-        .result-image-section { position: relative; width: 100%; border-radius: 16px; overflow: hidden; margin-top: 10px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
-        .result-image-section canvas { width: 100%; display: block; border-radius: 16px; }
-        .palm-annotation { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
-        .line-label { position: absolute; background: rgba(255, 255, 255, 0.88); border-radius: 10px; padding: 3px 8px; font-size: 10px; font-weight: 600; color: #2D2D2D; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12); white-space: nowrap; display: flex; align-items: center; gap: 3px; transform: translate(-50%, -50%); }
-        .line-label .num { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #C9A96E; color: white; font-size: 9px; font-weight: 700; }
-        .tags-section { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-        .tag-item { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: white; border-radius: 20px; font-size: 13px; font-weight: 500; color: #2D2D2D; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
-        .tag-item .tag-num { width: 20px; height: 20px; border-radius: 50%; background: #C9A96E; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
-        .tags-desc { text-align: center; margin-top: 16px; font-size: 14px; color: #6B5E50; line-height: 1.8; }
-        .analysis-section { margin-top: 32px; }
-        .section-title { font-size: 20px; font-weight: 700; color: #2D2D2D; margin-bottom: 20px; padding-left: 4px; }
-        .analysis-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04); }
-        .analysis-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .analysis-icon { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #FDF5E6, #F5E6D3); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .analysis-card-title { font-size: 17px; font-weight: 600; color: #2D2D2D; }
-        .analysis-card-subtitle { font-size: 12px; color: #A89580; margin-top: 2px; }
-        .analysis-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid #F5F0EB; }
-        .detail-row { display: flex; margin-bottom: 10px; line-height: 1.6; }
-        .detail-label { font-size: 12px; color: #A89580; min-width: 70px; flex-shrink: 0; padding-top: 2px; }
-        .detail-content { font-size: 14px; color: #4A4A4A; }
-        .share-section { margin-top: 32px; text-align: center; padding-bottom: 40px; }
-        .share-btn { width: 100%; padding: 16px; border-radius: 28px; background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%); border: none; color: white; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 24px rgba(201, 169, 110, 0.3); }
+
+        .result-top-card {
+            background: rgba(255,255,255,0.65);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px; padding: 20px; margin-top: 10px;
+        }
+        .result-top-row { display: flex; gap: 16px; align-items: flex-start; }
+        .palm-thumb {
+            width: 100px; height: 130px; border-radius: 14px;
+            object-fit: cover; flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .keywords-section { flex: 1; }
+        .keywords-title { font-size: 16px; font-weight: 700; color: #2D2D2D; margin-bottom: 12px; }
+        .keywords-grid { display: flex; gap: 16px; justify-content: flex-start; }
+        .keyword-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .keyword-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: rgba(255,255,255,0.8);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .keyword-label { font-size: 11px; color: #4a4a4a; }
+
+        .lines-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.06); }
+        .line-row { display: flex; margin-bottom: 14px; gap: 12px; line-height: 1.6; }
+        .line-row:last-child { margin-bottom: 0; }
+        .line-name {
+            font-size: 13px; font-weight: 600; color: #3a2a1a;
+            min-width: 52px; flex-shrink: 0; padding-top: 1px;
+        }
+        .line-desc { font-size: 13px; color: #4a4a4a; }
+
+        .traits-section { margin-top: 28px; }
+        .traits-title { font-size: 20px; font-weight: 700; color: #2D2D2D; margin-bottom: 16px; padding-left: 4px; }
+        .trait-card {
+            background: rgba(255,255,255,0.65);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 16px; padding: 20px; margin-bottom: 12px;
+            display: flex; gap: 14px; align-items: flex-start;
+        }
+        .trait-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, #FDF5E6, #F5E6D3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+        }
+        .trait-title { font-size: 16px; font-weight: 600; color: #2D2D2D; margin-bottom: 4px; }
+        .trait-desc { font-size: 13px; color: #6B5E50; line-height: 1.6; }
+
+        .share-section { margin-top: 28px; text-align: center; padding-bottom: 40px; }
+        .share-btn {
+            width: 100%; padding: 16px; border-radius: 28px;
+            background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%);
+            border: none; color: white; font-size: 16px; font-weight: 600;
+            cursor: pointer; box-shadow: 0 8px 24px rgba(201,169,110,0.3);
+        }
         .share-btn:active { transform: scale(0.98); }
         .disclaimer { margin-top: 16px; font-size: 11px; color: #BFAE9D; line-height: 1.6; }
-        #cameraInput { display: none; }
+
+        /* Animations */
         .fade-in { animation: fadeIn 0.6s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .slide-up { animation: slideUp 0.5s ease forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        .loading-tip { text-align: center; padding: 20px; font-size: 13px; color: #A89580; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        #cameraInput { display: none; }
     </style>
 </head>
 <body>
     <div class="page">
         <div class="header">
-            <div class="header-left">
+            <div>
                 <h1>手相解码</h1>
-                <p>基于 Huterox/palm_recongnition 深度学习掌纹识别</p>
+                <p>读懂掌心纹路，读懂你的天生底色</p>
             </div>
-            <button class="close-btn">✕</button>
+            <button class="close-btn" onclick="history.back()">✕</button>
         </div>
+
+        <!-- Page 1: Home -->
         <div class="page-home" id="pageHome">
-            <button class="photo-btn" id="photoBtn">拍照</button>
-            <p class="photo-hint">请将手掌对准镜头，展开五指</p>
+            <button class="start-btn" id="startBtn">开始手相占卜</button>
         </div>
+
+        <!-- Page 2: Scanning -->
         <div class="page-scan" id="pageScan">
-            <div class="scan-container">
+            <div class="scan-box">
                 <img id="scanImage" src="" alt="手掌照片">
                 <div class="scan-overlay">
                     <div class="scan-grid"></div>
                     <div class="scan-line"></div>
                     <div class="scan-dots">
-                        <div class="scan-dot"></div><div class="scan-dot"></div><div class="scan-dot"></div><div class="scan-dot"></div><div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
+                        <div class="scan-dot"></div>
                     </div>
                 </div>
             </div>
             <div class="scan-progress">
-                <p class="scan-text" id="scanText">正在加载 palm_recongnition 模型...</p>
+                <p class="scan-text" id="scanText">正在分析掌纹...</p>
                 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             </div>
         </div>
+
+        <!-- Page 3: Result -->
         <div class="page-result" id="pageResult">
-            <div class="result-image-section">
-                <canvas id="palmCanvas"></canvas>
-                <div class="palm-annotation" id="palmAnnotation"></div>
-            </div>
-            <div class="tags-section fade-in">
-                <div class="tag-item"><span class="tag-num">1</span>感情线</div>
-                <div class="tag-item"><span class="tag-num">2</span>智慧线</div>
-                <div class="tag-item"><span class="tag-num">3</span>生命线</div>
-            </div>
-            <p class="tags-desc fade-in">基于 Huterox/palm_recongnition 深度学习识别<br>关键点检测 → PSO定位 → Gabor增强 → 三线提取</p>
-            <div class="roi-section" id="roiSection" style="display:none; margin-top:20px;">
-                <p style="text-align:center; font-size:13px; color:#8C7B6B; margin-bottom:10px;">AI 识别的 ROI 区域（掌纹线条标注）</p>
-                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-                    <div style="flex:1; max-width:180px;">
-                        <img id="roiImage" style="width:100%; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);" />
-                        <p style="text-align:center; font-size:11px; color:#A89580; margin-top:6px;">ROI 掌纹线条</p>
-                    </div>
-                    <div style="flex:1; max-width:180px;">
-                        <img id="annotatedImage" style="width:100%; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);" />
-                        <p style="text-align:center; font-size:11px; color:#A89580; margin-top:6px;">ROI 定位区域</p>
+            <div class="result-top-card fade-in">
+                <div class="result-top-row">
+                    <img id="palmThumb" class="palm-thumb" src="" alt="掌纹">
+                    <div class="keywords-section">
+                        <div class="keywords-title">关键词</div>
+                        <div class="keywords-grid" id="keywordsGrid"></div>
                     </div>
                 </div>
+                <div class="lines-section" id="linesSection"></div>
             </div>
-            <div class="analysis-section" id="analysisSection">
-                <h2 class="section-title">你的基本特质</h2>
+
+            <div class="traits-section">
+                <h2 class="traits-title">你的基本特质</h2>
+                <div id="traitsContainer"></div>
             </div>
+
             <div class="share-section">
                 <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
                 <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
             </div>
         </div>
+
         <input type="file" id="cameraInput" accept="image/*" capture="environment">
     </div>
-
-    <!--
-      本地：cd Palm-Astro-Application && python3 api_server.py
-            浏览器打开 http://127.0.0.1:5050/（与 /analyze 同源）
-
-      GitHub Pages：只能托管本页静态文件，不能跑 Python。要把 api_server 部署到
-      Render / Railway / Fly.io 等 HTTPS 服务后，用链接打开，例如：
-      https://你的用户名.github.io/foretell-palm/?api=https://你的后端域名
-      （后端需开启 CORS；本仓库 api_server 已使用 flask_cors）
-    -->
 
     <script>
         const pageHome = document.getElementById('pageHome');
         const pageScan = document.getElementById('pageScan');
         const pageResult = document.getElementById('pageResult');
-        const photoBtn = document.getElementById('photoBtn');
-        const cameraInput = document.getElementById('cameraInput');
+        const startBtn = document.getElementById('startBtn');
         const scanImage = document.getElementById('scanImage');
-        const palmCanvas = document.getElementById('palmCanvas');
-        const palmAnnotation = document.getElementById('palmAnnotation');
         const scanText = document.getElementById('scanText');
         const progressFill = document.getElementById('progressFill');
-        const analysisSection = document.getElementById('analysisSection');
+        const palmThumb = document.getElementById('palmThumb');
+        const keywordsGrid = document.getElementById('keywordsGrid');
+        const linesSection = document.getElementById('linesSection');
+        const traitsContainer = document.getElementById('traitsContainer');
 
         let uploadedImage = null;
-        /** 后端失败时，浏览器 MediaPipe 检测到的 21 点（0~1，相对原图宽高）；无检测则为 null */
-        let lastClientKeypointsNormalized = null;
-        let handLandmarkerInstance = null;
 
-        /**
-         * API 根地址（不含 /analyze）。
-         * - 查询参数 ?api=https://xxx 或锚点 #api=https://xxx
-         * - localStorage.palmApiBase 记住上次隧道，避免收藏夹不带参数时连不上
-         * - 本机 http://127.0.0.1:5050/ 打开时用相对路径
-         */
+        // ==========================================
+        // API base
+        // ==========================================
         function getPalmApiBase() {
             const params = new URLSearchParams(location.search);
             let fromQuery = params.get('api');
             if (fromQuery) {
-                try {
-                    fromQuery = decodeURIComponent(fromQuery.trim());
-                    localStorage.setItem('palmApiBase', fromQuery);
-                } catch (_) {}
+                try { fromQuery = decodeURIComponent(fromQuery.trim()); localStorage.setItem('palmApiBase', fromQuery); } catch (_) {}
             }
             if (!fromQuery && location.hash && location.hash.startsWith('#api=')) {
-                try {
-                    fromQuery = decodeURIComponent(location.hash.slice(5).split('&')[0].trim());
-                    if (fromQuery.startsWith('http')) localStorage.setItem('palmApiBase', fromQuery);
-                } catch (_) {}
+                try { fromQuery = decodeURIComponent(location.hash.slice(5).split('&')[0].trim()); if (fromQuery.startsWith('http')) localStorage.setItem('palmApiBase', fromQuery); } catch (_) {}
             }
             if (fromQuery) {
-                try {
-                    const u = new URL(fromQuery);
-                    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
-                    return u.origin + u.pathname.replace(/\/$/, '');
-                } catch (_) {
-                    return null;
-                }
+                try { const u = new URL(fromQuery); if (u.protocol !== 'https:' && u.protocol !== 'http:') return null; return u.origin + u.pathname.replace(/\/$/, ''); } catch (_) { return null; }
             }
-            try {
-                const saved = localStorage.getItem('palmApiBase');
-                if (saved) {
-                    const u = new URL(saved.trim());
-                    return u.origin + u.pathname.replace(/\/$/, '');
-                }
-            } catch (_) {}
-
+            try { const saved = localStorage.getItem('palmApiBase'); if (saved) { const u = new URL(saved.trim()); return u.origin + u.pathname.replace(/\/$/, ''); } } catch (_) {}
             const { protocol, hostname, port } = location;
             const local = hostname === 'localhost' || hostname === '127.0.0.1';
             if (local && port === '5050') return '';
@@ -212,66 +272,62 @@
             return 'http://127.0.0.1:5050';
         }
 
-        /** 后端 analyze 是否已成功返回可用结果（不要求一定有 features） */
         function hasBackendAiResult(seg) {
             if (!seg || !seg.success) return false;
-            const edccOk = !!(seg.edcc && seg.edcc.available);
-            return !!(seg.features || seg.heart_line || seg.head_line || seg.life_line
-                || seg.roi_image || seg.annotated_image || seg.rotated_image || edccOk);
+            return !!(seg.features || seg.heart_line || seg.head_line || seg.life_line || seg.roi_image || seg.annotated_image || seg.rotated_image);
         }
 
-        function appendEdccFooter(segResult) {
-            const edc = segResult && segResult.edcc;
-            if (!edc) return;
-            const desc = document.querySelector('.tags-desc');
-            if (!desc) return;
-            if (edc.available) {
-                let t = `EDCC 掌纹编码已生成（digest ${edc.code_digest_sha256 || '?'}`;
-                if (edc.code_length_bytes) t += `，${edc.code_length_bytes} bytes）`;
-                else t += '）';
-                if (edc.similarity_to_reference != null && !Number.isNaN(Number(edc.similarity_to_reference))) {
-                    t += ` · 与参考图相似度 ${Number(edc.similarity_to_reference).toFixed(4)}`;
-                }
-                if (edc.reference_error) t += ` · 参考图：${edc.reference_error}`;
-                desc.innerHTML += `<br><small style="color:#4a6b4a;">${t} · <a href="${edc.doc}">EDCC-Palmprint-Recognition</a>（身份比对类算法）</small>`;
-            } else if (edc.error || edc.install_hint) {
-                const msg = (edc.error || '') + (edc.install_hint ? ' ' + edc.install_hint : '');
-                desc.innerHTML += `<br><small style="color:#A89580;">EDCC 未加载: ${msg}</small>`;
-            }
-        }
-
+        // ==========================================
+        // Scan animation text
+        // ==========================================
         const scanTexts = [
-            '加载 MediaPipe 手部关键点模型...',
-            '检测21个手部关键点 (Huterox/palm_recongnition)...',
-            '计算腕部→中指向量，旋转矫正图像...',
-            'GrabCut 手部分割，提取前景...',
-            'PSO 粒子群算法定位掌心 ROI...',
-            '计算最大内接圆半径...',
-            'Gabor 多方向滤波器增强掌纹...',
-            '自适应阈值 + 骨架化提取线条...',
-            '识别感情线、智慧线、生命线...',
+            '加载手部关键点模型...',
+            '检测 21 个手部关键点...',
+            '旋转矫正图像...',
+            '分割手部前景...',
+            '定位掌心 ROI 区域...',
+            '增强掌纹纹理...',
+            '提取掌纹线条...',
+            '分析感情线结构...',
+            '分析头脑线结构...',
+            '分析生命线结构...',
             '生成分析报告...'
         ];
 
-        const analysisData = [
-            { icon: '🖐', title: '独立而自信', subtitle: '手型与掌形分析', feature: '手指修长舒展，掌型偏长，指节分明，整体手型属于"哲学手"或"艺术手"类型。', interpretation: '五行中属木型手，主生发与思考。掌型修长者天生具备独立思维能力，不随波逐流。', trend: '倾向于独立决策，在团队中更适合担任策划或创意角色，未来一段时间可能迎来个人品牌提升的契机。', action: '建议每周留出独处时间进行深度思考，记录灵感和想法，这将是你最重要的竞争力。' },
-            { icon: '❤️', title: '情感细腻深沉', subtitle: '感情线解读', feature: '感情线从小指下方起始，弧度柔和上扬，延伸至食指与中指之间，线条清晰无断裂。', interpretation: '此为"标准感情线"上位形态，主情感丰富且理性兼具。上扬弧度表明追求精神层面的契合。', trend: '容易在感情中投入深厚情感，但也善于用理性保护自己。未来一段时间感情运势平稳向好。', action: '在人际关系中适当表达内心感受，不必过度压抑情绪，真诚沟通是深化关系的关键。' },
-            { icon: '🧠', title: '思维敏锐清晰', subtitle: '智慧线（头脑线）解读', feature: '智慧线起点与生命线稍有重合，中段平直微微下弯，长度延伸超过掌心中线。', interpretation: '头脑线长且走势平稳，主智慧过人，思维缜密。起点与生命线交汇表示做事谨慎。', trend: '适合从事需要深度思考和分析的工作，逻辑能力强，但需注意避免过度思虑导致焦虑。', action: '建议培养"想三步做一步"的行动习惯，避免完美主义带来的决策延迟。' },
-            { icon: '🌿', title: '生命力稳健绵长', subtitle: '生命线解读', feature: '生命线弧度饱满，从虎口上方起始，环绕拇指根部大鱼际，线条深刻清晰。', interpretation: '生命线饱满有力，主精力充沛、体质良好。弧度大表示生活热情高涨，活力四射。', trend: '整体健康运势较好，但需要注意季节交替时的身体调养，尤其是脾胃方面。', action: '保持规律运动习惯，建议每天步行8000步以上，注重饮食节律，避免过度熬夜。' },
-            { icon: '💼', title: '事业稳步上升', subtitle: '事业线解读', feature: '事业线从掌底中部起始，直线上升至中指根部，中段有轻微偏转但未断裂。', interpretation: '事业线明晰主事业心强，方向感明确。中段偏转表示职业中期可能经历方向调整。', trend: '未来一段时间事业运势走高，适合拓展新领域或承担更大责任，转型期反而是机遇。', action: '当前阶段适合积累专业技能和人脉资源，为下一次跃升做好准备。' },
-            { icon: '💰', title: '财运渐入佳境', subtitle: '财运线与太阳线', feature: '无名指下方可见短小但清晰的纵纹（太阳线），小指根部有细密财运纹。', interpretation: '太阳线显现主声望与正财运佳，细密财运纹表示理财意识逐渐觉醒。', trend: '容易通过个人能力和口碑获取财富。未来半年有加薪或新收入渠道出现的可能。', action: '建议开始系统学习理财知识，建立"收入-储蓄-投资"三分法则，量入为出。' },
-            { icon: '🏔', title: '意志力与执行力', subtitle: '拇指形态分析', feature: '拇指粗壮有力，第一指节饱满，第二指节长度适中。', interpretation: '拇指代表意志力和领导力，第一节饱满者决断力强，说到做到。', trend: '适合担任领导角色或独立创业，但需注意坚持己见与听取建议之间的平衡。', action: '每做一个重要决定前，给自己24小时冷静期，同时征询一位信任之人的意见。' },
-            { icon: '✨', title: '人际魅力与表达', subtitle: '食指与水星丘分析', feature: '食指长度接近中指，指尖略呈圆锥形。小指下方水星丘微微隆起。', interpretation: '食指长者主自信与领导力，水星丘饱满主沟通能力与商业头脑。', trend: '容易成为社交场合的焦点人物，表达能力出众，适合演讲、谈判或教育类工作。', action: '可以尝试参与公开演讲或内容创作，将天赋转化为实际影响力。' },
-            { icon: '🔮', title: '直觉力与创造力', subtitle: '月丘与神秘十字纹', feature: '掌心中部隐约可见十字纹路交汇，手掌外侧月丘区域微微隆起。', interpretation: '神秘十字纹主第六感敏锐。月丘饱满者想象力丰富，常有灵感涌现。', trend: '适合从事创意、艺术、心理或灵性相关领域。梦境中可能获得有价值的启示。', action: '建议在床头放一本笔记本，记录梦境和突发灵感，定期整理可能发现有价值的洞察。' },
-            { icon: '⚖️', title: '内外平衡与成长', subtitle: '掌纹综合评估', feature: '三大主线间距匀称，掌心纹路细密但不杂乱。', interpretation: '三线均衡代表身、心、情的协调发展。细密纹路表示内心世界丰富。', trend: '当前处于人生上升期，内外兼修是未来3-5年的主旋律。需注意工作与生活的平衡。', action: '建议建立"身心平衡"日程表：工作日专注效率，周末留给家人和自我滋养。' }
+        // ==========================================
+        // Analysis data
+        // ==========================================
+        const keywordsData = [
+            { icon: '🧭', label: '方向感' },
+            { icon: '💪', label: '毅力' },
+            { icon: '✨', label: '创造力' }
         ];
 
-        // 拍照 - 跳转到相机页面
-        photoBtn.addEventListener('click', () => {
+        const linesData = [
+            { name: '感情线', desc: '线条清晰，微微上扬，情感细腻但理性，在关系中追求真诚与稳定' },
+            { name: '头脑线', desc: '起点与生命线略分开，独立思考，线条较长且向下延伸，想象力丰富，适合创意、策划、语言或心理相关领域。' },
+            { name: '命运线', desc: '线条清晰，微微上扬，情感细腻但理性，在关系中追求真诚与稳定' }
+        ];
+
+        const traitsData = [
+            { icon: '🧠', title: '独立而自信', desc: '手指修长舒展，掌型偏长，象征独立思考与自我驱动，做事有主见。' },
+            { icon: '🔮', title: '理性与直觉并重', desc: '头脑线清晰且略向下，代表逻辑与想象力兼具，擅长分析与创造' },
+            { icon: '❤️', title: '情感细腻深沉', desc: '感情线弧度柔和上扬，情感丰富且理性兼具，追求精神层面的契合。' },
+            { icon: '🌿', title: '生命力稳健绵长', desc: '生命线弧度饱满，精力充沛、体质良好，生活热情高涨。' },
+            { icon: '💼', title: '事业稳步上升', desc: '事业线明晰，方向感明确，适合拓展新领域或承担更大责任。' },
+            { icon: '💰', title: '财运渐入佳境', desc: '太阳线显现，理财意识逐渐觉醒，容易通过个人能力获取财富。' }
+        ];
+
+        // ==========================================
+        // Navigation: Home → Camera
+        // ==========================================
+        startBtn.addEventListener('click', () => {
             window.location.href = 'camera.html';
         });
 
-        // 从相机页面返回时，检查是否有已拍摄的图片
+        // ==========================================
+        // Return from camera with captured image
+        // ==========================================
         function checkCapturedImage() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('captured') === 'true') {
@@ -279,7 +335,6 @@
                 if (imageData) {
                     localStorage.removeItem('palmImage');
                     history.replaceState(null, '', window.location.pathname);
-                    
                     scanImage.src = imageData;
                     uploadedImage = new Image();
                     uploadedImage.onload = () => startProcess();
@@ -287,23 +342,11 @@
                 }
             }
         }
-        
         checkCapturedImage();
 
-        cameraInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const imageUrl = event.target.result;
-                scanImage.src = imageUrl;
-                uploadedImage = new Image();
-                uploadedImage.onload = () => startProcess();
-                uploadedImage.src = imageUrl;
-            };
-            reader.readAsDataURL(file);
-        });
-
+        // ==========================================
+        // Scan process
+        // ==========================================
         async function startProcess() {
             pageHome.style.display = 'none';
             pageScan.style.display = 'block';
@@ -317,457 +360,124 @@
 
             scanText.textContent = scanTexts[0];
 
-            // 调用后端 Huterox/palm_recongnition 掌纹识别 API
-            // 流程: 关键点检测 → 旋转矫正 → GrabCut分割 → PSO定位 → Gabor增强 → 三线识别
             let segResult = null;
-            lastClientKeypointsNormalized = null;
             const apiBase = getPalmApiBase();
-            if (apiBase === null) {
-                console.warn('[palm] 当前为 HTTPS 页面且未配置 ?api= 后端地址，无法访问本机 http API。');
-                scanText.textContent = '请在链接后加 ?api=你的HTTPS后端地址，或本地用 http://127.0.0.1:5050/';
-            } else {
+            if (apiBase !== null) {
                 try {
-                    scanText.textContent = '正在调用 palm_recongnition AI 掌纹识别...';
+                    scanText.textContent = '正在调用 AI 掌纹识别...';
                     const canvas = document.createElement('canvas');
                     canvas.width = uploadedImage.naturalWidth;
                     canvas.height = uploadedImage.naturalHeight;
                     canvas.getContext('2d').drawImage(uploadedImage, 0, 0);
                     const b64 = canvas.toDataURL('image/jpeg', 0.85);
-
                     const url = (apiBase || '') + '/analyze';
                     const resp = await fetch(url, {
-                        method: 'POST',
-                        mode: 'cors',
-                        credentials: 'omit',
+                        method: 'POST', mode: 'cors', credentials: 'omit',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ image: b64 })
                     });
                     segResult = await resp.json();
-                    if (!resp.ok) {
-                        console.warn('[palm_recongnition] HTTP', resp.status, segResult);
-                        segResult = segResult && typeof segResult === 'object'
-                            ? { ...segResult, success: false }
-                            : { success: false, error: 'HTTP ' + resp.status };
-                    }
-                    console.log('[palm_recongnition] API 响应:', segResult);
+                    if (!resp.ok) segResult = { ...segResult, success: false };
                 } catch (e) {
-                    console.warn('[palm_recongnition] API 连接失败，使用关键点估计法:', e);
-                    console.warn('本地请运行: cd Palm-Astro-Application && python3 api_server.py，并打开 http://127.0.0.1:5050/');
+                    console.warn('[palm] API fail:', e);
                 }
             }
 
-            // 无后端或失败时：用浏览器端 MediaPipe 手部 21 点驱动曲线
-            if (!hasBackendAiResult(segResult)) {
-                try {
-                    scanText.textContent = '加载浏览器端手部模型…';
-                    lastClientKeypointsNormalized = await detectHandKeypointsNormalized(uploadedImage);
-                } catch (e) {
-                    console.warn('[palm] 浏览器端手部检测不可用:', e);
-                }
-            }
-
-            // 继续动画
-            for (let i = 2; i < scanTexts.length; i++) {
-                await new Promise(r => setTimeout(r, 300));
+            for (let i = 1; i < scanTexts.length; i++) {
+                await new Promise(r => setTimeout(r, 400));
                 scanText.textContent = scanTexts[i];
-                progress = 50 + (i / scanTexts.length) * 50;
+                progress = 30 + (i / scanTexts.length) * 70;
                 progressFill.style.width = progress + '%';
             }
 
             clearInterval(progressInterval);
             progressFill.style.width = '100%';
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 400));
 
             showResult(segResult);
         }
 
+        // ==========================================
+        // Result page
+        // ==========================================
         function showResult(segResult) {
             pageScan.style.display = 'none';
             pageResult.style.display = 'block';
             pageResult.classList.add('fade-in');
-            // 后端三线坐标按「旋转矫正后的处理图」归一化；有 rotated_image 时必须叠在同一张底图上，否则会整幅错位
-            if (segResult && segResult.rotated_image && segResult.success
-                && (segResult.heart_line || segResult.head_line || segResult.life_line)) {
-                const aligned = new Image();
-                aligned.onload = () => drawPalmFromSegmentation(segResult, aligned);
-                aligned.onerror = () => {
-                    console.warn('[palm] rotated_image 加载失败，回退原图（叠线可能错位）');
-                    drawPalmFromSegmentation(segResult, null);
-                };
-                aligned.src = segResult.rotated_image;
-            } else {
-                drawPalmFromSegmentation(segResult, null);
-            }
 
-            // 显示 ROI 识别图片
-            const roiSection = document.getElementById('roiSection');
-            if (segResult && segResult.success) {
-                if (segResult.roi_image || segResult.annotated_image) {
-                    roiSection.style.display = 'block';
-                    if (segResult.roi_image) {
-                        document.getElementById('roiImage').src = segResult.roi_image;
-                    }
-                    if (segResult.annotated_image) {
-                        document.getElementById('annotatedImage').src = segResult.annotated_image;
-                    }
-                }
-            }
-
-            // 文案：已连后端以 hasBackendAiResult 为准（避免仅有掌线无 features 时被误判）
-            if (hasBackendAiResult(segResult)) {
-                const desc = document.querySelector('.tags-desc');
-                if (segResult.features) {
-                    const f = segResult.features;
-                    const alignNote = segResult.rotated_image
-                        ? '<br><small style="color:#A89580;">主图已与算法坐标对齐（旋转矫正后的处理分辨率，可能与原拍照角度不同）</small>'
-                        : '';
-                    desc.innerHTML = `基于 <a href="https://github.com/Huterox/palm_recongnition" style="color:#C9A96E;">Huterox/palm_recongnition</a> 后端 AI 识别<br>` +
-                        `关键点检测 → PSO定位 → Gabor增强 → 三线提取<br>` +
-                        `<small style="color:#A89580;">生命线 ${f.life_length}px | 智慧线 ${f.head_length}px | 感情线 ${f.heart_length}px</small>` +
-                        alignNote;
+            // Palm thumbnail
+            if (uploadedImage) {
+                const thumbCanvas = document.createElement('canvas');
+                const thumbSize = 300;
+                const img = uploadedImage;
+                const ratio = img.naturalWidth / img.naturalHeight;
+                let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+                if (ratio > 100/130) {
+                    sw = img.naturalHeight * (100/130);
+                    sx = (img.naturalWidth - sw) / 2;
                 } else {
-                    desc.innerHTML = `基于 <a href="https://github.com/Huterox/palm_recongnition" style="color:#C9A96E;">Huterox/palm_recongnition</a> 后端 AI 识别<br>` +
-                        `已连接后端并返回掌纹线 / ROI 数据（特征摘要暂缺）<br>` +
-                        `<small style="color:#A89580;">若线条异常，请换光线充足、五指张开的照片重试。</small>`;
+                    sh = img.naturalWidth / (100/130);
+                    sy = (img.naturalHeight - sh) / 2;
                 }
-            } else if (lastClientKeypointsNormalized) {
-                const desc = document.querySelector('.tags-desc');
-                desc.innerHTML = `基于浏览器 MediaPipe 手部 21 点估算主线走向（每张图会随手势变化）<br>` +
-                    `<small style="color:#A89580;">非掌纹纹理级识别。请在地址栏加上 ?api=你的HTTPS后端 并保留隧道运行，以使用完整后端流程。</small>`;
-            } else {
-                const desc = document.querySelector('.tags-desc');
-                desc.innerHTML = `未连接后端且未启用浏览器手部模型<br>` +
-                    `<small style="color:#A89580;">GitHub Pages 请打开：<code style="font-size:11px;">?api=https://你的隧道.trycloudflare.com</code>（首次会自动记住，或见 <code>#api=</code>）</small>`;
+                thumbCanvas.width = thumbSize;
+                thumbCanvas.height = thumbSize * 1.3;
+                thumbCanvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, thumbCanvas.width, thumbCanvas.height);
+                palmThumb.src = thumbCanvas.toDataURL('image/jpeg', 0.85);
             }
 
-            appendEdccFooter(segResult);
-
-            renderAnalysisCards(segResult);
-        }
-
-        // ==========================================
-        // 基于 Huterox/palm_recongnition 分割结果绘制掌纹
-        // API 归一化坐标 (0~1) 相对于 rotated_image（若有）；否则旧版后端相对原图（易错位）
-        // baseImgOverride: 成功 decode 的 rotated Image 元素
-        // ==========================================
-
-        function drawPalmFromSegmentation(segResult, baseImgOverride) {
-            const ctx = palmCanvas.getContext('2d');
-            const img = (baseImgOverride && baseImgOverride.naturalWidth) ? baseImgOverride : uploadedImage;
-            if (!img || !img.naturalWidth) return;
-            const displayWidth = palmCanvas.parentElement.clientWidth;
-            const ratio = img.naturalWidth / img.naturalHeight;
-            const displayHeight = displayWidth / ratio;
-            const dpr = window.devicePixelRatio || 2;
-
-            palmCanvas.width = displayWidth * dpr;
-            palmCanvas.height = displayHeight * dpr;
-            palmCanvas.style.width = displayWidth + 'px';
-            palmCanvas.style.height = displayHeight + 'px';
-            ctx.scale(dpr, dpr);
-            ctx.drawImage(img, 0, 0, displayWidth, displayHeight);
-
-            const w = displayWidth, h = displayHeight;
-
-            // 定义3条线的配置（与 Huterox/palm_recongnition 输出对应）
-            const lineConfigs = [
-                { key: 'heart_line', name: '感情线', num: 1, color: '#E8B04A' },
-                { key: 'head_line', name: '智慧线', num: 2, color: '#FFFFFF' },
-                { key: 'life_line', name: '生命线', num: 3, color: '#D4956A' }
-            ];
-
-            palmAnnotation.innerHTML = '';
-
-            // 检查是否有来自 palm_recongnition API 的有效分割结果
-            const hasSegData = segResult && segResult.success &&
-                (segResult.life_line || segResult.head_line || segResult.heart_line);
-
-            if (hasSegData) {
-                lineConfigs.forEach(config => {
-                    const pts = segResult[config.key];
-                    if (!pts || pts.length < 3) return;
-
-                    const displayPts = pts.map(p => ({
-                        x: p[0] * w,
-                        y: p[1] * h
-                    }));
-
-                    ctx.beginPath();
-                    ctx.strokeStyle = config.color;
-                    ctx.lineWidth = 3;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.shadowColor = config.color;
-                    ctx.shadowBlur = 6;
-                    ctx.globalAlpha = 0.95;
-
-                    drawSmoothCurve(ctx, displayPts);
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
-                    ctx.globalAlpha = 1;
-
-                    const endPt = displayPts[displayPts.length - 1];
-                    const label = document.createElement('div');
-                    label.className = 'line-label';
-                    const lx = Math.min(92, Math.max(8, (endPt.x / w) * 100 + 4));
-                    const ly = Math.min(92, Math.max(5, (endPt.y / h) * 100 - 3));
-                    label.style.left = lx + '%';
-                    label.style.top = ly + '%';
-                    label.innerHTML = `<span class="num">${config.num}</span>${config.name}`;
-                    palmAnnotation.appendChild(label);
-                });
-
-                if (segResult.roi_center && segResult.roi_radius != null) {
-                    const roiCx = segResult.roi_center[0] * w;
-                    const roiCy = segResult.roi_center[1] * h;
-                    const roiR = segResult.roi_radius * Math.min(w, h);
-                    ctx.beginPath();
-                    ctx.arc(roiCx, roiCy, roiR, 0, Math.PI * 2);
-                    ctx.strokeStyle = 'rgba(201, 169, 110, 0.4)';
-                    ctx.lineWidth = 1.5;
-                    ctx.setLineDash([5, 5]);
-                    ctx.stroke();
-                    ctx.setLineDash([]);
-                }
-            } else {
-                const kp = keypointsForDraw(w, h);
-                const palmCenter = { x: (kp[0].x + kp[5].x + kp[13].x) / 3, y: (kp[0].y + kp[5].y + kp[13].y) / 3 };
-                const palmLines = computePalmLines(kp, palmCenter, w, h);
-
-                palmLines.forEach(line => {
-                    ctx.beginPath();
-                    ctx.strokeStyle = line.color;
-                    ctx.lineWidth = line.width;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.shadowColor = line.color;
-                    ctx.shadowBlur = 5;
-                    ctx.globalAlpha = 0.9;
-                    drawSmoothCurve(ctx, line.points);
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
-                    ctx.globalAlpha = 1;
-
-                    const label = document.createElement('div');
-                    label.className = 'line-label';
-                    label.style.left = (line.labelPos.x / w * 100) + '%';
-                    label.style.top = (line.labelPos.y / h * 100) + '%';
-                    label.innerHTML = `<span class="num">${line.num}</span>${line.name}`;
-                    palmAnnotation.appendChild(label);
-                });
-            }
-        }
-
-        /** 将归一化 21 点映射到当前画布像素；无则固定示意图 */
-        function keypointsForDraw(w, h) {
-            if (lastClientKeypointsNormalized && lastClientKeypointsNormalized.length >= 21) {
-                return lastClientKeypointsNormalized.map(p => ({ x: p.x * w, y: p.y * h }));
-            }
-            return estimateKeypoints(w, h);
-        }
-
-        /**
-         * 浏览器端 MediaPipe Hand Landmarker（需联网拉 wasm + 模型）。
-         * 返回 21 个 {x,y}，坐标为 0~1（相对原图）。
-         */
-        async function detectHandKeypointsNormalized(imgEl) {
-            if (!imgEl || !imgEl.naturalWidth) return null;
-            try {
-                if (!handLandmarkerInstance) {
-                    const { HandLandmarker, FilesetResolver } = await import(
-                        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm'
-                    );
-                    const wasmPath = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
-                    const fileset = await FilesetResolver.forVisionTasks(wasmPath);
-                    handLandmarkerInstance = await HandLandmarker.createFromOptions(fileset, {
-                        baseOptions: {
-                            modelAssetPath:
-                                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-                            delegate: 'CPU'
-                        },
-                        runningMode: 'IMAGE',
-                        numHands: 1
-                    });
-                }
-                const result = handLandmarkerInstance.detect(imgEl);
-                const lm = result.landmarks && result.landmarks[0];
-                if (!lm || lm.length < 21) return null;
-                return lm.map(p => ({ x: p.x, y: p.y }));
-            } catch (e) {
-                console.warn('[palm] MediaPipe HandLandmarker:', e);
-                return null;
-            }
-        }
-
-        // 基于关键点计算精确的掌纹线条位置（仅3条主线）
-        function computePalmLines(kp, center, w, h) {
-            // kp[0]=手腕, kp[5]=食指根, kp[9]=中指根, kp[13]=无名指根, kp[17]=小指根
-            // kp[1]=拇指CMC, kp[2]=拇指MCP
-
-            // 感情线：从小指根下方弧形弯向食指根方向
-            // 起点在小指根(17)和手腕(0)之间偏上，终点在食指根(5)附近
-            const heartP0 = lerp(kp[17], kp[0], 0.22);
-            const heartP1 = lerp(kp[13], kp[0], 0.20);
-            const heartP2 = lerp(kp[9], kp[0], 0.18);
-            const heartP3 = { x: lerp(kp[5], kp[9], 0.6).x, y: lerp(kp[5], kp[0], 0.18).y };
-            const heartLine = [heartP0, heartP1, heartP2, heartP3];
-
-            // 头脑线（智慧线）：从食指根与拇指之间起始，横穿向掌心外侧微微下弯
-            // 起点在食指根(5)和拇指(2)中间，终点偏向小指侧掌心中下部
-            const headP0 = { x: lerp(kp[5], kp[2], 0.45).x, y: lerp(kp[5], kp[0], 0.30).y };
-            const headP1 = { x: lerp(kp[5], kp[9], 0.6).x, y: lerp(kp[5], kp[0], 0.36).y };
-            const headP2 = { x: lerp(kp[9], kp[13], 0.5).x, y: lerp(kp[5], kp[0], 0.40).y };
-            const headP3 = { x: lerp(kp[13], kp[17], 0.4).x, y: lerp(kp[5], kp[0], 0.46).y };
-            const headLine = [headP0, headP1, headP2, headP3];
-
-            // 生命线：从食指根与拇指之间弧形环绕大鱼际到手腕方向
-            // 起点接近头脑线起点，大弧度向拇指根部弯曲
-            const lifeP0 = { x: lerp(kp[5], kp[2], 0.50).x, y: lerp(kp[5], kp[0], 0.28).y };
-            const lifeP1 = { x: lerp(kp[2], kp[0], 0.40).x, y: lerp(kp[5], kp[0], 0.42).y };
-            const lifeP2 = { x: lerp(kp[2], kp[0], 0.50).x, y: lerp(kp[5], kp[0], 0.56).y };
-            const lifeP3 = { x: lerp(kp[2], kp[0], 0.58).x, y: lerp(kp[5], kp[0], 0.70).y };
-            const lifeP4 = { x: lerp(kp[2], kp[0], 0.65).x, y: lerp(kp[5], kp[0], 0.84).y };
-            const lifeLine = [lifeP0, lifeP1, lifeP2, lifeP3, lifeP4];
-
-            return [
-                { name: '感情线', num: 1, color: '#E8B04A', width: 2.5, points: heartLine,
-                  labelPos: { x: heartP0.x + 8, y: heartP0.y - 20 } },
-                { name: '头脑线', num: 2, color: '#FFFFFF', width: 2.5, points: headLine,
-                  labelPos: { x: headP3.x + 8, y: headP3.y - 18 } },
-                { name: '生命线', num: 3, color: '#D4956A', width: 2.5, points: lifeLine,
-                  labelPos: { x: lifeP4.x - 40, y: lifeP4.y + 5 } }
-            ];
-        }
-
-        // 线性插值
-        function lerp(a, b, t) {
-            return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-        }
-
-        // 估计关键点（无MediaPipe时的回退）
-        function estimateKeypoints(w, h) {
-            return [
-                { x: 0.50*w, y: 0.95*h },  // 0: WRIST
-                { x: 0.30*w, y: 0.72*h },  // 1: THUMB_CMC
-                { x: 0.22*w, y: 0.58*h },  // 2: THUMB_MCP
-                { x: 0.18*w, y: 0.45*h },  // 3: THUMB_IP
-                { x: 0.15*w, y: 0.35*h },  // 4: THUMB_TIP
-                { x: 0.32*w, y: 0.30*h },  // 5: INDEX_MCP
-                { x: 0.32*w, y: 0.20*h },  // 6: INDEX_PIP
-                { x: 0.32*w, y: 0.13*h },  // 7: INDEX_DIP
-                { x: 0.32*w, y: 0.07*h },  // 8: INDEX_TIP
-                { x: 0.45*w, y: 0.28*h },  // 9: MIDDLE_MCP
-                { x: 0.45*w, y: 0.16*h },  // 10: MIDDLE_PIP
-                { x: 0.45*w, y: 0.09*h },  // 11: MIDDLE_DIP
-                { x: 0.45*w, y: 0.03*h },  // 12: MIDDLE_TIP
-                { x: 0.58*w, y: 0.30*h },  // 13: RING_MCP
-                { x: 0.58*w, y: 0.18*h },  // 14: RING_PIP
-                { x: 0.58*w, y: 0.12*h },  // 15: RING_DIP
-                { x: 0.58*w, y: 0.06*h },  // 16: RING_TIP
-                { x: 0.70*w, y: 0.35*h },  // 17: PINKY_MCP
-                { x: 0.70*w, y: 0.25*h },  // 18: PINKY_PIP
-                { x: 0.70*w, y: 0.19*h },  // 19: PINKY_DIP
-                { x: 0.70*w, y: 0.14*h },  // 20: PINKY_TIP
-            ];
-        }
-
-        // Catmull-Rom样条绘制平滑曲线
-        function drawSmoothCurve(ctx, pts) {
-            if (pts.length < 2) return;
-            if (pts.length === 2) {
-                ctx.moveTo(pts[0].x, pts[0].y);
-                ctx.lineTo(pts[1].x, pts[1].y);
-                return;
-            }
-            // 扩展端点
-            const allPts = [
-                { x: 2*pts[0].x - pts[1].x, y: 2*pts[0].y - pts[1].y },
-                ...pts,
-                { x: 2*pts[pts.length-1].x - pts[pts.length-2].x, y: 2*pts[pts.length-1].y - pts[pts.length-2].y }
-            ];
-            ctx.moveTo(pts[0].x, pts[0].y);
-            for (let i = 1; i < allPts.length - 2; i++) {
-                const p0 = allPts[i-1], p1 = allPts[i], p2 = allPts[i+1], p3 = allPts[i+2];
-                for (let t = 1; t <= 16; t++) {
-                    const s = t / 16, s2 = s*s, s3 = s2*s;
-                    const x = 0.5 * ((-s3+2*s2-s)*p0.x + (3*s3-5*s2+2)*p1.x + (-3*s3+4*s2+s)*p2.x + (s3-s2)*p3.x);
-                    const y = 0.5 * ((-s3+2*s2-s)*p0.y + (3*s3-5*s2+2)*p1.y + (-3*s3+4*s2+s)*p2.y + (s3-s2)*p3.y);
-                    ctx.lineTo(x, y);
-                }
-            }
-        }
-
-        function renderAnalysisCards(segResult) {
-            // 如果有真实 AI 分析结果，动态生成前两张卡片
-            let cards = [...analysisData];
-
-            if (hasBackendAiResult(segResult)) {
-                const f = segResult.features;
+            // Keywords
+            let kw = keywordsData;
+            if (segResult && segResult.features) {
                 const cls = segResult.classification || {};
-                let aiCard;
-                if (f) {
-                    aiCard = {
-                        icon: '🤖',
-                        title: 'AI 掌纹识别结果',
-                        subtitle: 'Huterox/palm_recongnition 深度学习分析',
-                        feature: `通过21关键点检测 + PSO算法精确定位掌心ROI区域，使用Gabor多方向滤波器增强掌纹纹理，骨架化后识别三条主线。`,
-                        interpretation: `主导线条: ${cls.dominant_line || '未知'} (置信度 ${((cls.confidence || 0) * 100).toFixed(0)}%)。手型分类: ${cls.palm_type || '未知'}。`,
-                        trend: `生命线长度 ${f.life_length}px (曲率 ${f.life_curvature})，智慧线长度 ${f.head_length}px (曲率 ${f.head_curvature})，感情线长度 ${f.heart_length}px (曲率 ${f.heart_curvature})。`,
-                        action: `线条角度 — 生命线 ${f.life_angle}°, 智慧线 ${f.head_angle}°, 感情线 ${f.heart_angle}°。数据由 Gabor 滤波 + 骨架化算法精确计算。`
-                    };
-                } else {
-                    aiCard = {
-                        icon: '🤖',
-                        title: 'AI 掌纹识别结果',
-                        subtitle: '后端已连接',
-                        feature: '已成功调用后端并返回掌纹线或 ROI 图像；当前响应中未包含数值特征字段。',
-                        interpretation: segResult.error ? `提示: ${segResult.error}` : '可尝试更换更清晰的手掌照片。',
-                        trend: '若需完整特征卡片，请确认 Palm-Astro-Application 管线正常返回 features。',
-                        action: '在浏览器开发者工具 Network 中查看 /analyze 返回的 JSON。'
-                    };
-                }
-                cards = [aiCard, ...cards];
-                if (segResult.edcc && segResult.edcc.available) {
-                    const ed = segResult.edcc;
-                    const sim = ed.similarity_to_reference != null && !Number.isNaN(Number(ed.similarity_to_reference))
-                        ? `与参考图 EDCC 相似度: ${Number(ed.similarity_to_reference).toFixed(4)}`
-                        : '可在请求 JSON 中增加 reference_image（base64）计算两掌 ROI 的 EDCC 相似度';
-                    const edCard = {
-                        icon: '📊',
-                        title: 'EDCC 掌纹编码',
-                        subtitle: 'leosocy/EDCC-Palmprint-Recognition',
-                        feature: `competitive code digest=${ed.code_digest_sha256 || '?'}，约 ${ed.code_length_bytes || '?'} bytes。`,
-                        interpretation: 'EDCC 面向「掌纹纹理编码 + 两图匹配」验证场景，不替代单张图上的三条主线几何提取。',
-                        trend: sim,
-                        action: `安装见 ${ed.doc}（cmake 安装 libedcc 后 pip 安装 pypackage）。`,
-                    };
-                    cards.splice(1, 0, edCard);
-                }
+                kw = [
+                    { icon: '🧭', label: cls.palm_type || '方向感' },
+                    { icon: '💪', label: '毅力' },
+                    { icon: '✨', label: '创造力' }
+                ];
             }
+            keywordsGrid.innerHTML = kw.map(k =>
+                `<div class="keyword-item">
+                    <div class="keyword-icon">${k.icon}</div>
+                    <span class="keyword-label">${k.label}</span>
+                </div>`
+            ).join('');
 
-            cards.forEach((item, index) => {
+            // Lines
+            let lines = linesData;
+            if (hasBackendAiResult(segResult) && segResult.features) {
+                const f = segResult.features;
+                lines = [
+                    { name: '感情线', desc: `线条清晰，长度 ${f.heart_length}px，曲率 ${f.heart_curvature}，情感细腻但理性，在关系中追求真诚与稳定` },
+                    { name: '头脑线', desc: `起点与生命线略分开，长度 ${f.head_length}px，曲率 ${f.head_curvature}，独立思考，想象力丰富` },
+                    { name: '命运线', desc: `线条清晰，生命线长度 ${f.life_length}px，曲率 ${f.life_curvature}，精力充沛，生活热情高涨` }
+                ];
+            }
+            linesSection.innerHTML = lines.map(l =>
+                `<div class="line-row">
+                    <span class="line-name">${l.name}</span>
+                    <span class="line-desc">${l.desc}</span>
+                </div>`
+            ).join('');
+
+            // Traits
+            traitsData.forEach((item, index) => {
                 setTimeout(() => {
                     const card = document.createElement('div');
-                    card.className = 'analysis-card slide-up';
+                    card.className = 'trait-card slide-up';
                     card.innerHTML = `
-                        <div class="analysis-card-header">
-                            <div class="analysis-icon">${item.icon}</div>
-                            <div>
-                                <div class="analysis-card-title">${item.title}</div>
-                                <div class="analysis-card-subtitle">${item.subtitle}</div>
-                            </div>
-                        </div>
-                        <div class="analysis-detail">
-                            <div class="detail-row"><span class="detail-label">可见特征</span><span class="detail-content">${item.feature}</span></div>
-                            <div class="detail-row"><span class="detail-label">玄学解释</span><span class="detail-content">${item.interpretation}</span></div>
-                            <div class="detail-row"><span class="detail-label">趋势提示</span><span class="detail-content">${item.trend}</span></div>
-                            <div class="detail-row"><span class="detail-label">行动建议</span><span class="detail-content">${item.action}</span></div>
+                        <div class="trait-icon">${item.icon}</div>
+                        <div>
+                            <div class="trait-title">${item.title}</div>
+                            <div class="trait-desc">${item.desc}</div>
                         </div>`;
-                    analysisSection.appendChild(card);
-                }, index * 150);
+                    traitsContainer.appendChild(card);
+                }, index * 120);
             });
         }
 
+        // ==========================================
+        // Share
+        // ==========================================
         document.getElementById('shareBtn').addEventListener('click', () => {
             if (navigator.share) {
                 navigator.share({ title: '手相解码', text: '我刚完成了手相解码分析！', url: location.href }).catch(() => {});

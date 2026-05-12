@@ -235,41 +235,6 @@
             color: #3a2a1a;
         }
         
-        .capture-btn {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #C9A96E 0%, #B8956A 100%);
-            border: 4px solid rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(201, 169, 110, 0.4);
-            transition: transform 0.2s ease, opacity 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        
-        .capture-btn:active {
-            transform: translateX(-50%) scale(0.95);
-        }
-        
-        .capture-btn.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .capture-btn-inner {
-            width: 54px;
-            height: 54px;
-            border-radius: 50%;
-            background: white;
-        }
-        
         .processing-overlay {
             position: fixed;
             top: 0;
@@ -405,10 +370,6 @@
             </svg>
         </div>
         
-        <button class="capture-btn" id="captureBtn">
-            <div class="capture-btn-inner"></div>
-        </button>
-        
         <input type="file" id="fileInput" accept="image/*">
     </div>
     
@@ -422,7 +383,6 @@
         const cameraPlaceholder = document.getElementById('cameraPlaceholder');
         const handGuide = document.getElementById('handGuide');
         const detectionStatus = document.getElementById('detectionStatus');
-        const captureBtn = document.getElementById('captureBtn');
         const closeBtn = document.getElementById('closeBtn');
         const uploadSection = document.getElementById('uploadSection');
         const fileInput = document.getElementById('fileInput');
@@ -449,10 +409,6 @@
             if (file) {
                 processUploadedImage(file);
             }
-        });
-        
-        captureBtn.addEventListener('click', () => {
-            captureAndProcess();
         });
         
         async function initCamera() {
@@ -633,7 +589,6 @@
         function captureAndProcess() {
             isDetecting = false;
             processingOverlay.classList.add('visible');
-            captureBtn.classList.add('hidden');
             
             const canvas = document.createElement('canvas');
             canvas.width = cameraVideo.videoWidth;
