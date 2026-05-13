@@ -1,0 +1,15 @@
+---
+description: After substantive code edits, commit and push to GitHub so work is not left local-only.
+alwaysApply: true
+---
+
+# Commit and push after changes
+
+When you complete a task that modifies project files (code, assets, config) in a way the user would want saved:
+
+1. **Use this repository root** (`palm/`). Run `git status` here before committing.
+2. **Stage** only intentional changes; do not commit secrets, `.env`, or unrelated noise.
+3. **Commit** with a clear message (what changed and why, in full sentences).
+4. **`git push`** to `origin` on the current branch (e.g. `main`).
+
+If the user only asked a question with no repo changes, skip push. If push fails (auth, network), report the error and leave the commit local; do not force-push unless the user explicitly asks.
