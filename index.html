@@ -496,18 +496,6 @@
             line-height: 1.25;
             text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
         }
-        .result-hero-tagline {
-            margin-top: 14px;
-            font-size: 17px;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, 0.82);
-            max-width: 320px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 0 8px;
-        }
         .result-keywords-card {
             display: flex;
             flex-direction: row;
@@ -850,7 +838,6 @@
                                     <img id="resultHeroImg" class="result-hero-img" src="images/result-archetype-4.png" width="634" height="588" alt="" decoding="async">
                                     <div class="result-hero-caption">
                                         <div id="resultHeroTitleMain" class="result-hero-title-main"></div>
-                                        <p id="resultHeroTagline" class="result-hero-tagline"></p>
                                     </div>
                                 </div>
                                 <div id="resultHeroSideR" class="result-hero-side result-hero-side--right" aria-hidden="true"></div>
@@ -920,7 +907,6 @@
         const traitsContainer = document.getElementById('traitsContainer');
         const resultHeroImg = document.getElementById('resultHeroImg');
         const resultHeroTitleMain = document.getElementById('resultHeroTitleMain');
-        const resultHeroTagline = document.getElementById('resultHeroTagline');
         const resultHeroSideL = document.getElementById('resultHeroSideL');
         const resultHeroSideR = document.getElementById('resultHeroSideR');
 
@@ -1004,7 +990,6 @@
             keywordsGrid.innerHTML = '';
             linesSection.innerHTML = '';
             if (resultHeroTitleMain) resultHeroTitleMain.textContent = '';
-            if (resultHeroTagline) resultHeroTagline.textContent = '';
             if (resultHeroSideL) resultHeroSideL.textContent = '';
             if (resultHeroSideR) resultHeroSideR.textContent = '';
             document.getElementById('palmHero').classList.remove('visible');
@@ -1429,7 +1414,6 @@
             const personaMain = arch.title;
             const personaSub = arch.tagline.replace(/。$/, '');
             const heroMain = arch.title;
-            const heroTagline = arch.tagline;
             const heroSideL = arch.sideLeft;
             const heroSideR = arch.sideRight;
             const kwPool = {
@@ -1520,7 +1504,7 @@
             traits.push(careerPool[s % 3]);
             return {
                 keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
-                heroMain, heroTagline, heroSideL, heroSideR, archetypeIndex: archIdx
+                heroMain, heroSideL, heroSideR, archetypeIndex: archIdx
             };
         }
 
@@ -1530,7 +1514,6 @@
             return {
                 palmType: 'balanced',
                 heroMain: arch.title,
-                heroTagline: arch.tagline,
                 heroSideL: arch.sideLeft,
                 heroSideR: arch.sideRight,
                 archetypeIndex: archIdx,
@@ -1930,7 +1913,6 @@
             }
             const main = reading && reading.heroMain != null ? reading.heroMain : fb.titleMain;
             if (resultHeroTitleMain) resultHeroTitleMain.textContent = main;
-            if (resultHeroTagline) resultHeroTagline.textContent = (reading && reading.heroTagline) ? reading.heroTagline : '';
             if (resultHeroSideL) resultHeroSideL.textContent = (reading && reading.heroSideL) ? reading.heroSideL : '';
             if (resultHeroSideR) resultHeroSideR.textContent = (reading && reading.heroSideR) ? reading.heroSideR : '';
         }
