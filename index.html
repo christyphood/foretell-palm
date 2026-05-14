@@ -1538,13 +1538,7 @@
         // ==========================================
         // Keywords card: palm ROI + glowing line overlay
         // ==========================================
-        const THUMB_LINE_COLORS = {
-            long:     { main: 'rgba(180,210,255,0.92)', glow: 'rgba(140,180,255,0.35)' },
-            square:   { main: 'rgba(255,210,140,0.92)', glow: 'rgba(230,180,100,0.35)' },
-            balanced: { main: 'rgba(180,230,200,0.92)', glow: 'rgba(150,210,180,0.35)' }
-        };
-
-        function drawPalmThumbWithLines(img, landmarks, palmType) {
+        function drawPalmThumbWithLines(img, landmarks, _palmType) {
             const ctx = palmThumbCanvas.getContext('2d');
             const w = img.naturalWidth, h = img.naturalHeight;
             let sx, sy, sw, sh;
@@ -1580,17 +1574,23 @@
             if (!landmarks || landmarks.length < 21) return;
 
             const lm = landmarks;
+            /** 拇指在画面右侧 ≈ 右手（图1）；拇指在左侧 ≈ 左手（图2），对路径做水平镜像 */
+            const thumbOnRight = lm[4].x > lm[9].x;
+
             const toC = (i) => ({
                 x: (lm[i].x * w - sx) / sw * cw,
                 y: (lm[i].y * h - sy) / sh * ch
             });
-            const gc = THUMB_LINE_COLORS[palmType] || THUMB_LINE_COLORS.balanced;
             const L = (i) => ({ x: lm[i].x * w, y: lm[i].y * h });
 
-            function drawGlowLine(points, width) {
+            const LINE_WHITE = { main: 'rgba(255,255,255,0.92)', glow: 'rgba(255,255,255,0.34)' };
+            const LINE_LIFE = { main: 'rgba(255,213,78,0.96)', glow: 'rgba(255,185,40,0.45)' };
+
+            function drawGlowLine(points, width, colors) {
                 if (points.length < 2) return;
+                const col = colors;
                 ctx.save();
-                ctx.strokeStyle = gc.glow;
+                ctx.strokeStyle = col.glow;
                 ctx.lineWidth = width + 4;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
                 ctx.filter = 'blur(3px)';
@@ -1605,10 +1605,10 @@
                 ctx.stroke();
                 ctx.restore();
                 ctx.save();
-                ctx.strokeStyle = gc.main;
+                ctx.strokeStyle = col.main;
                 ctx.lineWidth = width;
                 ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                ctx.shadowColor = gc.main;
+                ctx.shadowColor = col.main;
                 ctx.shadowBlur = 6;
                 ctx.beginPath();
                 ctx.moveTo(points[0].x, points[0].y);
@@ -1629,11 +1629,19 @@
                 y: lineCy + (p.y - lineCy) * LINE_COMPACT
             });
             const compactPoly = (pts) => pts.map(compact);
+            const mirrorX = (pts) => pts.map((p) => ({ x: cw - p.x, y: p.y }));
+            const orient = (pts) => (thumbOnRight ? pts : mirrorX(pts));
 
-            const heartPts = [5, 9, 13, 17].map(i => toC(i));
-            heartPts[1].y -= ch * 0.024; heartPts[1].x += cw * 0.028;
+            const mapPt = (p) => ({
+                x: (p.x - sx) / sw * cw,
+                y: (p.y - sy) / sh * ch
+            });
+
+            let heartPts = [5, 9, 13, 17].map(i => toC(i));
+            heartPts[1].y -= ch * 0.024;
+            heartPts[1].x += cw * 0.028;
             heartPts[2].y -= ch * 0.012;
-            drawGlowLine(compactPoly(heartPts), 1.35);
+            drawGlowLine(orient(compactPoly(heartPts)), 1.65, LINE_WHITE);
 
             const headStart = {
                 x: (L(5).x + L(1).x) / 2, y: (L(5).y + L(0).y) * 0.48
@@ -1644,11 +1652,9 @@
                 x: L(13).x + (L(17).x - L(13).x) * 0.4,
                 y: (L(13).y + L(0).y) * 0.54
             };
-            const mapPt = (p) => ({
-                x: (p.x - sx) / sw * cw,
-                y: (p.y - sy) / sh * ch
-            });
-            drawGlowLine(compactPoly([mapPt(headStart), mapPt(headMid1), mapPt(headMid2), mapPt(headEnd)]), 1.2);
+            drawGlowLine(orient(compactPoly([
+                mapPt(headStart), mapPt(headMid1), mapPt(headMid2), mapPt(headEnd)
+            ])), 1.45, LINE_WHITE);
 
             const lifeStart = {
                 x: (L(5).x + L(1).x) / 2 - (L(5).x - L(1).x) * 0.1,
@@ -1666,21 +1672,9 @@
                 x: L(0).x + (L(1).x - L(0).x) * 0.1,
                 y: L(0).y - (L(0).y - L(1).y) * 0.05
             };
-            drawGlowLine(compactPoly([mapPt(lifeStart), mapPt(lifeMid1), mapPt(lifeMid2), mapPt(lifeEnd)]), 1.2);
-
-            const fateStart = {
-                x: (L(0).x + L(9).x) / 2,
-                y: L(0).y - (L(0).y - L(9).y) * 0.05
-            };
-            const fateMid = {
-                x: (L(0).x + L(9).x) / 2 + (L(9).x - L(0).x) * 0.05,
-                y: (L(0).y + L(9).y) / 2
-            };
-            const fateEnd = {
-                x: L(9).x,
-                y: L(9).y + (L(0).y - L(9).y) * 0.1
-            };
-            drawGlowLine(compactPoly([mapPt(fateStart), mapPt(fateMid), mapPt(fateEnd)]), 1.0);
+            drawGlowLine(orient(compactPoly([
+                mapPt(lifeStart), mapPt(lifeMid1), mapPt(lifeMid2), mapPt(lifeEnd)
+            ])), 1.75, LINE_LIFE);
         }
 
         // ==========================================
