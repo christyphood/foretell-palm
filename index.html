@@ -12,6 +12,13 @@
             font-style: normal;
             font-display: swap;
         }
+        @font-face {
+            font-family: 'AcidGrotesk';
+            src: url('fonts/FFF-AcidGrotesk-Bold-TRIAL.otf') format('opentype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'MFSongHe', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'PingFang TC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
@@ -23,25 +30,28 @@
         .app.home-active {
             background: #faf8f6;
         }
-        .app.camera-active .header h1 { color: #fff; }
-        .app.camera-active .header p { color: rgba(255,255,255,0.9); }
-        .app.camera-active .close-btn {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.18);
-            color: #fff;
-        }
-        .app.camera-active {
-            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
-        }
+        .app.camera-active,
         .app.scan-active {
-            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+            background: #EEF2FA;
+            font-family: 'AcidGrotesk', 'MFSongHe', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            color: #000000;
         }
-        .app.scan-active .header h1 { color: #fff; }
-        .app.scan-active .header p { color: rgba(255,255,255,0.9); }
+        .app.camera-active .header h1,
+        .app.scan-active .header h1 { color: #000000; }
+        .app.camera-active .header p,
+        .app.scan-active .header p { color: #000000; }
+        .app.camera-active .close-btn,
         .app.scan-active .close-btn {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.18);
-            color: #fff;
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #000000;
+        }
+        .app.camera-active .camera-hint,
+        .app.camera-active .upload-text,
+        .app.camera-active .upload-icon,
+        .app.camera-active .camera-placeholder,
+        .app.scan-active .scan-text {
+            color: #000000;
         }
         /* 拍照 / 识别：顶栏浮在渐变上，与内容区共用 app 背景，减轻顶部分割感 */
         .app.camera-active .header,
@@ -226,15 +236,15 @@
         .detection-status.success { background: rgba(76,175,80,0.85); }
         .camera-hint {
             text-align: center; margin-top: 24px;
-            font-size: 18px; color: #fff; line-height: 1.5;
+            font-size: 18px; color: #000000; line-height: 1.5;
         }
         .upload-section {
             display: flex; align-items: center; justify-content: center;
             gap: 8px; margin-top: 20px; cursor: pointer; padding: 12px;
         }
         .upload-section:active { opacity: 0.7; }
-        .upload-text { font-size: 16px; color: #fff; }
-        .upload-icon { width: 18px; height: 18px; color: #fff; }
+        .upload-text { font-size: 16px; color: #000000; }
+        .upload-icon { width: 18px; height: 18px; color: #000000; }
         #fileInput { display: none; }
 
         /* ===== SCAN ===== */
@@ -247,7 +257,7 @@
             margin: 10px auto 0;
             background: rgba(255,255,255,0.46);
             backdrop-filter: blur(7.8px); -webkit-backdrop-filter: blur(7.8px);
-            border: 1px solid rgba(255,255,255,0.19);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             border-radius: 20px; overflow: hidden;
         }
         .scan-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -278,7 +288,7 @@
         .scan-dot:nth-child(5) { top: 70%; left: 45%; animation-delay: 1.2s; }
         @keyframes dotPulse { 0%,100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.5); opacity: 1; } }
         .scan-progress { margin-top: 20px; text-align: center; }
-        .scan-text { font-size: 16px; color: #fff; margin-bottom: 12px; }
+        .scan-text { font-size: 16px; color: #000000; margin-bottom: 12px; }
         .progress-bar { width: 80%; height: 4px; background: #E8DED0; border-radius: 2px; margin: 0 auto; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #C9A96E, #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
 
