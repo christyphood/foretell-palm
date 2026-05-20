@@ -249,10 +249,12 @@
         }
         .hand-guide {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 65%; max-width: 200px; height: auto; pointer-events: none; z-index: 2;
+            width: 72%; max-width: 280px; height: auto; pointer-events: none; z-index: 2;
+            object-fit: contain;
+            opacity: 0.55;
             transition: opacity 0.3s ease;
         }
-        .hand-guide.detected { opacity: 0.1; }
+        .hand-guide.detected { opacity: 0.12; }
         .detection-status {
             position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
             padding: 8px 16px; background: rgba(0,0,0,0.6);
@@ -653,23 +655,7 @@
                         <p class="camera-placeholder-text">正在启动相机...</p>
                     </div>
                     <div class="camera-frame"></div>
-                    <svg id="handGuide" class="hand-guide" viewBox="0 0 200 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M100 260 C50 260 25 200 25 140 C25 100 35 70 50 50 C60 35 75 25 100 25 C125 25 140 35 150 50 C165 70 175 100 175 140 C175 200 150 260 100 260 Z"
-                              stroke="#3a2a1a" stroke-width="1.5" fill="none" opacity="0.3"/>
-                        <path d="M45 120 L45 90 C45 70 50 55 55 45 L55 20" stroke="#3a2a1a" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <path d="M70 100 L70 40 C70 25 75 15 80 10" stroke="#3a2a1a" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <path d="M100 95 L100 30 C100 15 100 8 100 5" stroke="#3a2a1a" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <path d="M130 100 L130 40 C130 25 125 15 120 10" stroke="#3a2a1a" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <path d="M155 120 L155 90 C155 70 150 55 145 45 L145 20" stroke="#3a2a1a" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.3"/>
-                        <ellipse cx="55" cy="18" rx="8" ry="10" stroke="#3a2a1a" stroke-width="1" fill="none" opacity="0.25"/>
-                        <ellipse cx="80" cy="8" rx="8" ry="10" stroke="#3a2a1a" stroke-width="1" fill="none" opacity="0.25"/>
-                        <ellipse cx="100" cy="5" rx="8" ry="10" stroke="#3a2a1a" stroke-width="1" fill="none" opacity="0.25"/>
-                        <ellipse cx="120" cy="8" rx="8" ry="10" stroke="#3a2a1a" stroke-width="1" fill="none" opacity="0.25"/>
-                        <ellipse cx="145" cy="18" rx="8" ry="10" stroke="#3a2a1a" stroke-width="1" fill="none" opacity="0.25"/>
-                        <path d="M60 160 C75 155 85 145 100 145 C115 145 125 155 140 160" stroke="#3a2a1a" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.2" stroke-dasharray="4 4"/>
-                        <path d="M55 180 C70 175 85 165 100 165 C115 165 130 175 145 180" stroke="#3a2a1a" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.2" stroke-dasharray="4 4"/>
-                        <path d="M50 200 C65 195 80 185 100 185 C120 185 135 195 150 200" stroke="#3a2a1a" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.2" stroke-dasharray="4 4"/>
-                    </svg>
+                    <img id="handGuide" class="hand-guide" src="images/hand-guide.png" width="400" height="800" alt="" decoding="async">
                     <div class="detection-status" id="detectionStatus">检测中...</div>
                 </div>
                 <p class="camera-hint">手掌张开，对准手型</p>
