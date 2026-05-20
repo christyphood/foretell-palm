@@ -360,20 +360,75 @@
         }
         .result-scroll { padding: 0; }
 
-        /* --- Poster (full-viewport hero with background image) --- */
+        /* --- Poster (full-viewport hero, coded background) --- */
         .result-poster {
             position: relative;
+            isolation: isolate;
             min-height: 100vh;
             min-height: 100dvh;
-            background-image: url('images/result-bg.png');
-            background-size: cover;
-            background-position: center top;
-            background-repeat: no-repeat;
+            background: #F5F5F9;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: max(52px, calc(env(safe-area-inset-top, 0px) + 36px)) 24px 28px;
             overflow: hidden;
+        }
+        .result-poster > :not(.poster-bg) {
+            position: relative;
+            z-index: 1;
+        }
+        .poster-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .poster-bg-blob {
+            position: absolute;
+            left: 50%;
+            top: 46%;
+            width: min(92%, 360px);
+            height: 62%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            background: rgba(210, 224, 248, 0.72);
+            border-radius: 52% 48% 55% 45% / 48% 52% 46% 54%;
+            box-shadow: 0 0 80px rgba(200, 218, 245, 0.35);
+        }
+        .poster-bg-dots {
+            position: absolute;
+            background-image: radial-gradient(circle, rgba(230, 150, 175, 0.55) 1.25px, transparent 1.25px);
+            background-size: 11px 11px;
+            opacity: 0.85;
+        }
+        .poster-bg-dots--tl {
+            left: 4%;
+            top: 30%;
+            width: 32%;
+            height: 26%;
+            mask-image: radial-gradient(ellipse 85% 80% at 65% 55%, #000 25%, transparent 72%);
+            -webkit-mask-image: radial-gradient(ellipse 85% 80% at 65% 55%, #000 25%, transparent 72%);
+        }
+        .poster-bg-dots--br {
+            right: 2%;
+            bottom: 34%;
+            width: 34%;
+            height: 28%;
+            mask-image: radial-gradient(ellipse 80% 75% at 40% 50%, #000 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 75% at 40% 50%, #000 20%, transparent 70%);
+        }
+        .poster-bg-art {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .poster-bg-grain {
+            position: absolute;
+            inset: 0;
+            opacity: 0.35;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
         }
         .poster-tag {
             align-self: flex-start;
@@ -751,8 +806,24 @@
             <!-- RESULT -->
             <div class="section section-result" id="sectionResult">
                 <div class="result-scroll">
-                    <!-- Poster: full-viewport hero with bg image -->
+                    <!-- Poster: full-viewport hero with coded background -->
                     <div class="result-poster">
+                        <div class="poster-bg" aria-hidden="true">
+                            <div class="poster-bg-blob"></div>
+                            <div class="poster-bg-dots poster-bg-dots--tl"></div>
+                            <div class="poster-bg-dots poster-bg-dots--br"></div>
+                            <svg class="poster-bg-art" viewBox="0 0 414 896" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M320 40 C380 80 400 140 360 200" fill="none" stroke="rgba(165, 195, 235, 0.75)" stroke-width="2.2" stroke-linecap="round"/>
+                                <path d="M340 20 C400 60 420 100 390 150" fill="none" stroke="rgba(185, 210, 245, 0.6)" stroke-width="1.6" stroke-linecap="round"/>
+                                <path d="M28 380 C20 420 35 460 55 500" fill="none" stroke="rgba(90, 130, 200, 0.7)" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M42 520 C30 540 48 560 70 575" fill="none" stroke="rgba(220, 140, 165, 0.65)" stroke-width="3" stroke-linecap="round"/>
+                                <path d="M355 420 L365 480 L372 540" fill="none" stroke="rgba(225, 145, 170, 0.7)" stroke-width="5" stroke-linecap="round"/>
+                                <path d="M368 400 L378 455 L385 510" fill="none" stroke="rgba(235, 155, 180, 0.55)" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M378 430 L388 490" fill="none" stroke="rgba(240, 165, 188, 0.5)" stroke-width="3.5" stroke-linecap="round"/>
+                                <path d="M55 720 C75 710 90 730 80 750" fill="none" stroke="rgba(225, 145, 170, 0.55)" stroke-width="2.8" stroke-linecap="round"/>
+                            </svg>
+                            <div class="poster-bg-grain"></div>
+                        </div>
                         <img class="poster-tag" src="images/poster-tag-nishi.png" srcset="images/poster-tag-nishi@2x.png 2x" width="197" height="136" alt="你是" decoding="async">
                         <div class="poster-headline">
                             <div class="poster-title" id="posterTitle"></div>
