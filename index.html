@@ -114,14 +114,13 @@
             margin-top: 4px;
         }
         .app.result-active {
-            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+            background: #f5f3f0;
         }
-        .app.result-active .header h1 { color: #fff; }
-        .app.result-active .header p { color: rgba(255,255,255,0.9); }
+        .app.result-active .header h1 { color: #000; }
+        .app.result-active .header p { color: rgba(0,0,0,0.7); }
         .app.result-active .header > div:first-of-type {
             display: none;
         }
-        /* 结果页：顶栏浮在内容之上，不占高度，与整页渐变融为一体 */
         .app.result-active .header {
             position: absolute;
             top: 0;
@@ -141,9 +140,9 @@
             pointer-events: auto;
         }
         .app.result-active .close-btn {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,255,255,0.18);
-            color: #fff;
+            background: rgba(255,255,255,0.7);
+            border-color: rgba(0,0,0,0.08);
+            color: #000;
         }
         .app.home-active .header {
             opacity: 0;
@@ -322,7 +321,7 @@
         .progress-bar { width: 80%; height: 4px; background: #E8DED0; border-radius: 2px; margin: 0 auto; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #C9A96E, #FFD700); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
 
-        /* ===== RESULT (dark) ===== */
+        /* ===== RESULT ===== */
         .app.result-active .section-result {
             background: transparent;
         }
@@ -330,84 +329,118 @@
             padding: 0;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            background: linear-gradient(161.58deg, #0c0c0c 6.66%, #727272 150.26%);
+            background: #f5f3f0;
         }
         .app.result-active .result-scroll {
-            padding: 0 20px 48px;
-            padding-top: max(4px, env(safe-area-inset-top, 0px));
+            padding: 0;
         }
-        .result-scroll { padding: 0 20px 48px; }
-        .result-hero-block {
-            margin: 0 -20px 12px;
-            margin-top: max(0px, calc(env(safe-area-inset-top, 0px) - 8px));
-        }
-        /* 与 section-result 同一套渐变，避免顶部模块与下方出现色块分割 */
-        .result-hero-premium {
+        .result-scroll { padding: 0; }
+
+        /* --- Poster (full-viewport hero with background image) --- */
+        .result-poster {
             position: relative;
-            padding: 12px 0 20px;
-            background: transparent;
-            border-radius: 0;
-            overflow: visible;
-        }
-        .result-hero-triple {
-            display: grid;
-            grid-template-columns: minmax(28px, 1fr) minmax(0, 220px) minmax(28px, 1fr);
-            align-items: center;
-            gap: 12px 28px;
-            padding: 0 14px;
-            max-width: 100%;
-        }
-        .result-hero-side {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            font-size: 16px;
-            font-weight: 500;
-            letter-spacing: 0.28em;
-            line-height: 1.75;
-            color: rgba(255, 255, 255, 0.9);
-            white-space: nowrap;
-            padding: 8px 0;
-            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
-        }
-        .result-hero-side--left {
-            justify-self: end;
-        }
-        .result-hero-side--right {
-            justify-self: start;
-        }
-        .result-hero-center {
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-image: url('images/result-bg.png');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 0;
-            padding: 0 6px;
+            padding: max(52px, calc(env(safe-area-inset-top, 0px) + 36px)) 24px 28px;
+            overflow: hidden;
         }
-        .result-hero-img {
-            width: 100%;
-            height: auto;
-            max-height: min(42vh, 280px);
-            object-fit: contain;
-            object-position: center center;
-            border-radius: 0;
-            margin: 0 auto 6px;
-            display: block;
-            box-shadow: none;
-            border: none;
-            background: transparent;
-            filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.35));
-        }
-        .result-hero-caption {
-            text-align: center;
+        .poster-tag {
+            align-self: flex-start;
+            background: #e83e7a;
             color: #fff;
-            padding: 0 4px 4px;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        .poster-title {
+            align-self: flex-start;
+            font-size: clamp(48px, 14vw, 65px);
+            font-weight: 900;
+            color: #000;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            margin-bottom: 4px;
+        }
+        .poster-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #000;
+            margin-bottom: 12px;
             width: 100%;
         }
-        .result-hero-title-main {
-            font-size: clamp(30px, 8vw, 40px);
+        .poster-hand-wrap {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 0;
+        }
+        .poster-hand-img {
+            width: 65%;
+            max-width: 260px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+        }
+        .poster-label {
+            position: absolute;
+            background: #fff;
+            border: 1px solid #000;
+            padding: 6px 10px;
+            font-size: 13px;
+            color: #000;
+            text-align: center;
+            line-height: 1.2;
+            width: auto;
+            max-width: 80px;
+            white-space: pre-line;
+        }
+        .poster-label--1 { top: 18%; left: 6%; transform: rotate(0deg); }
+        .poster-label--2 { bottom: 28%; right: 4%; transform: rotate(30deg); }
+        .poster-label--3 { bottom: 12%; left: 22%; transform: rotate(-14deg); }
+
+        /* --- Reading summary at bottom of poster --- */
+        .poster-reading {
+            width: 100%;
+            margin-top: auto;
+            padding-top: 16px;
+        }
+        .poster-reading-tag {
+            display: inline-block;
+            background: #e9edf9;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 16px;
             font-weight: 700;
-            letter-spacing: 0.12em;
-            line-height: 1.25;
-            text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+            color: #000;
+            margin-bottom: 8px;
+        }
+        .poster-reading-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 18px;
+            font-size: 15px;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        /* --- Content below poster --- */
+        .result-content {
+            padding: 20px 20px 48px;
+            background: #f5f3f0;
         }
         .result-keywords-card {
             display: flex;
@@ -418,7 +451,7 @@
             border-radius: 18px;
             padding: 12px 14px 14px;
             margin-bottom: 14px;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
         .palm-thumb-inline {
             flex-shrink: 0;
@@ -458,7 +491,7 @@
             background: #fff;
             border-radius: 18px;
             padding: 18px 16px 16px;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
         .lines-section { margin-top: 0; padding-top: 0; border-top: none; }
         .line-row { display: flex; margin-bottom: 14px; gap: 12px; line-height: 1.65; }
@@ -466,7 +499,7 @@
         .line-name { font-size: 15px; font-weight: 700; color: #111; min-width: 64px; flex-shrink: 0; padding-top: 1px; }
         .line-desc { font-size: 15px; color: #333; line-height: 1.65; }
         .traits-section { margin-top: 22px; }
-        .traits-title { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 14px; padding-left: 2px; }
+        .traits-title { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 14px; padding-left: 2px; }
         .trait-card {
             background: #fff;
             border-radius: 16px;
@@ -475,8 +508,8 @@
             display: flex; gap: 14px; align-items: flex-start;
             opacity: 0; transform: translateY(20px);
             transition: opacity 0.4s ease, transform 0.4s ease;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-            border: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
         }
         .trait-card.visible { opacity: 1; transform: translateY(0); }
         .trait-icon {
@@ -489,12 +522,12 @@
         .share-section { margin-top: 24px; text-align: center; padding-bottom: 32px; }
         .share-btn {
             width: 100%; padding: 16px; border-radius: 28px;
-            background: linear-gradient(135deg, #e8d4b8 0%, #c9a96e 100%);
-            border: none; color: #1a1208; font-size: 17px; font-weight: 600;
-            cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+            background: linear-gradient(135deg, #222 0%, #444 100%);
+            border: none; color: #fff; font-size: 17px; font-weight: 600;
+            cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
         .share-btn:active { transform: scale(0.98); }
-        .disclaimer { margin-top: 14px; font-size: 12px; color: rgba(255,255,255,0.48); line-height: 1.65; }
+        .disclaimer { margin-top: 14px; font-size: 12px; color: rgba(0,0,0,0.4); line-height: 1.65; }
 
         /* ===== PALM HERO GRAPHIC (unused in dark result layout) ===== */
         .palm-hero {
@@ -691,37 +724,43 @@
             <!-- RESULT -->
             <div class="section section-result" id="sectionResult">
                 <div class="result-scroll">
-                    <div class="result-hero-block">
-                        <div class="result-hero-premium">
-                            <div class="result-hero-triple">
-                                <div id="resultHeroSideL" class="result-hero-side result-hero-side--left" aria-hidden="true"></div>
-                                <div class="result-hero-center">
-                                    <img id="resultHeroImg" class="result-hero-img" src="images/result-archetype-4.png" width="634" height="588" alt="" decoding="async">
-                                    <div class="result-hero-caption">
-                                        <div id="resultHeroTitleMain" class="result-hero-title-main"></div>
-                                    </div>
-                                </div>
-                                <div id="resultHeroSideR" class="result-hero-side result-hero-side--right" aria-hidden="true"></div>
+                    <!-- Poster: full-viewport hero with bg image -->
+                    <div class="result-poster">
+                        <div class="poster-tag">你是</div>
+                        <div class="poster-title" id="posterTitle"></div>
+                        <div class="poster-subtitle" id="posterSubtitle"></div>
+                        <div class="poster-hand-wrap">
+                            <img id="resultHeroImg" class="poster-hand-img" src="images/result-archetype-4.png" width="634" height="588" alt="" decoding="async">
+                            <div class="poster-label poster-label--1" id="posterLabel1"></div>
+                            <div class="poster-label poster-label--2" id="posterLabel2"></div>
+                            <div class="poster-label poster-label--3" id="posterLabel3"></div>
+                        </div>
+                        <div class="poster-reading">
+                            <div class="poster-reading-tag">玄学解读</div>
+                            <div class="poster-reading-card" id="posterReadingText"></div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed content below poster -->
+                    <div class="result-content">
+                        <div class="result-keywords-card">
+                            <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
+                            <div class="keywords-col">
+                                <div class="keywords-title">关键词</div>
+                                <div class="keywords-grid" id="keywordsGrid"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="result-keywords-card">
-                        <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
-                        <div class="keywords-col">
-                            <div class="keywords-title">关键词</div>
-                            <div class="keywords-grid" id="keywordsGrid"></div>
+                        <div class="result-lines-card">
+                            <div class="lines-section" id="linesSection"></div>
                         </div>
-                    </div>
-                    <div class="result-lines-card">
-                        <div class="lines-section" id="linesSection"></div>
-                    </div>
-                    <div class="traits-section">
-                        <h2 class="traits-title">你的基本特质</h2>
-                        <div id="traitsContainer"></div>
-                    </div>
-                    <div class="share-section">
-                        <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
-                        <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
+                        <div class="traits-section">
+                            <h2 class="traits-title">你的基本特质</h2>
+                            <div id="traitsContainer"></div>
+                        </div>
+                        <div class="share-section">
+                            <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
+                            <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
+                        </div>
                     </div>
                 </div>
                 <div class="palm-hero" id="palmHero">
@@ -764,9 +803,12 @@
         const linesSection = document.getElementById('linesSection');
         const traitsContainer = document.getElementById('traitsContainer');
         const resultHeroImg = document.getElementById('resultHeroImg');
-        const resultHeroTitleMain = document.getElementById('resultHeroTitleMain');
-        const resultHeroSideL = document.getElementById('resultHeroSideL');
-        const resultHeroSideR = document.getElementById('resultHeroSideR');
+        const posterTitle = document.getElementById('posterTitle');
+        const posterSubtitle = document.getElementById('posterSubtitle');
+        const posterLabel1 = document.getElementById('posterLabel1');
+        const posterLabel2 = document.getElementById('posterLabel2');
+        const posterLabel3 = document.getElementById('posterLabel3');
+        const posterReadingText = document.getElementById('posterReadingText');
 
         // ==========================================
         // Section transition
@@ -854,9 +896,12 @@
             traitsContainer.innerHTML = '';
             keywordsGrid.innerHTML = '';
             linesSection.innerHTML = '';
-            if (resultHeroTitleMain) resultHeroTitleMain.textContent = '';
-            if (resultHeroSideL) resultHeroSideL.textContent = '';
-            if (resultHeroSideR) resultHeroSideR.textContent = '';
+            if (posterTitle) posterTitle.textContent = '';
+            if (posterSubtitle) posterSubtitle.textContent = '';
+            if (posterLabel1) posterLabel1.textContent = '';
+            if (posterLabel2) posterLabel2.textContent = '';
+            if (posterLabel3) posterLabel3.textContent = '';
+            if (posterReadingText) posterReadingText.textContent = '';
             document.getElementById('palmHero').classList.remove('visible');
             document.getElementById('palmHeroSvg').innerHTML = '';
             handGuide.classList.remove('detected');
@@ -1204,20 +1249,20 @@
             };
         }
 
-        /** 12 种结果手型：主标题、图2 解说句、左右竖排短句（与视觉稿一致） */
+        /** 12 种结果手型：主标题、解说句、散落标签词（与视觉稿一致） */
         const PALM_ARCHETYPES = [
-            { title: '抓财手', tagline: '掌聚八方财气，一生财库丰盈。', sideLeft: '天生财运挡不住', sideRight: '偏财正财双双来' },
-            { title: '灵魂画手', tagline: '身带艺术灵气，灵感自成天赋。', sideLeft: '艺术灵气随身绕', sideRight: '灵感自成天赋来' },
-            { title: '援手', tagline: '心怀善意积福，自有天道护佑。', sideLeft: '善念积福成厚德', sideRight: '天佑护佑常相随' },
-            { title: '点金手', tagline: '手带旺运气场，所遇皆能生贵。', sideLeft: '旺运气场随身带', sideRight: '所遇皆能生贵气' },
-            { title: '幸运手', tagline: '命带顺遂吉星，凡事皆有转机。', sideLeft: '顺遂吉星常相伴', sideRight: '凡事皆有转机现' },
-            { title: '聚福手', tagline: '掌藏福禄纹路，常纳人间好运。', sideLeft: '福禄纹路掌中藏', sideRight: '常纳人间好运来' },
-            { title: '事业手', tagline: '自带官禄格局，职场步步生花。', sideLeft: '官禄格局自天成', sideRight: '职场步步生繁花' },
-            { title: '暴富手', tagline: '暗藏横财命格，时来富贵自来。', sideLeft: '横财命格暗中藏', sideRight: '时来富贵自天降' },
-            { title: '温柔手', tagline: '手携慈悲福缘，一生安稳无忧。', sideLeft: '慈悲福缘手间携', sideRight: '一生安稳无忧虑' },
-            { title: '旺缘手', tagline: '人缘自带气场，贵人常伴身旁。', sideLeft: '人缘气场自天成', sideRight: '贵人常伴你身旁' },
-            { title: '自愈手', tagline: '自带稳运体质，抚平世事心绪。', sideLeft: '稳运体质自天生', sideRight: '抚平世事心绪宁' },
-            { title: '解忧手', tagline: '自带清净气场，驱散凡尘烦扰。', sideLeft: '清净气场自带来', sideRight: '驱散凡尘诸烦扰' }
+            { title: '抓财手', tagline: '掌聚八方财气，一生财库丰盈。', labels: ['只想搞钱', '消费陷阱\n绝缘体', '行走的\n计算器'] },
+            { title: '灵魂画手', tagline: '身带艺术灵气，灵感自成天赋。', labels: ['灵感爆发', '审美\n在线', '创意\n永动机'] },
+            { title: '援手', tagline: '心怀善意积福，自有天道护佑。', labels: ['善缘满满', '温暖\n传递者', '福气\n收集器'] },
+            { title: '点金手', tagline: '手带旺运气场，所遇皆能生贵。', labels: ['旺运体质', '贵人\n吸引器', '好运\n加持中'] },
+            { title: '幸运手', tagline: '命带顺遂吉星，凡事皆有转机。', labels: ['锦鲤本鲤', '转机\n制造机', '天生\n好运'] },
+            { title: '聚福手', tagline: '掌藏福禄纹路，常纳人间好运。', labels: ['福气满溢', '好事\n连连', '纳福\n体质'] },
+            { title: '事业手', tagline: '自带官禄格局，职场步步生花。', labels: ['升职加薪', '领导力\n天赋', '职场\n达人'] },
+            { title: '暴富手', tagline: '暗藏横财命格，时来富贵自来。', labels: ['横财将至', '财运\n爆表', '富贵\n命格'] },
+            { title: '温柔手', tagline: '手携慈悲福缘，一生安稳无忧。', labels: ['治愈系', '岁月\n静好', '安稳\n人生'] },
+            { title: '旺缘手', tagline: '人缘自带气场，贵人常伴身旁。', labels: ['人缘爆棚', '社交\n达人', '贵人\n常伴'] },
+            { title: '自愈手', tagline: '自带稳运体质，抚平世事心绪。', labels: ['情绪稳定', '内心\n富足', '自愈\n力MAX'] },
+            { title: '解忧手', tagline: '自带清净气场，驱散凡尘烦扰。', labels: ['烦恼粉碎', '清净\n气场', '解忧\n专家'] }
         ];
 
         function pickArchetypeIndex(analysis) {
@@ -1279,8 +1324,6 @@
             const personaMain = arch.title;
             const personaSub = arch.tagline.replace(/。$/, '');
             const heroMain = arch.title;
-            const heroSideL = arch.sideLeft;
-            const heroSideR = arch.sideRight;
             const kwPool = {
                 long: { long: ['洞察力', '理想主义', '创造力'], medium: ['方向感', '直觉力', '深度'], short: ['内省力', '坚韧', '感受力'] },
                 square: { long: ['行动力', '领导力', '魄力'], medium: ['务实', '毅力', '稳重'], short: ['执行力', '专注', '踏实'] },
@@ -1369,7 +1412,7 @@
             traits.push(careerPool[s % 3]);
             return {
                 keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
-                heroMain, heroSideL, heroSideR, archetypeIndex: archIdx
+                heroMain, archetypeIndex: archIdx
             };
         }
 
@@ -1379,8 +1422,6 @@
             return {
                 palmType: 'balanced',
                 heroMain: arch.title,
-                heroSideL: arch.sideLeft,
-                heroSideR: arch.sideRight,
                 archetypeIndex: archIdx,
                 personaMain: arch.title,
                 personaSub: arch.tagline.replace(/。$/, ''),
@@ -1759,6 +1800,7 @@
             let idx = reading && reading.archetypeIndex != null ? reading.archetypeIndex : 4;
             idx = Math.max(0, Math.min(11, idx));
             const heroCfg = ARCHETYPE_HERO_ASSETS[idx] || ARCHETYPE_HERO_ASSETS[4];
+            const arch = PALM_ARCHETYPES[idx];
             if (resultHeroImg) {
                 resultHeroImg.onerror = () => {
                     resultHeroImg.onerror = null;
@@ -1771,9 +1813,17 @@
                 resultHeroImg.height = heroCfg.h;
             }
             const main = reading && reading.heroMain != null ? reading.heroMain : fb.titleMain;
-            if (resultHeroTitleMain) resultHeroTitleMain.textContent = main;
-            if (resultHeroSideL) resultHeroSideL.textContent = (reading && reading.heroSideL) ? reading.heroSideL : '';
-            if (resultHeroSideR) resultHeroSideR.textContent = (reading && reading.heroSideR) ? reading.heroSideR : '';
+            if (posterTitle) posterTitle.textContent = main;
+            const sub = arch ? arch.tagline.replace(/。$/, '') : '';
+            if (posterSubtitle) posterSubtitle.textContent = (reading && reading.personaSub) ? reading.personaSub : sub;
+
+            const labels = arch && arch.labels ? arch.labels : ['方向感', '毅力', '创造力'];
+            if (posterLabel1) posterLabel1.textContent = labels[0] || '';
+            if (posterLabel2) posterLabel2.textContent = labels[1] || '';
+            if (posterLabel3) posterLabel3.textContent = labels[2] || '';
+
+            const readingSummary = reading && reading.lifeDesc ? reading.lifeDesc : '';
+            if (posterReadingText) posterReadingText.textContent = readingSummary;
         }
 
         // ==========================================
