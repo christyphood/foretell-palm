@@ -18,6 +18,7 @@
             font-weight: 700;
             font-style: normal;
             font-display: swap;
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -33,24 +34,54 @@
         .app.camera-active,
         .app.scan-active {
             background: #EEF2FA;
-            font-family: 'AcidGrotesk', 'MFSongHe', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            color: #000000;
+        }
+        /* 识别页文案：Acid Grotesk（拉丁）+ 系统无衬线中文，避免回退到 MFSongHe 宋体 */
+        .app.camera-active .header h1,
+        .app.camera-active .header p,
+        .app.camera-active .camera-hint,
+        .app.camera-active .upload-text,
+        .app.camera-active .camera-placeholder-text,
+        .app.scan-active .header h1,
+        .app.scan-active .header p,
+        .app.scan-active .scan-text {
+            font-family: 'AcidGrotesk', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'SF Pro Display', 'Helvetica Neue', 'Microsoft YaHei UI', sans-serif;
+            font-weight: 700;
+            font-style: normal;
             color: #000000;
         }
         .app.camera-active .header h1,
-        .app.scan-active .header h1 { color: #000000; }
+        .app.scan-active .header h1 {
+            font-size: 24px;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
         .app.camera-active .header p,
-        .app.scan-active .header p { color: #000000; }
+        .app.scan-active .header p {
+            font-size: 13px;
+            line-height: 1.45;
+            letter-spacing: -0.01em;
+        }
+        .app.camera-active .camera-hint {
+            font-size: 18px;
+            letter-spacing: -0.02em;
+        }
+        .app.camera-active .upload-text {
+            font-size: 16px;
+            letter-spacing: -0.01em;
+        }
+        .app.scan-active .scan-text {
+            font-size: 16px;
+            letter-spacing: -0.01em;
+        }
         .app.camera-active .close-btn,
         .app.scan-active .close-btn {
             background: rgba(255, 255, 255, 0.85);
             border-color: rgba(0, 0, 0, 0.1);
             color: #000000;
         }
-        .app.camera-active .camera-hint,
-        .app.camera-active .upload-text,
         .app.camera-active .upload-icon,
-        .app.camera-active .camera-placeholder,
-        .app.scan-active .scan-text {
+        .app.camera-active .camera-placeholder {
             color: #000000;
         }
         /* 拍照 / 识别：顶栏浮在渐变上，与内容区共用 app 背景，减轻顶部分割感 */
