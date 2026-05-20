@@ -157,10 +157,6 @@
 
         /* ===== HOME ===== */
         .section-home {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-end;
             position: relative;
             min-height: 100vh;
             background-color: #faf8f6;
@@ -168,39 +164,16 @@
             background-repeat: no-repeat;
             background-position: center top;
             background-size: cover;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .section-home:active {
+            opacity: 0.98;
         }
         .home-bg {
             position: absolute;
             inset: 0;
             pointer-events: none;
-        }
-        .home-cta-wrap {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            padding: 0 24px max(32px, calc(env(safe-area-inset-bottom, 0px) + 20px));
-            margin-top: auto;
-        }
-        /* 热区叠在设计稿底部「掌纹提取」按钮上，视觉由背景图呈现 */
-        .extract-btn {
-            width: 100%;
-            max-width: 368px;
-            margin: 0 auto;
-            min-height: 58px;
-            padding: 0;
-            border: none;
-            border-radius: 999px;
-            background: transparent;
-            color: transparent;
-            font-size: 0;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .extract-btn:active {
-            background: rgba(0, 0, 0, 0.06);
-        }
-        .extract-btn-icon {
-            display: none;
         }
 
         /* ===== CAMERA ===== */
@@ -626,11 +599,8 @@
 
         <div class="sections-wrap">
             <!-- HOME -->
-            <div class="section section-home active" id="sectionHome">
+            <div class="section section-home active" id="sectionHome" role="button" tabindex="0" aria-label="点击进入掌纹识别">
                 <div class="home-bg" aria-hidden="true"></div>
-                <div class="home-cta-wrap">
-                    <button class="extract-btn" id="startBtn" type="button" aria-label="掌纹提取，进入识别页">掌纹提取</button>
-                </div>
             </div>
 
             <!-- CAMERA -->
@@ -753,7 +723,6 @@
         const sections = [sectionHome, sectionCamera, sectionScan, sectionResult];
         const app = document.querySelector('.app');
 
-        const startBtn = document.getElementById('startBtn');
         const closeBtn = document.getElementById('closeBtn');
         const cameraVideo = document.getElementById('cameraVideo');
         const cameraPlaceholder = document.getElementById('cameraPlaceholder');
@@ -822,9 +791,18 @@
         // ==========================================
         // Navigation handlers
         // ==========================================
-        startBtn.addEventListener('click', () => {
+        function goToRecognition() {
+            if (currentSection !== sectionHome) return;
             switchTo(sectionCamera);
             initCamera();
+        }
+
+        sectionHome.addEventListener('click', goToRecognition);
+        sectionHome.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                goToRecognition();
+            }
         });
 
         closeBtn.addEventListener('click', () => {
