@@ -745,11 +745,11 @@
                 <div class="result-scroll">
                     <!-- Poster: full-viewport hero with bg image -->
                     <div class="result-poster">
-                        <img class="poster-tag" src="images/poster-tag-nishi.png" width="394" height="273" alt="你是" decoding="async">
+                        <img class="poster-tag" src="images/poster-tag-nishi.png" srcset="images/poster-tag-nishi@2x.png 2x" width="197" height="136" alt="你是" decoding="async">
                         <div class="poster-title" id="posterTitle"></div>
                         <div class="poster-subtitle" id="posterSubtitle"></div>
                         <div class="poster-hand-wrap">
-                            <img id="resultHeroImg" class="poster-hand-img" src="images/result-archetype-4.png" width="634" height="588" alt="" decoding="async">
+                            <img id="resultHeroImg" class="poster-hand-img" src="images/result-archetype-0.png" width="400" height="480" alt="" decoding="async">
                             <div class="poster-label poster-label--1" id="posterLabel1"></div>
                             <div class="poster-label poster-label--2" id="posterLabel2"></div>
                             <div class="poster-label poster-label--3" id="posterLabel3"></div>
@@ -1268,34 +1268,40 @@
             };
         }
 
-        /** 12 种结果手型：主标题、解说句、散落标签词（与视觉稿一致） */
+        /** 3 种结果手型（与视觉稿一致） */
         const PALM_ARCHETYPES = [
-            { title: '抓财手', tagline: '掌聚八方财气，一生财库丰盈。', labels: ['只想搞钱', '消费陷阱\n绝缘体', '行走的\n计算器'] },
-            { title: '灵魂画手', tagline: '身带艺术灵气，灵感自成天赋。', labels: ['灵感爆发', '审美\n在线', '创意\n永动机'] },
-            { title: '援手', tagline: '心怀善意积福，自有天道护佑。', labels: ['善缘满满', '温暖\n传递者', '福气\n收集器'] },
-            { title: '点金手', tagline: '手带旺运气场，所遇皆能生贵。', labels: ['旺运体质', '贵人\n吸引器', '好运\n加持中'] },
-            { title: '幸运手', tagline: '命带顺遂吉星，凡事皆有转机。', labels: ['锦鲤本鲤', '转机\n制造机', '天生\n好运'] },
-            { title: '聚福手', tagline: '掌藏福禄纹路，常纳人间好运。', labels: ['福气满溢', '好事\n连连', '纳福\n体质'] },
-            { title: '事业手', tagline: '自带官禄格局，职场步步生花。', labels: ['升职加薪', '领导力\n天赋', '职场\n达人'] },
-            { title: '暴富手', tagline: '暗藏横财命格，时来富贵自来。', labels: ['横财将至', '财运\n爆表', '富贵\n命格'] },
-            { title: '温柔手', tagline: '手携慈悲福缘，一生安稳无忧。', labels: ['治愈系', '岁月\n静好', '安稳\n人生'] },
-            { title: '旺缘手', tagline: '人缘自带气场，贵人常伴身旁。', labels: ['人缘爆棚', '社交\n达人', '贵人\n常伴'] },
-            { title: '自愈手', tagline: '自带稳运体质，抚平世事心绪。', labels: ['情绪稳定', '内心\n富足', '自愈\n力MAX'] },
-            { title: '解忧手', tagline: '自带清净气场，驱散凡尘烦扰。', labels: ['烦恼粉碎', '清净\n气场', '解忧\n专家'] }
+            {
+                title: '抓钱不松手',
+                subtitle: '消费降级大师 / 铁公鸡ProMax',
+                labels: ['只想搞钱', '消费陷阱\n绝缘体', '行走的\n计算器'],
+                posterReading: '生命线弧度饱满，指缝严丝合缝，天然克制一切冲动消费，理财高手'
+            },
+            {
+                title: '灵魂捕手',
+                subtitle: '消费降级大师 / 铁公鸡ProMax',
+                labels: ['洞察力', '理想主义', '创造力'],
+                posterReading: '长宽比例1:41，修长型。主思辨和长线规划，直觉和抽象理解能力突出。'
+            },
+            {
+                title: '禅意佛手',
+                subtitle: '零内耗圣体 / 情绪北冰洋',
+                labels: ['自动过滤\n情绪噪音', '拒绝内耗\n能量满格', '爱河不进\n焦虑不沾'],
+                posterReading: '掌丘内敛分布，指节修长。天然免疫世俗焦虑与内耗 精神地基极度稳固。'
+            }
         ];
 
         function pickArchetypeIndex(analysis) {
             if (!analysis) return 0;
             const a = analysis;
-            const palmBucket = a.palmRatio > 1.15 ? 2 : a.palmRatio < 0.95 ? 5 : 0;
-            const fingerBucket = a.fingerTopalm > 0.85 ? 3 : a.fingerTopalm < 0.7 ? 7 : 1;
+            const palmBucket = a.palmRatio > 1.15 ? 2 : a.palmRatio < 0.95 ? 0 : 1;
+            const fingerBucket = a.fingerTopalm > 0.85 ? 1 : a.fingerTopalm < 0.7 ? 0 : 2;
             const n = a.seed * 17 + palmBucket * 11 + fingerBucket * 13
                 + Math.round(a.heartEndT * 59) + Math.round(a.fateVert * 31)
                 + Math.round(a.heartLift * 100) + (a.indexToRing > 1.02 ? 5 : 0) + (a.pinkyToIndex > 0.7 ? 9 : 0);
-            return ((n % 12) + 12) % 12;
+            return ((n % 3) + 3) % 3;
         }
 
-        /** 联调：?archetype=0..11 或 #archetype=3 强制指定结果手型（覆盖算法） */
+        /** 联调：?archetype=0..2 或 #archetype=1 强制指定结果手型（覆盖算法） */
         function getArchetypeDebugIndex() {
             try {
                 const p = new URLSearchParams(location.search);
@@ -1305,7 +1311,7 @@
                 }
                 if (v == null || v === '') return null;
                 const n = parseInt(String(v).trim(), 10);
-                if (!Number.isFinite(n) || n < 0 || n > 11) return null;
+                if (!Number.isFinite(n) || n < 0 || n > 2) return null;
                 return n;
             } catch (_) {
                 return null;
@@ -1315,7 +1321,7 @@
         function resolveArchetypeIndex(analysis) {
             const dbg = getArchetypeDebugIndex();
             if (dbg !== null) return dbg;
-            if (!analysis) return 4;
+            if (!analysis) return 0;
             return pickArchetypeIndex(analysis);
         }
 
@@ -1341,7 +1347,7 @@
             const archIdx = resolveArchetypeIndex(analysis);
             const arch = PALM_ARCHETYPES[archIdx];
             const personaMain = arch.title;
-            const personaSub = arch.tagline.replace(/。$/, '');
+            const personaSub = arch.subtitle;
             const heroMain = arch.title;
             const kwPool = {
                 long: { long: ['洞察力', '理想主义', '创造力'], medium: ['方向感', '直觉力', '深度'], short: ['内省力', '坚韧', '感受力'] },
@@ -1443,7 +1449,7 @@
                 heroMain: arch.title,
                 archetypeIndex: archIdx,
                 personaMain: arch.title,
-                personaSub: arch.tagline.replace(/。$/, ''),
+                personaSub: arch.subtitle,
                 keywords: ['方向感', '毅力', '创造力'],
                 heartDesc: '感情线走势清晰，弧度柔和上扬，代表你情感丰富且理性兼具，在关系中追求真诚与深度连接。',
                 headDesc: '头脑线起点与生命线略分开，线条流畅，代表你思维独立、逻辑清晰，具有良好的判断力和分析能力。',
@@ -1791,58 +1797,37 @@
         }
 
         // ==========================================
-        // Result hero: 12 张手型图（与 PALM_ARCHETYPES 下标一致，可替换为正式素材）
+        // Result hero: 3 张手型图（与 PALM_ARCHETYPES 下标一致）
         // ==========================================
-        const RESULT_HERO_CONFIG = {
-            long: { img: 'images/result-hero-long.png', w: 600, h: 580, titleMain: '哲学手', titleSub: '思想者气质' },
-            balanced: { img: 'images/result-hero-balanced.png', w: 634, h: 588, titleMain: '灵感捕手', titleSub: '捕捉瞬息万变' },
-            square: { img: 'images/result-hero-square.png', w: 394, h: 372, titleMain: '清冷手', titleSub: '自带疏离高级' }
-        };
-
         const ARCHETYPE_HERO_ASSETS = [
-            { img: 'images/result-archetype-0.png', w: 634, h: 588 },  // 抓财手
-            { img: 'images/result-archetype-1.png', w: 634, h: 588 },  // 灵魂画手
-            { img: 'images/result-archetype-2.png', w: 634, h: 588 },  // 援手
-            { img: 'images/result-archetype-3.png', w: 634, h: 588 },  // 点金手
-            { img: 'images/result-archetype-4.png', w: 634, h: 588 },  // 幸运手
-            { img: 'images/result-archetype-5.png', w: 634, h: 588 },  // 聚福手
-            { img: 'images/result-archetype-6.png', w: 634, h: 588 },  // 事业手
-            { img: 'images/result-archetype-7.png', w: 634, h: 588 },  // 暴富手
-            { img: 'images/result-archetype-8.png', w: 634, h: 588 },  // 温柔手
-            { img: 'images/result-archetype-9.png', w: 634, h: 588 },  // 旺缘手
-            { img: 'images/result-archetype-10.png', w: 634, h: 588 }, // 自愈手
-            { img: 'images/result-archetype-11.png', w: 634, h: 588 }  // 解忧手
+            { img: 'images/result-archetype-0.png', w: 400, h: 480 },  // 抓钱不松手
+            { img: 'images/result-archetype-1.png', w: 400, h: 480 },  // 灵魂捕手
+            { img: 'images/result-archetype-2.png', w: 400, h: 480 }   // 禅意佛手
         ];
 
         function applyResultHero(reading, palmType) {
-            const fb = RESULT_HERO_CONFIG[palmType] || RESULT_HERO_CONFIG.balanced;
-            let idx = reading && reading.archetypeIndex != null ? reading.archetypeIndex : 4;
-            idx = Math.max(0, Math.min(11, idx));
-            const heroCfg = ARCHETYPE_HERO_ASSETS[idx] || ARCHETYPE_HERO_ASSETS[4];
+            let idx = reading && reading.archetypeIndex != null ? reading.archetypeIndex : 0;
+            idx = Math.max(0, Math.min(2, idx));
+            const heroCfg = ARCHETYPE_HERO_ASSETS[idx];
             const arch = PALM_ARCHETYPES[idx];
             if (resultHeroImg) {
                 resultHeroImg.onerror = () => {
                     resultHeroImg.onerror = null;
-                    resultHeroImg.src = fb.img;
-                    resultHeroImg.width = fb.w;
-                    resultHeroImg.height = fb.h;
+                    resultHeroImg.src = ARCHETYPE_HERO_ASSETS[0].img;
+                    resultHeroImg.width = ARCHETYPE_HERO_ASSETS[0].w;
+                    resultHeroImg.height = ARCHETYPE_HERO_ASSETS[0].h;
                 };
                 resultHeroImg.src = heroCfg.img;
                 resultHeroImg.width = heroCfg.w;
                 resultHeroImg.height = heroCfg.h;
             }
-            const main = reading && reading.heroMain != null ? reading.heroMain : fb.titleMain;
-            if (posterTitle) posterTitle.textContent = main;
-            const sub = arch ? arch.tagline.replace(/。$/, '') : '';
-            if (posterSubtitle) posterSubtitle.textContent = (reading && reading.personaSub) ? reading.personaSub : sub;
-
-            const labels = arch && arch.labels ? arch.labels : ['方向感', '毅力', '创造力'];
+            if (posterTitle) posterTitle.textContent = arch.title;
+            if (posterSubtitle) posterSubtitle.textContent = arch.subtitle;
+            const labels = arch.labels || [];
             if (posterLabel1) posterLabel1.textContent = labels[0] || '';
             if (posterLabel2) posterLabel2.textContent = labels[1] || '';
             if (posterLabel3) posterLabel3.textContent = labels[2] || '';
-
-            const readingSummary = reading && reading.lifeDesc ? reading.lifeDesc : '';
-            if (posterReadingText) posterReadingText.textContent = readingSummary;
+            if (posterReadingText) posterReadingText.textContent = arch.posterReading || '';
         }
 
         // ==========================================
