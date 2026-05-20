@@ -126,6 +126,9 @@
             font-family: 'PingFang SC', 'PingFang TC', -apple-system, BlinkMacSystemFont, sans-serif;
             font-weight: 700;
         }
+        .app.result-active .poster-title {
+            font-weight: 900;
+        }
         .app.result-active .poster-subtitle,
         .app.result-active .poster-label,
         .app.result-active .poster-reading-card,
@@ -381,21 +384,26 @@
             object-fit: contain;
             object-position: left center;
         }
+        .poster-headline {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 12px;
+        }
         .poster-title {
-            align-self: flex-start;
             font-size: clamp(48px, 14vw, 65px);
-            font-weight: 700;
+            font-weight: 900;
             color: #000;
             line-height: 1.15;
             letter-spacing: 0.02em;
-            margin-bottom: 4px;
+            margin: 0 0 14px;
+            text-align: center;
         }
         .poster-subtitle {
             text-align: center;
             font-size: 16px;
             color: #000;
-            margin-bottom: 12px;
-            width: 100%;
+            margin: 0;
+            line-height: 1.45;
         }
         .poster-hand-wrap {
             position: relative;
@@ -746,8 +754,10 @@
                     <!-- Poster: full-viewport hero with bg image -->
                     <div class="result-poster">
                         <img class="poster-tag" src="images/poster-tag-nishi.png" srcset="images/poster-tag-nishi@2x.png 2x" width="197" height="136" alt="你是" decoding="async">
-                        <div class="poster-title" id="posterTitle"></div>
-                        <div class="poster-subtitle" id="posterSubtitle"></div>
+                        <div class="poster-headline">
+                            <div class="poster-title" id="posterTitle"></div>
+                            <div class="poster-subtitle" id="posterSubtitle"></div>
+                        </div>
                         <div class="poster-hand-wrap">
                             <img id="resultHeroImg" class="poster-hand-img" src="images/result-archetype-0.png" width="400" height="480" alt="" decoding="async">
                             <div class="poster-label poster-label--1" id="posterLabel1"></div>
