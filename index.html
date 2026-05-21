@@ -126,8 +126,11 @@
             font-family: 'PingFang SC', 'PingFang TC', -apple-system, BlinkMacSystemFont, sans-serif;
             font-weight: 700;
         }
-        .app.result-active .poster-title {
+        .app.result-active .poster-title:not(.poster-title--semibold) {
             font-weight: 900;
+        }
+        .app.result-active .poster-title.poster-title--semibold {
+            font-weight: 600;
         }
         .app.result-active .poster-subtitle,
         .app.result-active .poster-label,
@@ -470,12 +473,15 @@
             min-height: 0;
         }
         .poster-hand-img {
-            width: 65%;
-            max-width: 260px;
+            width: 82%;
+            max-width: 320px;
             height: auto;
             object-fit: contain;
             display: block;
             filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+        }
+        .poster-title--semibold {
+            font-weight: 600;
         }
         .poster-label {
             position: absolute;
@@ -1361,6 +1367,7 @@
         const PALM_ARCHETYPES = [
             {
                 title: '抓钱不松手',
+                titleSemibold: true,
                 subtitle: '消费降级大师 / 铁公鸡ProMax',
                 labels: ['只想搞钱', '消费陷阱\n绝缘体', '行走的\n计算器'],
                 posterReading: '生命线弧度饱满，指缝严丝合缝，天然克制一切冲动消费，理财高手'
@@ -1910,7 +1917,10 @@
                 resultHeroImg.width = heroCfg.w;
                 resultHeroImg.height = heroCfg.h;
             }
-            if (posterTitle) posterTitle.textContent = arch.title;
+            if (posterTitle) {
+                posterTitle.textContent = arch.title;
+                posterTitle.classList.toggle('poster-title--semibold', !!arch.titleSemibold);
+            }
             if (posterSubtitle) posterSubtitle.textContent = arch.subtitle;
             const labels = arch.labels || [];
             if (posterLabel1) posterLabel1.textContent = labels[0] || '';
