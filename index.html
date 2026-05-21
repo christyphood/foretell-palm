@@ -515,8 +515,18 @@
             color: #000;
             line-height: 1.5;
         }
-        #posterReadingText {
-            line-height: 1.5;
+        .poster-reading-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 0;
+        }
+        .poster-reading-facts,
+        .poster-reading-insight {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.55;
+            color: #000;
             word-break: break-all;
         }
         .result-detail-text {
@@ -916,7 +926,10 @@
                         <div class="poster-reading result-panel">
                             <div class="poster-reading-card result-panel-card">
                                 <div class="poster-reading-tag result-panel-tag">玄学解读</div>
-                                <div id="posterReadingText"></div>
+                                <div class="poster-reading-body" id="posterReadingBody">
+                                    <p class="poster-reading-facts" id="posterReadingFacts"></p>
+                                    <p class="poster-reading-insight" id="posterReadingInsight"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -995,7 +1008,8 @@
         const posterLabel1 = document.getElementById('posterLabel1');
         const posterLabel2 = document.getElementById('posterLabel2');
         const posterLabel3 = document.getElementById('posterLabel3');
-        const posterReadingText = document.getElementById('posterReadingText');
+        const posterReadingFacts = document.getElementById('posterReadingFacts');
+        const posterReadingInsight = document.getElementById('posterReadingInsight');
 
         // ==========================================
         // Section transition
@@ -1088,7 +1102,8 @@
             if (posterLabel1) posterLabel1.textContent = '';
             if (posterLabel2) posterLabel2.textContent = '';
             if (posterLabel3) posterLabel3.textContent = '';
-            if (posterReadingText) posterReadingText.textContent = '';
+            if (posterReadingFacts) posterReadingFacts.textContent = '';
+            if (posterReadingInsight) posterReadingInsight.textContent = '';
             document.getElementById('palmHero').classList.remove('visible');
             document.getElementById('palmHeroSvg').innerHTML = '';
             handGuide.classList.remove('detected');
@@ -1443,19 +1458,22 @@
                 titleSemibold: true,
                 subtitle: '消费降级大师 / 铁公鸡ProMax',
                 labels: ['只想搞钱', '消费陷阱\n绝缘体', '行走的\n计算器'],
-                posterReading: '生命线弧度饱满，指缝严丝合缝，天然克制一切冲动消费，理财高手'
+                posterFacts: '生命线弧度饱满，指缝严丝合缝。',
+                posterInsight: '天然克制一切冲动消费，理财高手。'
             },
             {
                 title: '灵魂捕手',
                 subtitle: '消费降级大师 / 铁公鸡ProMax',
                 labels: ['洞察力', '理想主义', '创造力'],
-                posterReading: '长宽比例1:41，修长型。主思辨和长线规划，直觉和抽象理解能力突出。'
+                posterFacts: '长宽比例 1:1.41，修长型。',
+                posterInsight: '主思辨和长线规划，直觉和抽象理解能力突出。'
             },
             {
                 title: '禅意佛手',
                 subtitle: '零内耗圣体 / 情绪北冰洋',
                 labels: ['自动过滤\n情绪噪音', '拒绝内耗\n能量满格', '爱河不进\n焦虑不沾'],
-                posterReading: '掌丘内敛分布，指节修长。天然免疫世俗焦虑与内耗 精神地基极度稳固。'
+                posterFacts: '掌丘内敛分布，指节修长。',
+                posterInsight: '天然免疫世俗焦虑与内耗，精神地基极度稳固。'
             }
         ];
 
@@ -1561,37 +1579,57 @@
             return clampTwoLines(t);
         }
 
-        function briefHeartLine(desc) {
-            if (/内敛|克制|含蓄|稳而/.test(desc)) return '感情稳而深';
-            if (/上扬|契合|热情|新鲜/.test(desc)) return '感情重契合';
-            return '感情理性';
-        }
+        /** 玄学解读：掌纹事实 + 一句解读（与三种手型示意一致） */
+        function buildPosterReading(analysis, archIdx) {
+            const arch = PALM_ARCHETYPES[archIdx] || PALM_ARCHETYPES[0];
+            if (!analysis) {
+                return { posterFacts: arch.posterFacts, posterInsight: arch.posterInsight };
+            }
+            const a = analysis;
+            const ratio = a.palmRatio.toFixed(2);
+            const palmShape = a.palmRatio > 1.15 ? '修长型' : a.palmRatio < 0.95 ? '方正型' : '均衡型';
 
-        function briefHeadLine(desc) {
-            if (/创意|联想|叙事|发散/.test(desc)) return '思维偏创意';
-            if (/决断|短直|执行|利落/.test(desc)) return '思维果断';
-            if (/独立|清晰/.test(desc)) return '思维独立';
-            if (/沉静|审慎/.test(desc)) return '思维沉静';
-            return '思维务实';
-        }
-
-        function briefFateLine(desc) {
-            if (/深耕|较直|集中|稳定/.test(desc)) return '运程求稳';
-            if (/灵活|协作|跨界|偏侧/.test(desc)) return '运程灵活';
-            return '运程多变';
-        }
-
-        /** 玄学解读：两行完整结论，无省略号，不写「关键词」 */
-        function buildPosterSummary(archIdx, arch, heartDesc, headDesc, fateDesc) {
-            const h = briefHeartLine(heartDesc);
-            const hd = briefHeadLine(headDesc);
-            const f = briefFateLine(fateDesc);
-            const conclusions = [
-                '只想搞钱、能守财、少冲动。',
-                '善洞察、有理想、能创造。',
-                '心淡定、拒内耗、情绪稳。'
+            const factsBuilders = [
+                () => {
+                    const life = a.lifeArc > a.palmWidth * 0.55
+                        ? '生命线弧度饱满'
+                        : a.lifeArc > a.palmWidth * 0.4
+                        ? '生命线弧度适中'
+                        : '生命线收束紧凑';
+                    const gap = a.fingerTopalm < 0.72
+                        ? '指缝严丝合缝'
+                        : a.fingerTopalm > 0.88
+                        ? '指缝疏朗分明'
+                        : '指缝开合有度';
+                    return `${life}，${gap}。`;
+                },
+                () => `长宽比例 1:${ratio}，${palmShape}。`,
+                () => {
+                    const mounts = a.palmRatio < 1.02 ? '掌丘内敛分布' : '掌丘分布均匀';
+                    const joints = a.fingerTopalm > 0.82
+                        ? '指节修长'
+                        : a.fingerTopalm < 0.72
+                        ? '指节紧凑'
+                        : '指节比例匀称';
+                    return `${mounts}，${joints}。`;
+                }
             ];
-            return `掌纹示${h}、${hd}、${f}，${conclusions[archIdx] || conclusions[0]}`;
+            const insights = [
+                '天然克制一切冲动消费，理财高手。',
+                '主思辨和长线规划，直觉和抽象理解能力突出。',
+                '天然免疫世俗焦虑与内耗，精神地基极度稳固。'
+            ];
+            return {
+                posterFacts: factsBuilders[archIdx](),
+                posterInsight: insights[archIdx] || arch.posterInsight
+            };
+        }
+
+        function applyPosterReading(reading, arch) {
+            const facts = (reading && reading.posterFacts) || arch.posterFacts || '';
+            const insight = (reading && reading.posterInsight) || arch.posterInsight || '';
+            if (posterReadingFacts) posterReadingFacts.textContent = facts;
+            if (posterReadingInsight) posterReadingInsight.textContent = insight;
         }
 
         function generateReading(analysis, segResult) {
@@ -1655,10 +1693,10 @@
                 { icon: '💼', title: '事业运势：突破期', desc: '掌纹中事业线的走向表明你即将进入一个全新阶段，旧有模式可能被打破，拥抱变化将带来意想不到的收获。' }
             ];
             traits.push(careerPool[s % 3]);
-            const posterSummary = buildPosterSummary(archIdx, arch, heartDesc, headDesc, fateDesc);
+            const { posterFacts, posterInsight } = buildPosterReading(analysis, archIdx);
             return {
                 keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
-                heroMain, archetypeIndex: archIdx, posterSummary
+                heroMain, archetypeIndex: archIdx, posterFacts, posterInsight
             };
         }
 
@@ -1669,7 +1707,7 @@
             const heartDesc = clampTwoLines('感情线弧度柔和上扬，情感丰富也理性，追求真诚与深度连接。');
             const headDesc = clampTwoLines('头脑线与生命线略分开，思维独立清晰，判断力与分析力较好。');
             const fateDesc = clampTwoLines('命运线走势稳定，方向感明确，适合在既定目标上持续投入。');
-            const posterSummary = buildPosterSummary(archIdx, arch, heartDesc, headDesc, fateDesc);
+            const { posterFacts, posterInsight } = buildPosterReading(null, archIdx);
             return {
                 palmType: 'balanced',
                 heroMain: arch.title,
@@ -1681,7 +1719,8 @@
                 headDesc,
                 lifeDesc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。',
                 fateDesc,
-                posterSummary,
+                posterFacts,
+                posterInsight,
                 traits: [
                     { icon: '🖐', title: '掌型与比例', desc: '掌型比例均衡，兼具感性与理性，适应力强，能在不同角色之间灵活切换。' },
                     { icon: '🌿', title: '生命线走势', desc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。' },
@@ -2057,9 +2096,7 @@
             if (posterLabel1) posterLabel1.textContent = labels[0] || '';
             if (posterLabel2) posterLabel2.textContent = labels[1] || '';
             if (posterLabel3) posterLabel3.textContent = labels[2] || '';
-            if (posterReadingText) {
-                posterReadingText.textContent = (reading && reading.posterSummary) || arch.posterReading || '';
-            }
+            applyPosterReading(reading, arch);
         }
 
         // ==========================================
