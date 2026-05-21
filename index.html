@@ -956,7 +956,7 @@
                             </div>
                         </section>
                         <div class="share-section">
-                            <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
+                            <button class="share-btn" id="shareBtn">分享报告</button>
                             <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
                         </div>
                     </div>
@@ -1538,6 +1538,25 @@
             return clampTwoLines(t);
         }
 
+        /** 掌纹线列表标题：七字总结，随识别结果变化 */
+        function buildHeartTitle(a) {
+            const options = [];
+            if (a.heartEndT > 0.62 && a.heartLift > 0.04) {
+                options.push('感情重诺懂分寸', '感情重契知进退');
+            } else if (a.heartEndT > 0.62) {
+                options.push('感情重契热情扬', '感情向上守承诺');
+            } else if (a.heartEndT < 0.38) {
+                options.push('感情内敛爱得深', '感情稳投入克制');
+            } else if (a.heartLift > 0.06) {
+                options.push('感情有温留新鲜', '感情重契有温度');
+            } else if (a.heartLift < -0.04) {
+                options.push('感情稳而显含蓄', '感情不外露爱得久');
+            } else {
+                options.push('感情理性易长久', '感情理智并存');
+            }
+            return pickFromSeed(a.seed, 21, options);
+        }
+
         function buildHeadDesc(a) {
             if (a.headIndep > 0.2 && a.fingerTopalm > 0.85) {
                 return clampTwoLines('头脑线分流明显且延伸较长，独立思考强，联想与叙事感突出。');
@@ -1557,6 +1576,24 @@
             return clampTwoLines('头脑线长度适中，逻辑与直觉均衡，擅长结构化解决问题。');
         }
 
+        function buildHeadTitle(a) {
+            const options = [];
+            if (a.headIndep > 0.2 && a.fingerTopalm > 0.85) {
+                options.push('头脑善思有叙事', '头脑独立联想强');
+            } else if (a.headIndep > 0.2 && a.fingerTopalm < 0.7) {
+                options.push('头脑果决重执行', '头脑利落善决断');
+            } else if (a.headIndep > 0.2) {
+                options.push('头脑独立逻辑清', '头脑善思不盲从');
+            } else if (a.fingerTopalm > 0.85) {
+                options.push('头脑创意善落地', '头脑审慎能发散');
+            } else if (a.fingerTopalm < 0.7) {
+                options.push('头脑直接善决断', '头脑短直重结果');
+            } else {
+                options.push('头脑逻辑直觉衡', '头脑结构化解题');
+            }
+            return pickFromSeed(a.seed, 22, options);
+        }
+
         function buildFateDesc(a, segResult) {
             let t;
             if (a.fateVert > 0.55) {
@@ -1573,6 +1610,18 @@
                 if (tail) t = clampTwoLines(`${t.replace(/。$/, '')}，${tail}。`);
             }
             return clampTwoLines(t);
+        }
+
+        function buildFateTitle(a) {
+            const options = [];
+            if (a.fateVert > 0.55) {
+                options.push('命运深耕主赛道', '命运目标感集中');
+            } else if (a.fateVert > 0.35) {
+                options.push('命运灵活善跨界', '命运路径偏协作');
+            } else {
+                options.push('命运多变靠适应', '命运发散自选路');
+            }
+            return pickFromSeed(a.seed, 23, options);
         }
 
         function pickFromSeed(seed, salt, options) {
@@ -1715,6 +1764,9 @@
             const heartDesc = buildHeartDesc(a);
             const headDesc = buildHeadDesc(a);
             const fateDesc = buildFateDesc(a, segResult);
+            const heartTitle = buildHeartTitle(a);
+            const headTitle = buildHeadTitle(a);
+            const fateTitle = buildFateTitle(a);
 
             const lifeDesc = a.lifeArc > a.palmWidth * 0.6
                 ? '生命线弧度饱满，环绕大鱼际区域宽阔有力，代表你体质强健、精力充沛，对生活充满热情，行动力强，适应环境变化的能力出众。'
@@ -1757,7 +1809,9 @@
             traits.push(careerPool[s % 3]);
             const poster = buildPosterReading(analysis, archIdx);
             return {
-                keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
+                keywords, personaMain, personaSub,
+                heartDesc, headDesc, fateDesc, heartTitle, headTitle, fateTitle,
+                lifeDesc, traits, palmType,
                 heroMain, archetypeIndex: archIdx,
                 posterFacts: poster.posterFacts,
                 posterInsight: poster.posterInsight,
@@ -1782,6 +1836,9 @@
                 keywords,
                 heartDesc,
                 headDesc,
+                heartTitle: '感情真诚懂分寸',
+                headTitle: '头脑独立善分析',
+                fateTitle: '命运稳健善深耕',
                 lifeDesc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。',
                 fateDesc,
                 posterFacts: poster.posterFacts,
@@ -2208,15 +2265,15 @@
             ).join('');
 
             const lines = [
-                { icon: '❤️', name: '感情线', desc: reading.heartDesc },
-                { icon: '🧠', name: '头脑线', desc: reading.headDesc },
-                { icon: '✨', name: '命运线', desc: reading.fateDesc }
+                { icon: '❤️', title: reading.heartTitle || '感情重诺懂分寸', desc: reading.heartDesc },
+                { icon: '🧠', title: reading.headTitle || '头脑善思有叙事', desc: reading.headDesc },
+                { icon: '✨', title: reading.fateTitle || '命运深耕主赛道', desc: reading.fateDesc }
             ];
             linesSection.innerHTML = lines.map(l =>
                 `<div class="result-detail-item">
                     <div class="result-detail-icon" aria-hidden="true">${l.icon}</div>
                     <div class="result-detail-body">
-                        <div class="result-detail-label">${l.name}</div>
+                        <div class="result-detail-label">${l.title}</div>
                         <p class="result-detail-text">${l.desc}</p>
                     </div>
                 </div>`
