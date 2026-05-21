@@ -133,6 +133,7 @@
         .app.result-active .poster-subtitle,
         .app.result-active .poster-label,
         .app.result-active .result-panel-card,
+        .app.result-active .poster-reading-text,
         .app.result-active .result-detail-text,
         .app.result-active .trait-desc,
         .app.result-active .keyword-pill,
@@ -515,19 +516,17 @@
             color: #000;
             line-height: 1.5;
         }
-        .poster-reading-body {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            margin: 0;
-        }
-        .poster-reading-facts,
-        .poster-reading-insight {
+        .poster-reading-text {
             margin: 0;
             font-size: 15px;
             line-height: 1.55;
             color: #000;
-            word-break: break-all;
+            white-space: pre-line;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            word-break: keep-all;
         }
         .result-detail-text {
             display: -webkit-box;
@@ -926,10 +925,7 @@
                         <div class="poster-reading result-panel">
                             <div class="poster-reading-card result-panel-card">
                                 <div class="poster-reading-tag result-panel-tag">玄学解读</div>
-                                <div class="poster-reading-body" id="posterReadingBody">
-                                    <p class="poster-reading-facts" id="posterReadingFacts"></p>
-                                    <p class="poster-reading-insight" id="posterReadingInsight"></p>
-                                </div>
+                                <p class="poster-reading-text" id="posterReadingText"></p>
                             </div>
                         </div>
                     </div>
@@ -1008,8 +1004,7 @@
         const posterLabel1 = document.getElementById('posterLabel1');
         const posterLabel2 = document.getElementById('posterLabel2');
         const posterLabel3 = document.getElementById('posterLabel3');
-        const posterReadingFacts = document.getElementById('posterReadingFacts');
-        const posterReadingInsight = document.getElementById('posterReadingInsight');
+        const posterReadingText = document.getElementById('posterReadingText');
 
         // ==========================================
         // Section transition
@@ -1102,8 +1097,7 @@
             if (posterLabel1) posterLabel1.textContent = '';
             if (posterLabel2) posterLabel2.textContent = '';
             if (posterLabel3) posterLabel3.textContent = '';
-            if (posterReadingFacts) posterReadingFacts.textContent = '';
-            if (posterReadingInsight) posterReadingInsight.textContent = '';
+            if (posterReadingText) posterReadingText.textContent = '';
             document.getElementById('palmHero').classList.remove('visible');
             document.getElementById('palmHeroSvg').innerHTML = '';
             handGuide.classList.remove('detected');
@@ -1625,11 +1619,22 @@
             };
         }
 
+        const POSTER_LINE_CHARS = 34;
+
+        function clampPosterLine(text, max = POSTER_LINE_CHARS) {
+            const t = String(text).replace(/\s+/g, ' ').trim();
+            if (t.length <= max) return t;
+            let slice = t.slice(0, max);
+            const punct = Math.max(slice.lastIndexOf('。'), slice.lastIndexOf('，'), slice.lastIndexOf('；'));
+            if (punct >= Math.floor(max * 0.55)) slice = slice.slice(0, punct + 1);
+            else slice = slice.slice(0, max - 1) + '…';
+            return slice;
+        }
+
         function applyPosterReading(reading, arch) {
-            const facts = (reading && reading.posterFacts) || arch.posterFacts || '';
-            const insight = (reading && reading.posterInsight) || arch.posterInsight || '';
-            if (posterReadingFacts) posterReadingFacts.textContent = facts;
-            if (posterReadingInsight) posterReadingInsight.textContent = insight;
+            const facts = clampPosterLine((reading && reading.posterFacts) || arch.posterFacts || '');
+            const insight = clampPosterLine((reading && reading.posterInsight) || arch.posterInsight || '');
+            if (posterReadingText) posterReadingText.textContent = `${facts}\n${insight}`;
         }
 
         function generateReading(analysis, segResult) {
