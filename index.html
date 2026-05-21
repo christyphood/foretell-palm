@@ -1493,7 +1493,7 @@
             };
         }
 
-        /** 3 种结果手型（与视觉稿一致） */
+        /** 5 种结果手型（与视觉稿一致） */
         const PALM_ARCHETYPES = [
             {
                 title: '抓钱不松手',
@@ -1516,6 +1516,20 @@
                 labels: ['自动过滤\n情绪噪音', '拒绝内耗\n能量满格', '爱河不进\n焦虑不沾'],
                 posterFacts: '掌丘内敛分布，指节修长。',
                 posterInsight: '天然免疫世俗焦虑与内耗，精神地基极度稳固。'
+            },
+            {
+                title: '人间操盘手',
+                subtitle: '一切尽在掌握 / 绝对理性',
+                labels: ['天生反套路', '高情商', '清醒到离谱'],
+                posterFacts: '掌纹短线利落，食指中指干练分明。',
+                posterInsight: '手相全是止损线，恋爱及时止盈，工作果断割肉，生活永远给自己留一手。'
+            },
+            {
+                title: '退堂鼓鼓手',
+                subtitle: '撤退第一名 / 躺平战术家',
+                labels: ['遇事先算清', '跑路一级棒', '摆烂不翻车'],
+                posterFacts: '手指圆润，掌纹走势柔和收束。',
+                posterInsight: '遇事三步算完退路，主打不硬卷、不内耗，打不过就溜。'
             }
         ];
 
@@ -1527,10 +1541,11 @@
             const n = a.seed * 17 + palmBucket * 11 + fingerBucket * 13
                 + Math.round(a.heartEndT * 59) + Math.round(a.fateVert * 31)
                 + Math.round(a.heartLift * 100) + (a.indexToRing > 1.02 ? 5 : 0) + (a.pinkyToIndex > 0.7 ? 9 : 0);
-            return ((n % 3) + 3) % 3;
+            const count = PALM_ARCHETYPES.length;
+            return ((n % count) + count) % count;
         }
 
-        /** 联调：?archetype=0..2 或 #archetype=1 强制指定结果手型（覆盖算法） */
+        /** 联调：?archetype=0..4 或 #archetype=1 强制指定结果手型（覆盖算法） */
         function getArchetypeDebugIndex() {
             try {
                 const p = new URLSearchParams(location.search);
@@ -1540,7 +1555,8 @@
                 }
                 if (v == null || v === '') return null;
                 const n = parseInt(String(v).trim(), 10);
-                if (!Number.isFinite(n) || n < 0 || n > 2) return null;
+                const max = PALM_ARCHETYPES.length - 1;
+                if (!Number.isFinite(n) || n < 0 || n > max) return null;
                 return n;
             } catch (_) {
                 return null;
@@ -1712,15 +1728,33 @@
                 ]);
                 return `${ratioPhrase}，${shapePhrase}`;
             }
-            const mounts = a.palmRatio < 1.02
-                ? pickFromSeed(a.seed, 9, ['掌丘内敛分布', '掌丘起伏收敛', '掌丘集中内敛'])
-                : pickFromSeed(a.seed, 10, ['掌丘分布均匀', '掌丘起伏均衡', '掌丘饱满匀称']);
-            const joints = a.fingerTopalm > 0.82
-                ? pickFromSeed(a.seed, 11, ['指节修长', '指节纤长分明', '指节线条修长'])
-                : a.fingerTopalm < 0.72
-                ? pickFromSeed(a.seed, 12, ['指节紧凑', '指节短而有力', '指节收束利落'])
-                : pickFromSeed(a.seed, 13, ['指节比例匀称', '指节长短均衡', '指节协调有度']);
-            return `${mounts}，${joints}`;
+            if (archIdx === 2) {
+                const mounts = a.palmRatio < 1.02
+                    ? pickFromSeed(a.seed, 9, ['掌丘内敛分布', '掌丘起伏收敛', '掌丘集中内敛'])
+                    : pickFromSeed(a.seed, 10, ['掌丘分布均匀', '掌丘起伏均衡', '掌丘饱满匀称']);
+                const joints = a.fingerTopalm > 0.82
+                    ? pickFromSeed(a.seed, 11, ['指节修长', '指节纤长分明', '指节线条修长'])
+                    : a.fingerTopalm < 0.72
+                    ? pickFromSeed(a.seed, 12, ['指节紧凑', '指节短而有力', '指节收束利落'])
+                    : pickFromSeed(a.seed, 13, ['指节比例匀称', '指节长短均衡', '指节协调有度']);
+                return `${mounts}，${joints}`;
+            }
+            if (archIdx === 3) {
+                const lines = a.headIndep > 0.18
+                    ? pickFromSeed(a.seed, 14, ['掌纹短线利落', '掌纹收束干脆', '掌纹走势短而清晰'])
+                    : pickFromSeed(a.seed, 15, ['掌纹分布紧凑', '掌纹线条短直', '掌纹走势干练']);
+                const fingers = a.indexToRing > 1.02
+                    ? pickFromSeed(a.seed, 16, ['食指中指干练分明', '食指略长掌控感强', '中指食指比例利落'])
+                    : pickFromSeed(a.seed, 17, ['五指开合有度', '指节间距匀称干练', '掌指比例利落']);
+                return `${lines}，${fingers}`;
+            }
+            const roundness = a.fingerTopalm < 0.75
+                ? pickFromSeed(a.seed, 18, ['手指圆润', '指节圆润饱满', '指腹圆润饱满'])
+                : pickFromSeed(a.seed, 19, ['指节柔和', '指节圆润收束', '手指线条柔和']);
+            const flow = a.lifeArc < a.palmWidth * 0.45
+                ? pickFromSeed(a.seed, 20, ['掌纹走势柔和收束', '掌纹弧度偏柔', '掌纹线条圆润'])
+                : pickFromSeed(a.seed, 21, ['掌纹弧度圆润', '掌纹走势偏柔', '掌纹收束圆润']);
+            return `${roundness}，${flow}`;
         }
 
         /** 解读句：按掌纹特征匹配多条候选，再按 seed 选取 */
@@ -1743,7 +1777,7 @@
                 if (a.fateVert < 0.4) candidates.push('路径灵活，善在变化里找机会');
                 if (a.heartLift > 0.04) candidates.push('感情有温度，关系里肯投入也讲分寸');
                 candidates.push('看得远、想得深，能把灵感落成方案');
-            } else {
+            } else if (archIdx === 2) {
                 if (a.palmRatio < 1.05) candidates.push('内在稳定，不易被外界节奏带走');
                 if (a.fingerTopalm > 0.8) candidates.push('情绪恢复快，焦虑难在体内久留');
                 if (a.heartLift < 0.02) candidates.push('感情线平稳，关系里少内耗少拉扯');
@@ -1751,6 +1785,20 @@
                 if (a.lifeArc > a.palmWidth * 0.45) candidates.push('根基扎实，生活节奏慢但耐久');
                 if (a.fateVert > 0.5) candidates.push('方向感稳，不被短期波动扰心');
                 candidates.push('心安即福，精神地基稳，世俗焦虑难入侵');
+            } else if (archIdx === 3) {
+                if (a.headIndep > 0.18) candidates.push('决策理性，擅长及时止损');
+                if (a.heartEndT < 0.42) candidates.push('感情投入克制，懂得及时止盈');
+                if (a.fateVert > 0.5) candidates.push('工作取舍干脆，敢割肉也敢加仓');
+                if (a.indexToRing > 1.02) candidates.push('掌控欲强，局面尽在算计之中');
+                if (a.heartLift < 0) candidates.push('情绪消费少，面子账也算得清');
+                candidates.push('手相全是止损线，生活永远给自己留一手');
+            } else {
+                if (a.fingerTopalm < 0.75) candidates.push('遇事三步算退路，不爱硬扛');
+                if (a.lifeArc < a.palmWidth * 0.45) candidates.push('节奏偏柔，打不过就溜');
+                if (a.headSlump < 0) candidates.push('思维松弛，内耗少、恢复快');
+                if (a.fateVert < 0.4) candidates.push('路径灵活，摆烂也不翻车');
+                if (a.heartLift < 0.02) candidates.push('感情里少拉扯，撤退也体面');
+                candidates.push('主打不硬卷、不内耗，躺平也是战术');
             }
             return pickFromSeed(a.seed, archIdx * 17 + 9, candidates);
         }
@@ -2232,17 +2280,19 @@
         }
 
         // ==========================================
-        // Result hero: 3 张手型图（与 PALM_ARCHETYPES 下标一致）
+        // Result hero: 5 张手型图（与 PALM_ARCHETYPES 下标一致）
         // ==========================================
         const ARCHETYPE_HERO_ASSETS = [
             { img: 'images/result-archetype-0.png', w: 400, h: 480 },  // 抓钱不松手
             { img: 'images/result-archetype-1.png', w: 400, h: 480 },  // 灵魂捕手
-            { img: 'images/result-archetype-2.png', w: 400, h: 480 }   // 禅意佛手
+            { img: 'images/result-archetype-2.png', w: 400, h: 480 },  // 禅意佛手
+            { img: 'images/result-archetype-3.png', w: 400, h: 480 },  // 人间操盘手
+            { img: 'images/result-archetype-4.png', w: 400, h: 480 }   // 退堂鼓鼓手
         ];
 
         function applyResultHero(reading, palmType) {
             let idx = reading && reading.archetypeIndex != null ? reading.archetypeIndex : 0;
-            idx = Math.max(0, Math.min(2, idx));
+            idx = Math.max(0, Math.min(PALM_ARCHETYPES.length - 1, idx));
             const heroCfg = ARCHETYPE_HERO_ASSETS[idx];
             const arch = PALM_ARCHETYPES[idx];
             if (resultHeroImg) {
