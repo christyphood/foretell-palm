@@ -1529,16 +1529,9 @@
             }
         ];
 
-        function pickArchetypeIndex(analysis) {
-            if (!analysis) return 0;
-            const a = analysis;
-            const palmBucket = a.palmRatio > 1.15 ? 2 : a.palmRatio < 0.95 ? 0 : 1;
-            const fingerBucket = a.fingerTopalm > 0.85 ? 1 : a.fingerTopalm < 0.7 ? 0 : 2;
-            const n = a.seed * 17 + palmBucket * 11 + fingerBucket * 13
-                + Math.round(a.heartEndT * 59) + Math.round(a.fateVert * 31)
-                + Math.round(a.heartLift * 100) + (a.indexToRing > 1.02 ? 5 : 0) + (a.pinkyToIndex > 0.7 ? 9 : 0);
-            const count = PALM_ARCHETYPES.length;
-            return ((n % count) + count) % count;
+        /** 五种结果手型均匀随机（联调 ?archetype= 可覆盖） */
+        function pickArchetypeIndex() {
+            return Math.floor(Math.random() * PALM_ARCHETYPES.length);
         }
 
         /** 联调：?archetype=0..4 或 #archetype=1 强制指定结果手型（覆盖算法） */
@@ -1559,11 +1552,10 @@
             }
         }
 
-        function resolveArchetypeIndex(analysis) {
+        function resolveArchetypeIndex() {
             const dbg = getArchetypeDebugIndex();
             if (dbg !== null) return dbg;
-            if (!analysis) return 0;
-            return pickArchetypeIndex(analysis);
+            return pickArchetypeIndex();
         }
 
         const READING_CHARS_PER_LINE = 34;
@@ -1830,7 +1822,7 @@
             const a = analysis, s = a.seed;
             const palmType = a.palmRatio > 1.15 ? 'long' : a.palmRatio < 0.95 ? 'square' : 'balanced';
             const fingerType = a.fingerTopalm > 0.85 ? 'long' : a.fingerTopalm < 0.7 ? 'short' : 'medium';
-            const archIdx = resolveArchetypeIndex(analysis);
+            const archIdx = resolveArchetypeIndex();
             const arch = PALM_ARCHETYPES[archIdx];
             const personaMain = arch.title;
             const personaSub = arch.subtitle;
@@ -1902,7 +1894,7 @@
         }
 
         function getDefaultReading() {
-            const archIdx = resolveArchetypeIndex(null);
+            const archIdx = resolveArchetypeIndex();
             const arch = PALM_ARCHETYPES[archIdx];
             const keywords = ['方向感', '毅力', '创造力'];
             const heartDesc = clampTwoLines('感情线弧度柔和上扬，情感丰富也理性，追求真诚与深度连接。');
