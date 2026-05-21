@@ -136,7 +136,6 @@
         .app.result-active .result-panel-card,
         .app.result-active .result-detail-text,
         .app.result-active .trait-desc,
-        .app.result-active .result-keywords-label,
         .app.result-active .keyword-chip,
         .app.result-active .disclaimer,
         .app.result-active .share-btn {
@@ -516,6 +515,13 @@
             font-size: 15px;
             color: #000;
             line-height: 1.5;
+        }
+        #posterReadingText,
+        .result-detail-text {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
         }
         .result-panel-tag,
         .poster-reading-tag {
@@ -1477,18 +1483,81 @@
             return pickArchetypeIndex(analysis);
         }
 
-        function segFeaturesReadingTail(segResult) {
-            if (!segResult || segResult.features == null) return '';
-            const f = segResult.features;
-            if (typeof f === 'string' && f.trim()) return ' ' + f.trim();
-            if (typeof f !== 'object' || Array.isArray(f)) return '';
-            const entries = Object.entries(f).filter(([, v]) => v != null && String(v).trim() !== '').slice(0, 2);
-            if (!entries.length) return '';
-            const bit = entries.map(([k, v]) => {
-                const s = typeof v === 'number' ? (Number.isFinite(v) ? v.toFixed(2) : String(v)) : String(v);
-                return `${k} ${s}`;
-            }).join('；');
-            return ` 结合本次云端辅助特征：${bit}。`;
+        const READING_CHARS_PER_LINE = 34;
+
+        function clampTwoLines(text, charsPerLine = READING_CHARS_PER_LINE) {
+            const normalized = String(text).replace(/\s+/g, ' ').trim();
+            const max = charsPerLine * 2;
+            if (normalized.length <= max) return normalized;
+            let slice = normalized.slice(0, max);
+            const punct = Math.max(slice.lastIndexOf('。'), slice.lastIndexOf('，'), slice.lastIndexOf('；'));
+            if (punct >= Math.floor(max * 0.55)) slice = slice.slice(0, punct + 1);
+            else slice = slice.slice(0, max - 1) + '…';
+            return slice;
+        }
+
+        function buildHeartDesc(a) {
+            let t;
+            if (a.heartEndT > 0.62) {
+                t = '感情线上扬收向食指，重精神契合与承诺，热情不失分寸。';
+            } else if (a.heartEndT < 0.38) {
+                t = '感情线收向中指下，内敛稳健，投入深而表达克制。';
+            } else {
+                t = '感情线弧度均衡，热情与理智并存，关系更易长久。';
+            }
+            if (a.heartLift > 0.06) {
+                t = '感情线略带上扬，重契合也保留新鲜感，关系有温度。';
+            } else if (a.heartLift < -0.04) {
+                t = '感情线走势偏平，情绪不外露，爱得稳而含蓄。';
+            }
+            return clampTwoLines(t);
+        }
+
+        function buildHeadDesc(a) {
+            if (a.headIndep > 0.2 && a.fingerTopalm > 0.85) {
+                return clampTwoLines('头脑线分流明显且延伸较长，独立思考强，联想与叙事感突出。');
+            }
+            if (a.headIndep > 0.2 && a.fingerTopalm < 0.7) {
+                return clampTwoLines('头脑线分流明显且偏短直，决断利落，重结果与执行效率。');
+            }
+            if (a.headIndep > 0.2) {
+                return clampTwoLines('头脑线与生命线分流明显，主独立思考，逻辑清晰不盲从。');
+            }
+            if (a.fingerTopalm > 0.85) {
+                return clampTwoLines('头脑线贴近生命线但延伸较长，审慎中带创意，善发散也善落地。');
+            }
+            if (a.fingerTopalm < 0.7) {
+                return clampTwoLines('头脑线偏短直，思维直接，习惯先想清楚再行动。');
+            }
+            return clampTwoLines('头脑线长度适中，逻辑与直觉均衡，擅长结构化解决问题。');
+        }
+
+        function buildFateDesc(a, segResult) {
+            let t;
+            if (a.fateVert > 0.55) {
+                t = '命运线较直，目标感集中，适合在一两条主赛道持续深耕。';
+            } else if (a.fateVert > 0.35) {
+                t = '命运线略有偏侧，路径更灵活，机会常来自协作与跨界。';
+            } else {
+                t = '命运线较浅或发散，外在变数大，靠适应力与自选方向取胜。';
+            }
+            if (segResult && segResult.features != null) {
+                const tail = typeof segResult.features === 'string' && segResult.features.trim()
+                    ? segResult.features.trim().slice(0, 12)
+                    : '';
+                if (tail) t = clampTwoLines(`${t.replace(/。$/, '')}，${tail}。`);
+            }
+            return clampTwoLines(t);
+        }
+
+        function buildPosterSummary(archIdx, keywords) {
+            const k = keywords.join('、');
+            const templates = [
+                `关键词「${k}」叠加三线掌纹：感情理性、思维务实、运程求稳，善理财少冲动，是天生的抓财型掌。`,
+                `关键词「${k}」配掌纹示感情重契合、思维偏创意、运程有机遇，宜思辨表达与长线布局。`,
+                `关键词「${k}」下感情平和、思维沉静、运程柔顺，精神内稳、少焦虑少内耗。`
+            ];
+            return clampTwoLines(templates[archIdx] || templates[0]);
         }
 
         function generateReading(analysis, segResult) {
@@ -1509,50 +1578,16 @@
             const keywords = kwPool[palmType][fingerType] || ['方向感', '毅力', '创造力'];
 
             const ratioTxt = a.palmRatio.toFixed(2);
-            const fingerShapeWord = fingerType === 'long' ? '舒展' : fingerType === 'short' ? '紧凑' : '适中';
-            const photoIntroHeart = `依据照片中手部关键点，掌长与掌宽约 ${ratioTxt}，指节相对掌心呈「${fingerShapeWord}」型态。`;
-
-            let heartDesc = '';
-            if (a.heartEndT > 0.62) {
-                heartDesc = '根据关键点推算，感情线收束更靠近食指方向，弧度偏上扬，主理想主义与精神契合，重视承诺与长期经营。';
-            } else if (a.heartEndT < 0.38) {
-                heartDesc = '感情线收束更靠近中指下方，走势偏内敛稳健，主安全感与现实考量，表达克制但投入深、细水长流。';
-            } else {
-                heartDesc = '感情线收束介于食指与中指之间，弧度均衡，热情与理智并存，懂得拿捏分寸，关系更易稳定。';
-            }
-            heartDesc = photoIntroHeart + ' ' + heartDesc;
-            if (a.heartLift > 0.06) {
-                heartDesc += ' 线条略带上扬，对新鲜体验仍保持开放心态。';
-            } else if (a.heartLift < -0.04) {
-                heartDesc += ' 线条走势偏平，情绪细节不轻易外露。';
-            }
-
-            let headDesc = a.headIndep > 0.2
-                ? '头脑线与生命线在虎口处分流较明显，主独立思考与自我主张，不盲从既有规则。'
-                : '头脑线与生命线早期段较贴近，主审慎与经验积累，习惯在熟悉框架内把方案打磨扎实。';
-            if (a.fingerTopalm > 0.85) {
-                headDesc += ' 线条延伸较长并略向掌缘下倾，联想力与叙事感强，适合创意、设计或策略发散类工作。';
-            } else if (a.fingerTopalm < 0.7) {
-                headDesc += ' 线条偏短直，思维直接、决断利落，更关注结果与执行效率。';
-            } else {
-                headDesc += ' 线条长度适中，逻辑与直觉搭配均衡，擅长把抽象问题结构化后再落地。';
-            }
-            if (a.headSlump > 0.1) {
-                headDesc += ' 下倾幅度较明显，更偏向内省与深层思考。';
-            }
+            const heartDesc = buildHeartDesc(a);
+            const headDesc = buildHeadDesc(a);
+            const fateDesc = buildFateDesc(a, segResult);
+            const posterSummary = buildPosterSummary(archIdx, keywords);
 
             const lifeDesc = a.lifeArc > a.palmWidth * 0.6
                 ? '生命线弧度饱满，环绕大鱼际区域宽阔有力，代表你体质强健、精力充沛，对生活充满热情，行动力强，适应环境变化的能力出众。'
                 : a.lifeArc > a.palmWidth * 0.4
                 ? '生命线弧度适中，走势稳定而清晰，说明你的生活节奏均衡有度，身心状态较为平稳，注重健康与生活品质的平衡。'
                 : '生命线弧度较紧凑，贴近掌心，代表你内心世界丰富但行事谨慎，倾向于在熟悉的环境中发展，重视精神世界的充实。';
-
-            let fateDesc = a.fateVert > 0.55
-                ? '命运线从手腕向中指方向较直、偏差小，象征目标感集中，适合在一到两条主赛道上持续深耕，阶段性成果会更清晰。'
-                : a.fateVert > 0.35
-                ? '命运线略有偏侧或弧度，象征路径更灵活多元，机会常来自跨界、协作与环境变化，关键是把握节奏与取舍。'
-                : '命运线走向发散或掌中轨迹较浅，象征外在轨迹可变度大，更强调自主选择与环境塑造，适合发挥适应力与资源整合。';
-            fateDesc += segFeaturesReadingTail(segResult);
 
             const palmShapeDesc = palmType === 'long'
                 ? `掌长宽比约 ${ratioTxt}，偏修长型，主思辨与长线规划，直觉与抽象理解力突出。`
@@ -1589,24 +1624,30 @@
             traits.push(careerPool[s % 3]);
             return {
                 keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
-                heroMain, archetypeIndex: archIdx
+                heroMain, archetypeIndex: archIdx, posterSummary
             };
         }
 
         function getDefaultReading() {
             const archIdx = resolveArchetypeIndex(null);
             const arch = PALM_ARCHETYPES[archIdx];
+            const keywords = ['方向感', '毅力', '创造力'];
+            const heartDesc = clampTwoLines('感情线弧度柔和上扬，情感丰富也理性，追求真诚与深度连接。');
+            const headDesc = clampTwoLines('头脑线与生命线略分开，思维独立清晰，判断力与分析力较好。');
+            const fateDesc = clampTwoLines('命运线走势稳定，方向感明确，适合在既定目标上持续投入。');
+            const posterSummary = buildPosterSummary(archIdx, keywords);
             return {
                 palmType: 'balanced',
                 heroMain: arch.title,
                 archetypeIndex: archIdx,
                 personaMain: arch.title,
                 personaSub: arch.subtitle,
-                keywords: ['方向感', '毅力', '创造力'],
-                heartDesc: '感情线走势清晰，弧度柔和上扬，代表你情感丰富且理性兼具，在关系中追求真诚与深度连接。',
-                headDesc: '头脑线起点与生命线略分开，线条流畅，代表你思维独立、逻辑清晰，具有良好的判断力和分析能力。',
+                keywords,
+                heartDesc,
+                headDesc,
                 lifeDesc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。',
-                fateDesc: '命运线走势清晰稳定，象征人生方向感明确，适合在既定目标上持续投入，阶段性成果会逐步显现。',
+                fateDesc,
+                posterSummary,
                 traits: [
                     { icon: '🖐', title: '掌型与比例', desc: '掌型比例均衡，兼具感性与理性，适应力强，能在不同角色之间灵活切换。' },
                     { icon: '🌿', title: '生命线走势', desc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。' },
@@ -1982,7 +2023,9 @@
             if (posterLabel1) posterLabel1.textContent = labels[0] || '';
             if (posterLabel2) posterLabel2.textContent = labels[1] || '';
             if (posterLabel3) posterLabel3.textContent = labels[2] || '';
-            if (posterReadingText) posterReadingText.textContent = arch.posterReading || '';
+            if (posterReadingText) {
+                posterReadingText.textContent = (reading && reading.posterSummary) || arch.posterReading || '';
+            }
         }
 
         // ==========================================
