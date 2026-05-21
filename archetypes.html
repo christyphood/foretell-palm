@@ -245,12 +245,6 @@
             word-break: keep-all;
             font-weight: 400;
         }
-        .poster-reading-text--two-lines {
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-        }
         .poster-reading-tag {
             position: absolute;
             left: 16px;
@@ -334,27 +328,11 @@
             <path d="M58 718 C68 712 76 724 72 736" fill="none" stroke="rgba(225, 145, 170, 0.55)" stroke-width="4.2" stroke-linecap="round"/>
         </svg>`;
 
-        const READING_CHARS_PER_LINE = 34;
-        const POSTER_TWO_LINE_ARCHETYPES = new Set([3, 4]);
-
-        function clampTwoLines(text, charsPerLine = READING_CHARS_PER_LINE) {
-            const normalized = String(text).replace(/\s+/g, ' ').trim();
-            const max = charsPerLine * 2;
-            if (normalized.length <= max) return normalized;
-            let slice = normalized.slice(0, max);
-            const punct = Math.max(slice.lastIndexOf('。'), slice.lastIndexOf('，'), slice.lastIndexOf('；'));
-            if (punct >= Math.floor(max * 0.55)) slice = slice.slice(0, punct + 1);
-            else slice = slice.slice(0, max - 1) + '…';
-            return slice;
-        }
-
-        function joinPosterReading(facts, insight, archIdx) {
+        function joinPosterReading(facts, insight) {
             const f = /[。.!?]$/.test(facts) ? facts : `${facts}。`;
             const i = insight.replace(/^。/, '');
             const iEnd = /[。.!?]$/.test(i) ? i : `${i}。`;
-            const text = `${f}${iEnd}`.replace(/\s+/g, ' ').trim();
-            if (POSTER_TWO_LINE_ARCHETYPES.has(archIdx)) return clampTwoLines(text);
-            return text;
+            return `${f}${iEnd}`.replace(/\s+/g, ' ').trim();
         }
 
         function escapeHtml(s) {
@@ -367,10 +345,7 @@
 
         function renderPoster(arch, hero, idx) {
             const titleClass = arch.titleSemibold ? 'poster-title poster-title--semibold' : 'poster-title';
-            const reading = joinPosterReading(arch.posterFacts, arch.posterInsight, idx);
-            const readingClass = POSTER_TWO_LINE_ARCHETYPES.has(idx)
-                ? 'poster-reading-text poster-reading-text--two-lines'
-                : 'poster-reading-text';
+            const reading = joinPosterReading(arch.posterFacts, arch.posterInsight);
             const labels = arch.labels || [];
             return `
                 <article class="archetype-item" id="archetype-${idx}">
@@ -401,7 +376,7 @@
                             <div class="poster-reading">
                                 <div class="poster-reading-card">
                                     <div class="poster-reading-tag">玄学解读</div>
-                                    <p class="${readingClass}">${escapeHtml(reading)}</p>
+                                    <p class="poster-reading-text">${escapeHtml(reading)}</p>
                                 </div>
                             </div>
                         </div>

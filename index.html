@@ -523,12 +523,6 @@
             color: #000;
             word-break: keep-all;
         }
-        .poster-reading-text--two-lines {
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-        }
         .result-detail-text {
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -1797,14 +1791,10 @@
             return pickFromSeed(a.seed, archIdx * 17 + 9, candidates);
         }
 
-        const POSTER_TWO_LINE_ARCHETYPES = new Set([3, 4]);
-
-        function joinPosterReading(facts, insight, archIdx) {
+        function joinPosterReading(facts, insight) {
             const f = ensurePeriod(facts);
             const i = ensurePeriod(insight).replace(/^。/, '');
-            const text = String(`${f}${i}`).replace(/\s+/g, ' ').trim();
-            if (POSTER_TWO_LINE_ARCHETYPES.has(archIdx)) return clampTwoLines(text);
-            return text;
+            return String(`${f}${i}`).replace(/\s+/g, ' ').trim();
         }
 
         /** 玄学解读：连续两句（事实+解读），全文随识别结果变化 */
@@ -1814,7 +1804,7 @@
                 return {
                     posterFacts: arch.posterFacts,
                     posterInsight: arch.posterInsight,
-                    posterReading: joinPosterReading(arch.posterFacts, arch.posterInsight, archIdx)
+                    posterReading: joinPosterReading(arch.posterFacts, arch.posterInsight)
                 };
             }
             const facts = buildPosterFacts(analysis, archIdx);
@@ -1822,29 +1812,17 @@
             return {
                 posterFacts: ensurePeriod(facts),
                 posterInsight: ensurePeriod(insight),
-                posterReading: joinPosterReading(facts, insight, archIdx)
+                posterReading: joinPosterReading(facts, insight)
             };
         }
 
-        function applyPosterReading(reading, arch, archIdx) {
-            const idx = archIdx != null
-                ? archIdx
-                : (reading && reading.archetypeIndex != null
-                    ? reading.archetypeIndex
-                    : PALM_ARCHETYPES.indexOf(arch));
+        function applyPosterReading(reading, arch) {
             const text = (reading && reading.posterReading)
                 || joinPosterReading(
                     (reading && reading.posterFacts) || arch.posterFacts || '',
-                    (reading && reading.posterInsight) || arch.posterInsight || '',
-                    idx
+                    (reading && reading.posterInsight) || arch.posterInsight || ''
                 );
-            if (posterReadingText) {
-                posterReadingText.textContent = text;
-                posterReadingText.classList.toggle(
-                    'poster-reading-text--two-lines',
-                    POSTER_TWO_LINE_ARCHETYPES.has(idx)
-                );
-            }
+            if (posterReadingText) posterReadingText.textContent = text;
         }
 
         function generateReading(analysis, segResult) {
@@ -2325,7 +2303,7 @@
             if (posterLabel1) posterLabel1.textContent = labels[0] || '';
             if (posterLabel2) posterLabel2.textContent = labels[1] || '';
             if (posterLabel3) posterLabel3.textContent = labels[2] || '';
-            applyPosterReading(reading, arch, idx);
+            applyPosterReading(reading, arch);
         }
 
         // ==========================================
