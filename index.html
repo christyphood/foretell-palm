@@ -604,8 +604,8 @@
         }
         .result-detail-item {
             display: flex;
-            gap: 12px;
-            align-items: flex-start;
+            gap: 14px;
+            align-items: center;
         }
         .result-detail-item + .result-detail-item {
             margin-top: 16px;
@@ -650,8 +650,7 @@
             opacity: 1;
             transform: translateY(0);
         }
-        .trait-icon,
-        .result-detail-icon {
+        .trait-icon {
             width: 36px;
             height: 36px;
             border-radius: 8px;
@@ -663,7 +662,24 @@
             flex-shrink: 0;
             overflow: hidden;
         }
-        .result-detail-icon img,
+        .result-detail-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 0;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .result-detail-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
         .trait-icon img {
             width: 100%;
             height: 100%;
@@ -1016,15 +1032,17 @@
         const posterLabel3 = document.getElementById('posterLabel3');
         const posterReadingText = document.getElementById('posterReadingText');
 
+        const LINE_ICON_SIZE = 52;
         const LINE_ICON_IMAGES = {
             heart: 'images/icons/line-heart.png',
-            head: 'images/icons/line-head.png'
+            head: 'images/icons/line-head.png',
+            fate: 'images/icons/line-fate.png'
         };
 
         function renderResultIcon(iconKey, emojiFallback) {
             const src = iconKey && LINE_ICON_IMAGES[iconKey];
             if (src) {
-                return `<img src="${src}" width="36" height="36" alt="" decoding="async">`;
+                return `<img src="${src}" width="${LINE_ICON_SIZE}" height="${LINE_ICON_SIZE}" alt="" decoding="async">`;
             }
             return emojiFallback || '';
         }
@@ -2288,7 +2306,7 @@
             const lines = [
                 { iconKey: 'heart', icon: '❤️', title: reading.heartTitle || '感情重诺懂分寸', desc: reading.heartDesc },
                 { iconKey: 'head', icon: '🧠', title: reading.headTitle || '头脑善思有叙事', desc: reading.headDesc },
-                { icon: '✨', title: reading.fateTitle || '命运深耕主赛道', desc: reading.fateDesc }
+                { iconKey: 'fate', icon: '✨', title: reading.fateTitle || '命运深耕主赛道', desc: reading.fateDesc }
             ];
             linesSection.innerHTML = lines.map(l =>
                 `<div class="result-detail-item">
