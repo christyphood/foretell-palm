@@ -498,9 +498,22 @@
         .poster-reading {
             width: 100%;
             margin-top: auto;
-            padding-top: 16px;
+            padding-top: 28px;
+        }
+        .poster-reading-card {
+            position: relative;
+            background: #fff;
+            border-radius: 10px;
+            padding: 26px 18px 18px;
+            font-size: 15px;
+            color: #000;
+            line-height: 1.5;
         }
         .poster-reading-tag {
+            position: absolute;
+            left: 16px;
+            top: 0;
+            transform: translateY(-42%);
             display: inline-block;
             background: #e9edf9;
             border-radius: 6px;
@@ -508,15 +521,8 @@
             font-size: 16px;
             font-weight: 700;
             color: #000;
-            margin-bottom: 8px;
-        }
-        .poster-reading-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 16px 18px;
-            font-size: 15px;
-            color: #000;
-            line-height: 1.5;
+            margin: 0;
+            z-index: 1;
         }
 
         /* --- Content below poster --- */
@@ -836,8 +842,10 @@
                             <div class="poster-label poster-label--3" id="posterLabel3"></div>
                         </div>
                         <div class="poster-reading">
-                            <div class="poster-reading-tag">玄学解读</div>
-                            <div class="poster-reading-card" id="posterReadingText"></div>
+                            <div class="poster-reading-card">
+                                <div class="poster-reading-tag">玄学解读</div>
+                                <div id="posterReadingText"></div>
+                            </div>
                         </div>
                     </div>
 
