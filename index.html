@@ -1042,7 +1042,8 @@
         const LINE_ICON_SIZE = 52;
         const LINE_ICON_IMAGES = {
             heart: 'images/icons/line-heart.png',
-            head: 'images/icons/line-head.png'
+            head: 'images/icons/line-head.png',
+            fate: 'images/icons/line-fate.png'
         };
 
         function renderResultIcon(iconKey, emojiFallback) {
@@ -2312,7 +2313,7 @@
             const lines = [
                 { iconKey: 'heart', icon: '❤️', title: reading.heartTitle || '感情重诺懂分寸', desc: reading.heartDesc },
                 { iconKey: 'head', icon: '🧠', title: reading.headTitle || '头脑善思有叙事', desc: reading.headDesc },
-                { icon: '✨', title: reading.fateTitle || '命运深耕主赛道', desc: reading.fateDesc }
+                { iconKey: 'fate', icon: '✨', title: reading.fateTitle || '命运深耕主赛道', desc: reading.fateDesc }
             ];
             linesSection.innerHTML = lines.map(l =>
                 `<div class="result-detail-item">
