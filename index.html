@@ -521,10 +521,6 @@
             font-size: 15px;
             line-height: 1.55;
             color: #000;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
             word-break: keep-all;
         }
         .result-detail-text {
@@ -1806,7 +1802,7 @@
         function joinPosterReading(facts, insight) {
             const f = ensurePeriod(facts);
             const i = ensurePeriod(insight).replace(/^。/, '');
-            return clampTwoLines(`${f}${i}`);
+            return String(`${f}${i}`).replace(/\s+/g, ' ').trim();
         }
 
         /** 玄学解读：连续两句（事实+解读），全文随识别结果变化 */
