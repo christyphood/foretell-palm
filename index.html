@@ -118,10 +118,8 @@
             font-family: 'PingFang SC', 'PingFang TC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
         }
         .app.result-active .poster-title,
-        .app.result-active .keywords-title,
-        .app.result-active .traits-title,
-        .app.result-active .line-name,
-        .app.result-active .poster-reading-tag,
+        .app.result-active .result-panel-tag,
+        .app.result-active .result-detail-label,
         .app.result-active .trait-title {
             font-family: 'PingFang SC', 'PingFang TC', -apple-system, BlinkMacSystemFont, sans-serif;
             font-weight: 700;
@@ -134,10 +132,10 @@
         }
         .app.result-active .poster-subtitle,
         .app.result-active .poster-label,
-        .app.result-active .poster-reading-card,
-        .app.result-active .line-desc,
+        .app.result-active .result-panel-card,
+        .app.result-active .result-detail-text,
         .app.result-active .trait-desc,
-        .app.result-active .keyword-label,
+        .app.result-active .keyword-chip,
         .app.result-active .disclaimer,
         .app.result-active .share-btn {
             font-family: 'PingFang SC', 'PingFang TC', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -506,6 +504,7 @@
             margin-top: auto;
             padding-top: 28px;
         }
+        .result-panel-card,
         .poster-reading-card {
             position: relative;
             background: #fff;
@@ -515,6 +514,7 @@
             color: #000;
             line-height: 1.5;
         }
+        .result-panel-tag,
         .poster-reading-tag {
             position: absolute;
             left: 16px;
@@ -530,98 +530,134 @@
             margin: 0;
             z-index: 1;
         }
+        .result-panel {
+            width: 100%;
+            padding-top: 14px;
+            margin-bottom: 24px;
+        }
+        .result-panel:last-of-type {
+            margin-bottom: 8px;
+        }
 
         /* --- Content below poster --- */
         .result-content {
-            padding: 20px 20px 48px;
+            padding: 8px 20px 40px;
             background: #F5F5F9;
         }
-        .result-keywords-card {
+        .result-panel-keywords-body {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             align-items: center;
-            gap: 14px;
-            background: #fff;
-            border-radius: 18px;
-            padding: 12px 14px 14px;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            gap: 16px;
         }
         .palm-thumb-inline {
             flex-shrink: 0;
-            width: 104px;
-            height: 104px;
-            border-radius: 14px;
+            width: 112px;
+            height: 112px;
+            border-radius: 10px;
             display: block;
             background: #111;
-            border: 1px solid rgba(0,0,0,0.08);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
         }
-        .keywords-col {
-            flex: 1;
-            min-width: 0;
+        .keywords-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
         }
-        .keywords-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 10px; }
-        .keywords-grid { display: flex; gap: 12px; justify-content: space-between; }
-        .keyword-item { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-        .keyword-icon.keyword-orbit {
-            width: 40px; height: 40px; border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle, rgba(255,255,255,1) 0 22%, rgba(240,240,240,1) 23% 38%, transparent 39%),
-                radial-gradient(circle, transparent 48%, rgba(180,180,180,0.35) 49% 52%, transparent 53%),
-                radial-gradient(circle, transparent 62%, rgba(120,120,120,0.25) 63% 68%, transparent 70%);
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+        .keyword-chip {
+            background: #f0f3fa;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 15px;
+            color: #000;
+            line-height: 1.2;
+            text-align: center;
         }
-        .keyword-icon.keyword-orbit::after {
-            content: "";
-            position: absolute;
-            inset: 6px;
-            border-radius: 50%;
-            border: 1px solid rgba(0,0,0,0.12);
-            opacity: 0.85;
+        .result-detail-item + .result-detail-item {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
-        .keyword-label { font-size: 12px; color: #333; text-align: center; line-height: 1.4; }
-        .result-lines-card {
-            background: #fff;
-            border-radius: 18px;
-            padding: 18px 16px 16px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        .result-detail-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 8px;
         }
-        .lines-section { margin-top: 0; padding-top: 0; border-top: none; }
-        .line-row { display: flex; margin-bottom: 14px; gap: 12px; line-height: 1.65; }
-        .line-row:last-child { margin-bottom: 0; }
-        .line-name { font-size: 15px; font-weight: 700; color: #111; min-width: 64px; flex-shrink: 0; padding-top: 1px; }
-        .line-desc { font-size: 15px; color: #333; line-height: 1.65; }
-        .traits-section { margin-top: 22px; }
-        .traits-title { font-size: 22px; font-weight: 700; color: #111; margin-bottom: 14px; padding-left: 2px; }
-        .trait-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 10px;
-            display: flex; gap: 14px; align-items: flex-start;
-            opacity: 0; transform: translateY(20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.04);
+        .result-detail-text {
+            font-size: 15px;
+            color: #000;
+            line-height: 1.5;
+            margin: 0;
         }
-        .trait-card.visible { opacity: 1; transform: translateY(0); }
+        .traits-list {
+            display: flex;
+            flex-direction: column;
+        }
+        .trait-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px 0;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        .trait-item:first-child { padding-top: 0; }
+        .trait-item:last-child { padding-bottom: 0; }
+        .trait-item + .trait-item {
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .trait-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
         .trait-icon {
-            width: 42px; height: 42px; border-radius: 12px;
-            background: linear-gradient(135deg, #f2f2f2, #e8e8e8);
-            display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f0f3fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
         }
-        .trait-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 6px; }
-        .trait-desc { font-size: 15px; color: #444; line-height: 1.65; }
-        .share-section { margin-top: 24px; text-align: center; padding-bottom: 32px; }
+        .trait-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 6px;
+        }
+        .trait-desc {
+            font-size: 15px;
+            color: #000;
+            line-height: 1.5;
+        }
+        .share-section {
+            margin-top: 8px;
+            text-align: center;
+            padding-bottom: 24px;
+        }
         .share-btn {
-            width: 100%; padding: 16px; border-radius: 28px;
-            background: linear-gradient(135deg, #222 0%, #444 100%);
-            border: none; color: #fff; font-size: 17px; font-weight: 600;
-            cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
         }
-        .share-btn:active { transform: scale(0.98); }
-        .disclaimer { margin-top: 14px; font-size: 12px; color: rgba(0,0,0,0.4); line-height: 1.65; }
+        .share-btn:active { transform: scale(0.98); opacity: 0.85; }
+        .disclaimer {
+            margin-top: 12px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.4);
+            line-height: 1.5;
+        }
 
         /* ===== PALM HERO GRAPHIC (unused in dark result layout) ===== */
         .palm-hero {
@@ -847,9 +883,9 @@
                             <div class="poster-label poster-label--2" id="posterLabel2"></div>
                             <div class="poster-label poster-label--3" id="posterLabel3"></div>
                         </div>
-                        <div class="poster-reading">
-                            <div class="poster-reading-card">
-                                <div class="poster-reading-tag">玄学解读</div>
+                        <div class="poster-reading result-panel">
+                            <div class="poster-reading-card result-panel-card">
+                                <div class="poster-reading-tag result-panel-tag">玄学解读</div>
                                 <div id="posterReadingText"></div>
                             </div>
                         </div>
@@ -857,20 +893,27 @@
 
                     <!-- Detailed content below poster -->
                     <div class="result-content">
-                        <div class="result-keywords-card">
-                            <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
-                            <div class="keywords-col">
-                                <div class="keywords-title">关键词</div>
-                                <div class="keywords-grid" id="keywordsGrid"></div>
+                        <section class="result-panel">
+                            <div class="result-panel-card">
+                                <div class="result-panel-tag">关键词</div>
+                                <div class="result-panel-keywords-body">
+                                    <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
+                                    <div class="keywords-grid" id="keywordsGrid"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="result-lines-card">
-                            <div class="lines-section" id="linesSection"></div>
-                        </div>
-                        <div class="traits-section">
-                            <h2 class="traits-title">你的基本特质</h2>
-                            <div id="traitsContainer"></div>
-                        </div>
+                        </section>
+                        <section class="result-panel">
+                            <div class="result-panel-card">
+                                <div class="result-panel-tag">掌纹分析</div>
+                                <div class="lines-section" id="linesSection"></div>
+                            </div>
+                        </section>
+                        <section class="result-panel">
+                            <div class="result-panel-card">
+                                <div class="result-panel-tag">你的基本特质</div>
+                                <div class="traits-list" id="traitsContainer"></div>
+                            </div>
+                        </section>
                         <div class="share-section">
                             <button class="share-btn" id="shareBtn">保存报告 · 分享给好友</button>
                             <p class="disclaimer">* 本结果仅供娱乐参考，不构成任何医学或命理建议</p>
@@ -1968,10 +2011,7 @@
             }
 
             keywordsGrid.innerHTML = reading.keywords.map((kw) =>
-                `<div class="keyword-item">
-                    <div class="keyword-icon keyword-orbit" aria-hidden="true"></div>
-                    <span class="keyword-label">${kw}</span>
-                </div>`
+                `<span class="keyword-chip">${kw}</span>`
             ).join('');
 
             const lines = [
@@ -1980,23 +2020,23 @@
                 { name: '命运线', desc: reading.fateDesc }
             ];
             linesSection.innerHTML = lines.map(l =>
-                `<div class="line-row">
-                    <span class="line-name">${l.name}</span>
-                    <span class="line-desc">${l.desc}</span>
+                `<div class="result-detail-item">
+                    <div class="result-detail-label">${l.name}</div>
+                    <p class="result-detail-text">${l.desc}</p>
                 </div>`
             ).join('');
 
             reading.traits.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'trait-card';
-                card.innerHTML = `
+                const row = document.createElement('div');
+                row.className = 'trait-item';
+                row.innerHTML = `
                     <div class="trait-icon">${item.icon}</div>
                     <div>
                         <div class="trait-title">${item.title}</div>
                         <div class="trait-desc">${item.desc}</div>
                     </div>`;
-                traitsContainer.appendChild(card);
-                setTimeout(() => card.classList.add('visible'), 80 + index * 120);
+                traitsContainer.appendChild(row);
+                setTimeout(() => row.classList.add('visible'), 80 + index * 120);
             });
         }
 
