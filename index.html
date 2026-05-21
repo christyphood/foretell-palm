@@ -521,7 +521,6 @@
             font-size: 15px;
             line-height: 1.55;
             color: #000;
-            white-space: pre-line;
             overflow: hidden;
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -1573,68 +1572,123 @@
             return clampTwoLines(t);
         }
 
-        /** 玄学解读：掌纹事实 + 一句解读（与三种手型示意一致） */
-        function buildPosterReading(analysis, archIdx) {
-            const arch = PALM_ARCHETYPES[archIdx] || PALM_ARCHETYPES[0];
-            if (!analysis) {
-                return { posterFacts: arch.posterFacts, posterInsight: arch.posterInsight };
-            }
-            const a = analysis;
+        function pickFromSeed(seed, salt, options) {
+            if (!options || !options.length) return '';
+            const i = Math.abs(Math.floor((seed || 0) * 997 + salt * 31)) % options.length;
+            return options[i];
+        }
+
+        function ensurePeriod(text) {
+            const t = String(text).replace(/\s+/g, ' ').trim();
+            if (!t) return '';
+            return /[。.!?]$/.test(t) ? t : `${t}。`;
+        }
+
+        /** 事实句：随掌纹度量与 seed 变化 */
+        function buildPosterFacts(a, archIdx) {
             const ratio = a.palmRatio.toFixed(2);
             const palmShape = a.palmRatio > 1.15 ? '修长型' : a.palmRatio < 0.95 ? '方正型' : '均衡型';
 
-            const factsBuilders = [
-                () => {
-                    const life = a.lifeArc > a.palmWidth * 0.55
-                        ? '生命线弧度饱满'
-                        : a.lifeArc > a.palmWidth * 0.4
-                        ? '生命线弧度适中'
-                        : '生命线收束紧凑';
-                    const gap = a.fingerTopalm < 0.72
-                        ? '指缝严丝合缝'
-                        : a.fingerTopalm > 0.88
-                        ? '指缝疏朗分明'
-                        : '指缝开合有度';
-                    return `${life}，${gap}。`;
-                },
-                () => `长宽比例 1:${ratio}，${palmShape}。`,
-                () => {
-                    const mounts = a.palmRatio < 1.02 ? '掌丘内敛分布' : '掌丘分布均匀';
-                    const joints = a.fingerTopalm > 0.82
-                        ? '指节修长'
-                        : a.fingerTopalm < 0.72
-                        ? '指节紧凑'
-                        : '指节比例匀称';
-                    return `${mounts}，${joints}。`;
-                }
-            ];
-            const insights = [
-                '天然克制一切冲动消费，理财高手。',
-                '主思辨和长线规划，直觉和抽象理解能力突出。',
-                '天然免疫世俗焦虑与内耗，精神地基极度稳固。'
-            ];
+            if (archIdx === 0) {
+                const life = a.lifeArc > a.palmWidth * 0.55
+                    ? pickFromSeed(a.seed, 1, ['生命线弧度饱满', '生命线环绕宽阔', '生命线走势圆润'])
+                    : a.lifeArc > a.palmWidth * 0.4
+                    ? pickFromSeed(a.seed, 2, ['生命线弧度适中', '生命线走势平稳', '生命线弧度匀称'])
+                    : pickFromSeed(a.seed, 3, ['生命线收束紧凑', '生命线贴近掌心', '生命线弧度偏紧']);
+                const gap = a.fingerTopalm < 0.72
+                    ? pickFromSeed(a.seed, 4, ['指缝严丝合缝', '指缝收拢紧致', '指缝几乎无缝'])
+                    : a.fingerTopalm > 0.88
+                    ? pickFromSeed(a.seed, 5, ['指缝疏朗分明', '指缝间距偏大', '指缝开合舒展'])
+                    : pickFromSeed(a.seed, 6, ['指缝开合有度', '指缝间距匀称', '指缝松紧适中']);
+                return `${life}，${gap}`;
+            }
+            if (archIdx === 1) {
+                const ratioPhrase = pickFromSeed(a.seed, 7, [
+                    `长宽比例约 1:${ratio}`,
+                    `掌长宽比约 1:${ratio}`,
+                    `掌面比例约 1:${ratio}`
+                ]);
+                const shapePhrase = pickFromSeed(a.seed, 8, [
+                    palmShape,
+                    palmShape === '修长型' ? '偏纤长掌型' : palmShape === '方正型' ? '偏方正掌型' : '比例均衡掌型'
+                ]);
+                return `${ratioPhrase}，${shapePhrase}`;
+            }
+            const mounts = a.palmRatio < 1.02
+                ? pickFromSeed(a.seed, 9, ['掌丘内敛分布', '掌丘起伏收敛', '掌丘集中内敛'])
+                : pickFromSeed(a.seed, 10, ['掌丘分布均匀', '掌丘起伏均衡', '掌丘饱满匀称']);
+            const joints = a.fingerTopalm > 0.82
+                ? pickFromSeed(a.seed, 11, ['指节修长', '指节纤长分明', '指节线条修长'])
+                : a.fingerTopalm < 0.72
+                ? pickFromSeed(a.seed, 12, ['指节紧凑', '指节短而有力', '指节收束利落'])
+                : pickFromSeed(a.seed, 13, ['指节比例匀称', '指节长短均衡', '指节协调有度']);
+            return `${mounts}，${joints}`;
+        }
+
+        /** 解读句：按掌纹特征匹配多条候选，再按 seed 选取 */
+        function buildPosterInsight(a, archIdx) {
+            const candidates = [];
+            if (archIdx === 0) {
+                if (a.fingerTopalm < 0.72) candidates.push('天然克制冲动消费，理财意识强');
+                if (a.fingerTopalm > 0.88) candidates.push('消费有度、敢为价值投入，花钱看长期');
+                if (a.lifeArc > a.palmWidth * 0.5) candidates.push('精力足却花钱克制，偏务实理财型');
+                if (a.headIndep > 0.18) candidates.push('决策理性少跟风，擅长把钱花在刀刃上');
+                if (a.fateVert > 0.45) candidates.push('目标感强，积累与守财都有一套');
+                if (a.heartLift < 0) candidates.push('情绪消费少，面子开销也克制');
+                if (a.indexToRing > 1.02) candidates.push('主见强、掌控欲高，财务决策干脆');
+                candidates.push('务实重性价比，搞来的钱多半留得住');
+            } else if (archIdx === 1) {
+                if (a.palmRatio > 1.12) candidates.push('思辨敏锐，擅长长线布局与抽象思考');
+                if (a.fingerTopalm > 0.85) candidates.push('直觉与创意突出，适合深度与跨界');
+                if (a.headIndep > 0.18) candidates.push('独立判断力强，复杂问题能拆清楚');
+                if (a.heartEndT > 0.55) candidates.push('重精神共鸣，合伙择偶都讲底色');
+                if (a.fateVert < 0.4) candidates.push('路径灵活，善在变化里找机会');
+                if (a.heartLift > 0.04) candidates.push('感情有温度，关系里肯投入也讲分寸');
+                candidates.push('看得远、想得深，能把灵感落成方案');
+            } else {
+                if (a.palmRatio < 1.05) candidates.push('内在稳定，不易被外界节奏带走');
+                if (a.fingerTopalm > 0.8) candidates.push('情绪恢复快，焦虑难在体内久留');
+                if (a.heartLift < 0.02) candidates.push('感情线平稳，关系里少内耗少拉扯');
+                if (a.headSlump < 0) candidates.push('思维清明，精力留给真正重要的事');
+                if (a.lifeArc > a.palmWidth * 0.45) candidates.push('根基扎实，生活节奏慢但耐久');
+                if (a.fateVert > 0.5) candidates.push('方向感稳，不被短期波动扰心');
+                candidates.push('心安即福，精神地基稳，世俗焦虑难入侵');
+            }
+            return pickFromSeed(a.seed, archIdx * 17 + 9, candidates);
+        }
+
+        function joinPosterReading(facts, insight) {
+            const f = ensurePeriod(facts);
+            const i = ensurePeriod(insight).replace(/^。/, '');
+            return clampTwoLines(`${f}${i}`);
+        }
+
+        /** 玄学解读：连续两句（事实+解读），全文随识别结果变化 */
+        function buildPosterReading(analysis, archIdx) {
+            const arch = PALM_ARCHETYPES[archIdx] || PALM_ARCHETYPES[0];
+            if (!analysis) {
+                return {
+                    posterFacts: arch.posterFacts,
+                    posterInsight: arch.posterInsight,
+                    posterReading: joinPosterReading(arch.posterFacts, arch.posterInsight)
+                };
+            }
+            const facts = buildPosterFacts(analysis, archIdx);
+            const insight = buildPosterInsight(analysis, archIdx);
             return {
-                posterFacts: factsBuilders[archIdx](),
-                posterInsight: insights[archIdx] || arch.posterInsight
+                posterFacts: ensurePeriod(facts),
+                posterInsight: ensurePeriod(insight),
+                posterReading: joinPosterReading(facts, insight)
             };
         }
 
-        const POSTER_LINE_CHARS = 34;
-
-        function clampPosterLine(text, max = POSTER_LINE_CHARS) {
-            const t = String(text).replace(/\s+/g, ' ').trim();
-            if (t.length <= max) return t;
-            let slice = t.slice(0, max);
-            const punct = Math.max(slice.lastIndexOf('。'), slice.lastIndexOf('，'), slice.lastIndexOf('；'));
-            if (punct >= Math.floor(max * 0.55)) slice = slice.slice(0, punct + 1);
-            else slice = slice.slice(0, max - 1) + '…';
-            return slice;
-        }
-
         function applyPosterReading(reading, arch) {
-            const facts = clampPosterLine((reading && reading.posterFacts) || arch.posterFacts || '');
-            const insight = clampPosterLine((reading && reading.posterInsight) || arch.posterInsight || '');
-            if (posterReadingText) posterReadingText.textContent = `${facts}\n${insight}`;
+            const text = (reading && reading.posterReading)
+                || joinPosterReading(
+                    (reading && reading.posterFacts) || arch.posterFacts || '',
+                    (reading && reading.posterInsight) || arch.posterInsight || ''
+                );
+            if (posterReadingText) posterReadingText.textContent = text;
         }
 
         function generateReading(analysis, segResult) {
@@ -1698,10 +1752,13 @@
                 { icon: '💼', title: '事业运势：突破期', desc: '掌纹中事业线的走向表明你即将进入一个全新阶段，旧有模式可能被打破，拥抱变化将带来意想不到的收获。' }
             ];
             traits.push(careerPool[s % 3]);
-            const { posterFacts, posterInsight } = buildPosterReading(analysis, archIdx);
+            const poster = buildPosterReading(analysis, archIdx);
             return {
                 keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
-                heroMain, archetypeIndex: archIdx, posterFacts, posterInsight
+                heroMain, archetypeIndex: archIdx,
+                posterFacts: poster.posterFacts,
+                posterInsight: poster.posterInsight,
+                posterReading: poster.posterReading
             };
         }
 
@@ -1712,7 +1769,7 @@
             const heartDesc = clampTwoLines('感情线弧度柔和上扬，情感丰富也理性，追求真诚与深度连接。');
             const headDesc = clampTwoLines('头脑线与生命线略分开，思维独立清晰，判断力与分析力较好。');
             const fateDesc = clampTwoLines('命运线走势稳定，方向感明确，适合在既定目标上持续投入。');
-            const { posterFacts, posterInsight } = buildPosterReading(null, archIdx);
+            const poster = buildPosterReading(null, archIdx);
             return {
                 palmType: 'balanced',
                 heroMain: arch.title,
@@ -1724,8 +1781,9 @@
                 headDesc,
                 lifeDesc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。',
                 fateDesc,
-                posterFacts,
-                posterInsight,
+                posterFacts: poster.posterFacts,
+                posterInsight: poster.posterInsight,
+                posterReading: poster.posterReading,
                 traits: [
                     { icon: '🖐', title: '掌型与比例', desc: '掌型比例均衡，兼具感性与理性，适应力强，能在不同角色之间灵活切换。' },
                     { icon: '🌿', title: '生命线走势', desc: '生命线弧度饱满，环绕大鱼际区域，代表你精力充沛、体质良好，对生活保持积极乐观的态度。' },
