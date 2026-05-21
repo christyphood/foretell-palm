@@ -1581,14 +1581,20 @@
             return clampTwoLines(t);
         }
 
-        function buildPosterSummary(archIdx, keywords) {
-            const k = keywords.join('、');
-            const templates = [
-                `关键词「${k}」叠加三线掌纹：感情理性、思维务实、运程求稳，善理财少冲动，是天生的抓财型掌。`,
-                `关键词「${k}」配掌纹示感情重契合、思维偏创意、运程有机遇，宜思辨表达与长线布局。`,
-                `关键词「${k}」下感情平和、思维沉静、运程柔顺，精神内稳、少焦虑少内耗。`
-            ];
-            return clampTwoLines(templates[archIdx] || templates[0]);
+        function summarizeLineClause(text) {
+            const t = String(text).replace(/。$/, '').trim();
+            const clause = (t.split(/[，；]/)[0] || t).trim();
+            return clause.length > 20 ? clause.slice(0, 20) : clause;
+        }
+
+        /** 玄学解读：一句掌纹总括 + 关键特征（不含关键词列表），最多两行 */
+        function buildPosterSummary(arch, heartDesc, headDesc, fateDesc) {
+            const features = arch.labels.map((l) => l.replace(/\n/g, '')).join('、');
+            const heart = summarizeLineClause(heartDesc);
+            const head = summarizeLineClause(headDesc);
+            const fate = summarizeLineClause(fateDesc);
+            const text = `掌纹显示${heart}，${head}，${fate}；关键特征为${features}。`;
+            return clampTwoLines(text);
         }
 
         function generateReading(analysis, segResult) {
@@ -1612,7 +1618,6 @@
             const heartDesc = buildHeartDesc(a);
             const headDesc = buildHeadDesc(a);
             const fateDesc = buildFateDesc(a, segResult);
-            const posterSummary = buildPosterSummary(archIdx, keywords);
 
             const lifeDesc = a.lifeArc > a.palmWidth * 0.6
                 ? '生命线弧度饱满，环绕大鱼际区域宽阔有力，代表你体质强健、精力充沛，对生活充满热情，行动力强，适应环境变化的能力出众。'
@@ -1653,6 +1658,7 @@
                 { icon: '💼', title: '事业运势：突破期', desc: '掌纹中事业线的走向表明你即将进入一个全新阶段，旧有模式可能被打破，拥抱变化将带来意想不到的收获。' }
             ];
             traits.push(careerPool[s % 3]);
+            const posterSummary = buildPosterSummary(arch, heartDesc, headDesc, fateDesc);
             return {
                 keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
                 heroMain, archetypeIndex: archIdx, posterSummary
@@ -1666,7 +1672,7 @@
             const heartDesc = clampTwoLines('感情线弧度柔和上扬，情感丰富也理性，追求真诚与深度连接。');
             const headDesc = clampTwoLines('头脑线与生命线略分开，思维独立清晰，判断力与分析力较好。');
             const fateDesc = clampTwoLines('命运线走势稳定，方向感明确，适合在既定目标上持续投入。');
-            const posterSummary = buildPosterSummary(archIdx, keywords);
+            const posterSummary = buildPosterSummary(arch, heartDesc, headDesc, fateDesc);
             return {
                 palmType: 'balanced',
                 heroMain: arch.title,
