@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结果手型预览 · 手相解码</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', 'PingFang TC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+            background: #e4e4ea;
+            color: #111;
+            line-height: 1.45;
+        }
+        .dev-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 16px 20px;
+        }
+        .dev-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .dev-header p {
+            font-size: 13px;
+            color: rgba(0, 0, 0, 0.55);
+        }
+        .dev-header a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .dev-header a:hover { text-decoration: underline; }
+        .dev-toc {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .dev-toc a {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f0f0f5;
+            color: #333;
+            text-decoration: none;
+        }
+        .dev-toc a:hover { background: #e0e0ea; }
+        .gallery {
+            padding: 24px 16px 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+        .archetype-item {
+            width: 100%;
+            max-width: 414px;
+        }
+        .archetype-meta {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+            padding: 0 4px;
+        }
+        .archetype-meta h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.65);
+        }
+        .archetype-meta a {
+            font-size: 12px;
+            color: #2563eb;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .archetype-meta a:hover { text-decoration: underline; }
+        .archetype-frame {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        /* --- Poster (mirrors index.html result poster) --- */
+        .result-poster {
+            position: relative;
+            isolation: isolate;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: #F5F5F9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: max(52px, calc(env(safe-area-inset-top, 0px) + 36px)) 24px 28px;
+            overflow: hidden;
+        }
+        .result-poster > :not(.poster-bg) {
+            position: relative;
+            z-index: 1;
+        }
+        .poster-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .poster-bg-blob {
+            position: absolute;
+            left: 50%;
+            top: 46%;
+            width: min(92%, 360px);
+            height: 62%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            background: rgba(210, 224, 248, 0.72);
+            border-radius: 52% 48% 55% 45% / 48% 52% 46% 54%;
+            box-shadow: 0 0 80px rgba(200, 218, 245, 0.35);
+        }
+        .poster-bg-dots {
+            position: absolute;
+            background-image: radial-gradient(circle, rgba(230, 150, 175, 0.55) 1.25px, transparent 1.25px);
+            background-size: 11px 11px;
+            opacity: 0.85;
+        }
+        .poster-bg-dots--tl {
+            left: 4%;
+            top: 30%;
+            width: 32%;
+            height: 26%;
+            mask-image: radial-gradient(ellipse 85% 80% at 65% 55%, #000 25%, transparent 72%);
+            -webkit-mask-image: radial-gradient(ellipse 85% 80% at 65% 55%, #000 25%, transparent 72%);
+        }
+        .poster-bg-dots--br {
+            right: 2%;
+            bottom: 34%;
+            width: 34%;
+            height: 28%;
+            mask-image: radial-gradient(ellipse 80% 75% at 40% 50%, #000 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 75% at 40% 50%, #000 20%, transparent 70%);
+        }
+        .poster-bg-art {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .poster-bg-grain {
+            position: absolute;
+            inset: 0;
+            opacity: 0.35;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+        .poster-tag {
+            align-self: flex-start;
+            display: block;
+            width: auto;
+            height: 64px;
+            margin-bottom: 10px;
+            object-fit: contain;
+            object-position: left center;
+        }
+        .poster-headline {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .poster-title {
+            font-size: clamp(48px, 14vw, 65px);
+            font-weight: 900;
+            color: #000;
+            line-height: 1.15;
+            letter-spacing: 0.02em;
+            margin: 0 0 14px;
+            text-align: center;
+        }
+        .poster-title--semibold { font-weight: 600; }
+        .poster-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #000;
+            margin: 0;
+            line-height: 1.45;
+            font-weight: 400;
+        }
+        .poster-hand-wrap {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 0;
+        }
+        .poster-hand-img {
+            width: 82%;
+            max-width: 320px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+        }
+        .poster-label {
+            position: absolute;
+            background: #fff;
+            border: 1px solid #000;
+            padding: 6px 10px;
+            font-size: 13px;
+            color: #000;
+            text-align: center;
+            line-height: 1.2;
+            width: auto;
+            max-width: 80px;
+            white-space: pre-line;
+            font-weight: 400;
+        }
+        .poster-label--1 { top: 18%; left: 6%; transform: rotate(0deg); }
+        .poster-label--2 { bottom: 28%; right: 4%; transform: rotate(30deg); }
+        .poster-label--3 { bottom: 12%; left: 22%; transform: rotate(-14deg); }
+        .poster-reading {
+            width: 100%;
+            margin-top: auto;
+            padding-top: 28px;
+        }
+        .poster-reading-card {
+            position: relative;
+            background: #fff;
+            border-radius: 10px;
+            padding: 34px 18px 18px;
+            font-size: 15px;
+            color: #000;
+            line-height: 1.5;
+        }
+        .poster-reading-text {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.55;
+            color: #000;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            word-break: keep-all;
+            font-weight: 400;
+        }
+        .poster-reading-tag {
+            position: absolute;
+            left: 16px;
+            top: 0;
+            transform: translateY(-42%);
+            display: inline-block;
+            background: #e9edf9;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <header class="dev-header">
+        <h1>结果手型预览（开发）</h1>
+        <p>共 5 种海报，数据与 <a href="index.html">index.html</a> 中 <code>PALM_ARCHETYPES</code> 保持一致。修改文案请同步两处。</p>
+        <nav class="dev-toc" id="devToc" aria-label="快速跳转"></nav>
+    </header>
+    <main class="gallery" id="gallery"></main>
+
+    <script>
+        /** 与 index.html PALM_ARCHETYPES 保持同步 */
+        const PALM_ARCHETYPES = [
+            {
+                title: '抓钱不松手',
+                titleSemibold: true,
+                subtitle: '消费降级大师 / 铁公鸡ProMax',
+                labels: ['只想搞钱', '消费陷阱\n绝缘体', '行走的\n计算器'],
+                posterFacts: '生命线弧度饱满，指缝严丝合缝。',
+                posterInsight: '天然克制一切冲动消费，理财高手。'
+            },
+            {
+                title: '灵魂捕手',
+                subtitle: '向内生长的理性派 / 长线规划',
+                labels: ['洞察力', '理想主义', '创造力'],
+                posterFacts: '长宽比例 1:1.41，修长型。',
+                posterInsight: '主思辨和长线规划，直觉和抽象理解能力突出。'
+            },
+            {
+                title: '禅意佛手',
+                subtitle: '零内耗圣体 / 情绪北冰洋',
+                labels: ['自动过滤\n情绪噪音', '拒绝内耗\n能量满格', '爱河不进\n焦虑不沾'],
+                posterFacts: '掌丘内敛分布，指节修长。',
+                posterInsight: '天然免疫世俗焦虑与内耗，精神地基极度稳固。'
+            },
+            {
+                title: '人间操盘手',
+                subtitle: '一切尽在掌握 / 绝对理性',
+                labels: ['天生反套路', '高情商', '清醒到离谱'],
+                posterFacts: '掌纹短线利落，食指中指干练分明。',
+                posterInsight: '手相全是止损线，恋爱及时止盈，工作果断割肉，生活永远给自己留一手。'
+            },
+            {
+                title: '退堂鼓鼓手',
+                subtitle: '撤退第一名 / 躺平战术家',
+                labels: ['遇事先算清', '跑路一级棒', '摆烂不翻车'],
+                posterFacts: '手指圆润，掌纹走势柔和收束。',
+                posterInsight: '遇事三步算完退路，主打不硬卷、不内耗，打不过就溜。'
+            }
+        ];
+
+        const ARCHETYPE_HERO_ASSETS = [
+            { img: 'images/result-archetype-0.png', w: 400, h: 480 },
+            { img: 'images/result-archetype-1.png', w: 400, h: 480 },
+            { img: 'images/result-archetype-2.png', w: 400, h: 480 },
+            { img: 'images/result-archetype-3.png', w: 400, h: 480 },
+            { img: 'images/result-archetype-4.png', w: 400, h: 480 }
+        ];
+
+        const POSTER_BG_SVG = `<svg class="poster-bg-art" viewBox="0 0 414 896" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M328 72 C352 92 362 112 348 128" fill="none" stroke="rgba(165, 195, 235, 0.75)" stroke-width="3.8" stroke-linecap="round"/>
+            <path d="M348 52 C368 68 374 88 362 100" fill="none" stroke="rgba(185, 210, 245, 0.65)" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M30 408 C24 428 36 442 48 452" fill="none" stroke="rgba(90, 130, 200, 0.7)" stroke-width="4.2" stroke-linecap="round"/>
+            <path d="M44 536 C36 548 48 558 62 566" fill="none" stroke="rgba(220, 140, 165, 0.65)" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M318 448 L324 488" fill="none" stroke="rgba(225, 145, 170, 0.7)" stroke-width="6.5" stroke-linecap="round"/>
+            <path d="M358 432 L364 472" fill="none" stroke="rgba(235, 155, 180, 0.6)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M396 458 L400 498" fill="none" stroke="rgba(240, 165, 188, 0.55)" stroke-width="5.5" stroke-linecap="round"/>
+            <path d="M58 718 C68 712 76 724 72 736" fill="none" stroke="rgba(225, 145, 170, 0.55)" stroke-width="4.2" stroke-linecap="round"/>
+        </svg>`;
+
+        function joinPosterReading(facts, insight) {
+            const f = /[。.!?]$/.test(facts) ? facts : `${facts}。`;
+            const i = insight.replace(/^。/, '');
+            const iEnd = /[。.!?]$/.test(i) ? i : `${i}。`;
+            return `${f}${iEnd}`;
+        }
+
+        function escapeHtml(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function renderPoster(arch, hero, idx) {
+            const titleClass = arch.titleSemibold ? 'poster-title poster-title--semibold' : 'poster-title';
+            const reading = joinPosterReading(arch.posterFacts, arch.posterInsight);
+            const labels = arch.labels || [];
+            return `
+                <article class="archetype-item" id="archetype-${idx}">
+                    <div class="archetype-meta">
+                        <h2>${idx} · ${escapeHtml(arch.title)}</h2>
+                        <a href="index.html?archetype=${idx}">在 App 中打开 →</a>
+                    </div>
+                    <div class="archetype-frame">
+                        <div class="result-poster">
+                            <div class="poster-bg" aria-hidden="true">
+                                <div class="poster-bg-blob"></div>
+                                <div class="poster-bg-dots poster-bg-dots--tl"></div>
+                                <div class="poster-bg-dots poster-bg-dots--br"></div>
+                                ${POSTER_BG_SVG}
+                                <div class="poster-bg-grain"></div>
+                            </div>
+                            <img class="poster-tag" src="images/poster-tag-nishi.png" srcset="images/poster-tag-nishi@2x.png 2x" width="197" height="136" alt="你是" decoding="async">
+                            <div class="poster-headline">
+                                <div class="${titleClass}">${escapeHtml(arch.title)}</div>
+                                <div class="poster-subtitle">${escapeHtml(arch.subtitle)}</div>
+                            </div>
+                            <div class="poster-hand-wrap">
+                                <img class="poster-hand-img" src="${escapeHtml(hero.img)}" width="${hero.w}" height="${hero.h}" alt="" decoding="async">
+                                <div class="poster-label poster-label--1">${escapeHtml(labels[0] || '')}</div>
+                                <div class="poster-label poster-label--2">${escapeHtml(labels[1] || '')}</div>
+                                <div class="poster-label poster-label--3">${escapeHtml(labels[2] || '')}</div>
+                            </div>
+                            <div class="poster-reading">
+                                <div class="poster-reading-card">
+                                    <div class="poster-reading-tag">玄学解读</div>
+                                    <p class="poster-reading-text">${escapeHtml(reading)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>`;
+        }
+
+        const gallery = document.getElementById('gallery');
+        const toc = document.getElementById('devToc');
+        gallery.innerHTML = PALM_ARCHETYPES.map((arch, i) => renderPoster(arch, ARCHETYPE_HERO_ASSETS[i], i)).join('');
+        toc.innerHTML = PALM_ARCHETYPES.map((arch, i) =>
+            `<a href="#archetype-${i}">${i} · ${escapeHtml(arch.title)}</a>`
+        ).join('');
+    </script>
+</body>
+</html>
