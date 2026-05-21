@@ -245,6 +245,12 @@
             word-break: keep-all;
             font-weight: 400;
         }
+        .poster-reading-text--two-lines {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
         .poster-reading-tag {
             position: absolute;
             left: 16px;
@@ -297,15 +303,15 @@
                 title: '人间操盘手',
                 subtitle: '一切尽在掌握 / 绝对理性',
                 labels: ['天生反套路', '高情商', '清醒到离谱'],
-                posterFacts: '掌纹短线利落，食指中指干练分明。',
-                posterInsight: '手相全是止损线，恋爱及时止盈，工作果断割肉，生活永远给自己留一手。'
+                posterFacts: '掌纹短直，指节利落。',
+                posterInsight: '恋爱会止盈，工作敢割肉，凡事留一手。'
             },
             {
                 title: '退堂鼓鼓手',
                 subtitle: '撤退第一名 / 躺平战术家',
                 labels: ['遇事先算清', '跑路一级棒', '摆烂不翻车'],
-                posterFacts: '手指圆润，掌纹走势柔和收束。',
-                posterInsight: '遇事三步算完退路，主打不硬卷、不内耗，打不过就溜。'
+                posterFacts: '手指圆润，掌纹偏柔。',
+                posterInsight: '遇事先算退路，不硬卷，打不过就溜。'
             }
         ];
 
@@ -328,11 +334,27 @@
             <path d="M58 718 C68 712 76 724 72 736" fill="none" stroke="rgba(225, 145, 170, 0.55)" stroke-width="4.2" stroke-linecap="round"/>
         </svg>`;
 
-        function joinPosterReading(facts, insight) {
+        const READING_CHARS_PER_LINE = 34;
+        const POSTER_TWO_LINE_ARCHETYPES = new Set([3, 4]);
+
+        function clampTwoLines(text, charsPerLine = READING_CHARS_PER_LINE) {
+            const normalized = String(text).replace(/\s+/g, ' ').trim();
+            const max = charsPerLine * 2;
+            if (normalized.length <= max) return normalized;
+            let slice = normalized.slice(0, max);
+            const punct = Math.max(slice.lastIndexOf('。'), slice.lastIndexOf('，'), slice.lastIndexOf('；'));
+            if (punct >= Math.floor(max * 0.55)) slice = slice.slice(0, punct + 1);
+            else slice = slice.slice(0, max - 1) + '…';
+            return slice;
+        }
+
+        function joinPosterReading(facts, insight, archIdx) {
             const f = /[。.!?]$/.test(facts) ? facts : `${facts}。`;
             const i = insight.replace(/^。/, '');
             const iEnd = /[。.!?]$/.test(i) ? i : `${i}。`;
-            return `${f}${iEnd}`;
+            const text = `${f}${iEnd}`.replace(/\s+/g, ' ').trim();
+            if (POSTER_TWO_LINE_ARCHETYPES.has(archIdx)) return clampTwoLines(text);
+            return text;
         }
 
         function escapeHtml(s) {
@@ -345,7 +367,10 @@
 
         function renderPoster(arch, hero, idx) {
             const titleClass = arch.titleSemibold ? 'poster-title poster-title--semibold' : 'poster-title';
-            const reading = joinPosterReading(arch.posterFacts, arch.posterInsight);
+            const reading = joinPosterReading(arch.posterFacts, arch.posterInsight, idx);
+            const readingClass = POSTER_TWO_LINE_ARCHETYPES.has(idx)
+                ? 'poster-reading-text poster-reading-text--two-lines'
+                : 'poster-reading-text';
             const labels = arch.labels || [];
             return `
                 <article class="archetype-item" id="archetype-${idx}">
@@ -376,7 +401,7 @@
                             <div class="poster-reading">
                                 <div class="poster-reading-card">
                                     <div class="poster-reading-tag">玄学解读</div>
-                                    <p class="poster-reading-text">${escapeHtml(reading)}</p>
+                                    <p class="${readingClass}">${escapeHtml(reading)}</p>
                                 </div>
                             </div>
                         </div>

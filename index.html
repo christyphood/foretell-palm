@@ -523,6 +523,12 @@
             color: #000;
             word-break: keep-all;
         }
+        .poster-reading-text--two-lines {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
         .result-detail-text {
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -1517,15 +1523,15 @@
                 title: '人间操盘手',
                 subtitle: '一切尽在掌握 / 绝对理性',
                 labels: ['天生反套路', '高情商', '清醒到离谱'],
-                posterFacts: '掌纹短线利落，食指中指干练分明。',
-                posterInsight: '手相全是止损线，恋爱及时止盈，工作果断割肉，生活永远给自己留一手。'
+                posterFacts: '掌纹短直，指节利落。',
+                posterInsight: '恋爱会止盈，工作敢割肉，凡事留一手。'
             },
             {
                 title: '退堂鼓鼓手',
                 subtitle: '撤退第一名 / 躺平战术家',
                 labels: ['遇事先算清', '跑路一级棒', '摆烂不翻车'],
-                posterFacts: '手指圆润，掌纹走势柔和收束。',
-                posterInsight: '遇事三步算完退路，主打不硬卷、不内耗，打不过就溜。'
+                posterFacts: '手指圆润，掌纹偏柔。',
+                posterInsight: '遇事先算退路，不硬卷，打不过就溜。'
             }
         ];
 
@@ -1736,20 +1742,14 @@
                 return `${mounts}，${joints}`;
             }
             if (archIdx === 3) {
-                const lines = a.headIndep > 0.18
-                    ? pickFromSeed(a.seed, 14, ['掌纹短线利落', '掌纹收束干脆', '掌纹走势短而清晰'])
-                    : pickFromSeed(a.seed, 15, ['掌纹分布紧凑', '掌纹线条短直', '掌纹走势干练']);
+                const lines = pickFromSeed(a.seed, 14, ['掌纹短直利落', '掌纹收束干脆', '掌纹线条干练']);
                 const fingers = a.indexToRing > 1.02
-                    ? pickFromSeed(a.seed, 16, ['食指中指干练分明', '食指略长掌控感强', '中指食指比例利落'])
-                    : pickFromSeed(a.seed, 17, ['五指开合有度', '指节间距匀称干练', '掌指比例利落']);
+                    ? pickFromSeed(a.seed, 16, ['指节利落分明', '食指略长有掌控', '掌指比例利落'])
+                    : pickFromSeed(a.seed, 17, ['指节间距匀称', '五指开合有度', '掌指干练有度']);
                 return `${lines}，${fingers}`;
             }
-            const roundness = a.fingerTopalm < 0.75
-                ? pickFromSeed(a.seed, 18, ['手指圆润', '指节圆润饱满', '指腹圆润饱满'])
-                : pickFromSeed(a.seed, 19, ['指节柔和', '指节圆润收束', '手指线条柔和']);
-            const flow = a.lifeArc < a.palmWidth * 0.45
-                ? pickFromSeed(a.seed, 20, ['掌纹走势柔和收束', '掌纹弧度偏柔', '掌纹线条圆润'])
-                : pickFromSeed(a.seed, 21, ['掌纹弧度圆润', '掌纹走势偏柔', '掌纹收束圆润']);
+            const roundness = pickFromSeed(a.seed, 18, ['手指圆润', '指节圆润', '指腹圆润']);
+            const flow = pickFromSeed(a.seed, 20, ['掌纹偏柔收束', '掌纹弧度偏柔', '掌纹走势柔和']);
             return `${roundness}，${flow}`;
         }
 
@@ -1782,27 +1782,29 @@
                 if (a.fateVert > 0.5) candidates.push('方向感稳，不被短期波动扰心');
                 candidates.push('心安即福，精神地基稳，世俗焦虑难入侵');
             } else if (archIdx === 3) {
-                if (a.headIndep > 0.18) candidates.push('决策理性，擅长及时止损');
-                if (a.heartEndT < 0.42) candidates.push('感情投入克制，懂得及时止盈');
-                if (a.fateVert > 0.5) candidates.push('工作取舍干脆，敢割肉也敢加仓');
-                if (a.indexToRing > 1.02) candidates.push('掌控欲强，局面尽在算计之中');
-                if (a.heartLift < 0) candidates.push('情绪消费少，面子账也算得清');
-                candidates.push('手相全是止损线，生活永远给自己留一手');
+                if (a.headIndep > 0.18) candidates.push('决策理性，擅长止损');
+                if (a.heartEndT < 0.42) candidates.push('感情克制，懂得止盈');
+                if (a.fateVert > 0.5) candidates.push('取舍干脆，敢割肉加仓');
+                if (a.indexToRing > 1.02) candidates.push('掌控感强，局面算得清');
+                candidates.push('恋爱会止盈，工作敢割肉，凡事留一手');
             } else {
-                if (a.fingerTopalm < 0.75) candidates.push('遇事三步算退路，不爱硬扛');
+                if (a.fingerTopalm < 0.75) candidates.push('遇事先算退路');
                 if (a.lifeArc < a.palmWidth * 0.45) candidates.push('节奏偏柔，打不过就溜');
-                if (a.headSlump < 0) candidates.push('思维松弛，内耗少、恢复快');
-                if (a.fateVert < 0.4) candidates.push('路径灵活，摆烂也不翻车');
-                if (a.heartLift < 0.02) candidates.push('感情里少拉扯，撤退也体面');
-                candidates.push('主打不硬卷、不内耗，躺平也是战术');
+                if (a.headSlump < 0) candidates.push('内耗少，恢复快');
+                if (a.fateVert < 0.4) candidates.push('路径灵活，摆烂不翻车');
+                candidates.push('遇事先算退路，不硬卷，打不过就溜');
             }
             return pickFromSeed(a.seed, archIdx * 17 + 9, candidates);
         }
 
-        function joinPosterReading(facts, insight) {
+        const POSTER_TWO_LINE_ARCHETYPES = new Set([3, 4]);
+
+        function joinPosterReading(facts, insight, archIdx) {
             const f = ensurePeriod(facts);
             const i = ensurePeriod(insight).replace(/^。/, '');
-            return String(`${f}${i}`).replace(/\s+/g, ' ').trim();
+            const text = String(`${f}${i}`).replace(/\s+/g, ' ').trim();
+            if (POSTER_TWO_LINE_ARCHETYPES.has(archIdx)) return clampTwoLines(text);
+            return text;
         }
 
         /** 玄学解读：连续两句（事实+解读），全文随识别结果变化 */
@@ -1812,7 +1814,7 @@
                 return {
                     posterFacts: arch.posterFacts,
                     posterInsight: arch.posterInsight,
-                    posterReading: joinPosterReading(arch.posterFacts, arch.posterInsight)
+                    posterReading: joinPosterReading(arch.posterFacts, arch.posterInsight, archIdx)
                 };
             }
             const facts = buildPosterFacts(analysis, archIdx);
@@ -1820,17 +1822,29 @@
             return {
                 posterFacts: ensurePeriod(facts),
                 posterInsight: ensurePeriod(insight),
-                posterReading: joinPosterReading(facts, insight)
+                posterReading: joinPosterReading(facts, insight, archIdx)
             };
         }
 
-        function applyPosterReading(reading, arch) {
+        function applyPosterReading(reading, arch, archIdx) {
+            const idx = archIdx != null
+                ? archIdx
+                : (reading && reading.archetypeIndex != null
+                    ? reading.archetypeIndex
+                    : PALM_ARCHETYPES.indexOf(arch));
             const text = (reading && reading.posterReading)
                 || joinPosterReading(
                     (reading && reading.posterFacts) || arch.posterFacts || '',
-                    (reading && reading.posterInsight) || arch.posterInsight || ''
+                    (reading && reading.posterInsight) || arch.posterInsight || '',
+                    idx
                 );
-            if (posterReadingText) posterReadingText.textContent = text;
+            if (posterReadingText) {
+                posterReadingText.textContent = text;
+                posterReadingText.classList.toggle(
+                    'poster-reading-text--two-lines',
+                    POSTER_TWO_LINE_ARCHETYPES.has(idx)
+                );
+            }
         }
 
         function generateReading(analysis, segResult) {
@@ -2311,7 +2325,7 @@
             if (posterLabel1) posterLabel1.textContent = labels[0] || '';
             if (posterLabel2) posterLabel2.textContent = labels[1] || '';
             if (posterLabel3) posterLabel3.textContent = labels[2] || '';
-            applyPosterReading(reading, arch);
+            applyPosterReading(reading, arch, idx);
         }
 
         // ==========================================
