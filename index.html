@@ -515,7 +515,10 @@
             color: #000;
             line-height: 1.5;
         }
-        #posterReadingText,
+        #posterReadingText {
+            line-height: 1.5;
+            word-break: break-all;
+        }
         .result-detail-text {
             display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -1581,20 +1584,37 @@
             return clampTwoLines(t);
         }
 
-        function summarizeLineClause(text) {
-            const t = String(text).replace(/。$/, '').trim();
-            const clause = (t.split(/[，；]/)[0] || t).trim();
-            return clause.length > 20 ? clause.slice(0, 20) : clause;
+        function briefHeartLine(desc) {
+            if (/内敛|克制|含蓄|稳而/.test(desc)) return '感情稳而深';
+            if (/上扬|契合|热情|新鲜/.test(desc)) return '感情重契合';
+            return '感情理性';
         }
 
-        /** 玄学解读：一句掌纹总括 + 关键特征（不含关键词列表），最多两行 */
-        function buildPosterSummary(arch, heartDesc, headDesc, fateDesc) {
-            const features = arch.labels.map((l) => l.replace(/\n/g, '')).join('、');
-            const heart = summarizeLineClause(heartDesc);
-            const head = summarizeLineClause(headDesc);
-            const fate = summarizeLineClause(fateDesc);
-            const text = `掌纹显示${heart}，${head}，${fate}；关键特征为${features}。`;
-            return clampTwoLines(text);
+        function briefHeadLine(desc) {
+            if (/创意|联想|叙事|发散/.test(desc)) return '思维偏创意';
+            if (/决断|短直|执行|利落/.test(desc)) return '思维果断';
+            if (/独立|清晰/.test(desc)) return '思维独立';
+            if (/沉静|审慎/.test(desc)) return '思维沉静';
+            return '思维务实';
+        }
+
+        function briefFateLine(desc) {
+            if (/深耕|较直|集中|稳定/.test(desc)) return '运程求稳';
+            if (/灵活|协作|跨界|偏侧/.test(desc)) return '运程灵活';
+            return '运程多变';
+        }
+
+        /** 玄学解读：两行完整结论，无省略号，不写「关键词」 */
+        function buildPosterSummary(archIdx, arch, heartDesc, headDesc, fateDesc) {
+            const h = briefHeartLine(heartDesc);
+            const hd = briefHeadLine(headDesc);
+            const f = briefFateLine(fateDesc);
+            const conclusions = [
+                '只想搞钱、能守财、少冲动。',
+                '善洞察、有理想、能创造。',
+                '心淡定、拒内耗、情绪稳。'
+            ];
+            return `掌纹示${h}、${hd}、${f}，${conclusions[archIdx] || conclusions[0]}`;
         }
 
         function generateReading(analysis, segResult) {
@@ -1658,7 +1678,7 @@
                 { icon: '💼', title: '事业运势：突破期', desc: '掌纹中事业线的走向表明你即将进入一个全新阶段，旧有模式可能被打破，拥抱变化将带来意想不到的收获。' }
             ];
             traits.push(careerPool[s % 3]);
-            const posterSummary = buildPosterSummary(arch, heartDesc, headDesc, fateDesc);
+            const posterSummary = buildPosterSummary(archIdx, arch, heartDesc, headDesc, fateDesc);
             return {
                 keywords, personaMain, personaSub, heartDesc, headDesc, lifeDesc, fateDesc, traits, palmType,
                 heroMain, archetypeIndex: archIdx, posterSummary
@@ -1672,7 +1692,7 @@
             const heartDesc = clampTwoLines('感情线弧度柔和上扬，情感丰富也理性，追求真诚与深度连接。');
             const headDesc = clampTwoLines('头脑线与生命线略分开，思维独立清晰，判断力与分析力较好。');
             const fateDesc = clampTwoLines('命运线走势稳定，方向感明确，适合在既定目标上持续投入。');
-            const posterSummary = buildPosterSummary(arch, heartDesc, headDesc, fateDesc);
+            const posterSummary = buildPosterSummary(archIdx, arch, heartDesc, headDesc, fateDesc);
             return {
                 palmType: 'balanced',
                 heroMain: arch.title,
