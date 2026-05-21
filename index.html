@@ -119,6 +119,7 @@
         }
         .app.result-active .poster-title,
         .app.result-active .result-panel-tag,
+        .app.result-active .result-keywords-label,
         .app.result-active .result-detail-label,
         .app.result-active .trait-title {
             font-family: 'PingFang SC', 'PingFang TC', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -135,6 +136,7 @@
         .app.result-active .result-panel-card,
         .app.result-active .result-detail-text,
         .app.result-active .trait-desc,
+        .app.result-active .result-keywords-label,
         .app.result-active .keyword-chip,
         .app.result-active .disclaimer,
         .app.result-active .share-btn {
@@ -503,6 +505,7 @@
             width: 100%;
             margin-top: auto;
             padding-top: 28px;
+            margin-bottom: 0;
         }
         .result-panel-card,
         .poster-reading-card {
@@ -541,14 +544,29 @@
 
         /* --- Content below poster --- */
         .result-content {
-            padding: 8px 20px 40px;
+            padding: 0 20px 40px;
             background: #F5F5F9;
+        }
+        .result-content > .result-panel:first-child {
+            padding-top: 6px;
+            margin-bottom: 20px;
+        }
+        .result-panel--keywords {
+            padding-top: 0;
         }
         .result-panel-keywords-body {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
+            padding: 0 2px;
+        }
+        .result-keywords-label {
+            align-self: flex-start;
+            font-size: 16px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 2px;
         }
         .palm-thumb-inline {
             flex-shrink: 0;
@@ -556,22 +574,19 @@
             height: 112px;
             border-radius: 10px;
             display: block;
-            background: #111;
+            background: transparent;
         }
         .keywords-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 12px 16px;
             width: 100%;
         }
         .keyword-chip {
-            background: #f0f3fa;
-            border-radius: 6px;
-            padding: 8px 16px;
             font-size: 15px;
             color: #000;
-            line-height: 1.2;
+            line-height: 1.45;
             text-align: center;
         }
         .result-detail-item + .result-detail-item {
@@ -893,13 +908,11 @@
 
                     <!-- Detailed content below poster -->
                     <div class="result-content">
-                        <section class="result-panel">
-                            <div class="result-panel-card">
-                                <div class="result-panel-tag">关键词</div>
-                                <div class="result-panel-keywords-body">
-                                    <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
-                                    <div class="keywords-grid" id="keywordsGrid"></div>
-                                </div>
+                        <section class="result-panel result-panel--keywords">
+                            <div class="result-panel-keywords-body">
+                                <div class="result-keywords-label">关键词</div>
+                                <canvas id="palmThumbCanvas" class="palm-thumb-inline" width="208" height="208"></canvas>
+                                <div class="keywords-grid" id="keywordsGrid"></div>
                             </div>
                         </section>
                         <section class="result-panel">
